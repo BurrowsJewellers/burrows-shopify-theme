@@ -28,7 +28,7 @@
                 {%- if item.product.vendor != blank -%}<div class="cart__brand">{{ item.product.vendor }}</div>{%- endif -%}
                 <a class="cart__title" href="{{ item.url }}">{{ item.product.title }}</a>
                 {%- unless item.product.has_only_default_variant -%}<div class="cart__variant">{{ item.variant.title }}</div>{%- endunless -%}
-                {%- if item.properties.size > 0 -%}
+                {%- if item.properties != empty -%}
                   <ul class="cart__props">
                     {%- for prop in item.properties -%}
                       {%- assign first_char = prop.first | slice: 0 -%}
@@ -85,6 +85,7 @@
   .cart__title:hover { color: var(--gold-dark); }
   .cart__variant, .cart__props { font-size: 13px; color: var(--muted); }
   .cart__props { list-style: none; padding: 0; margin: 0; }
+  .cart__props:empty { display: none; }
   .cart__unit { font-size: 14px; color: var(--body); margin-top: 4px; }
   .cart__unit s { color: var(--muted); margin-left: 8px; }
   .cart__remove { font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-dark); border-bottom: 1px solid var(--gold-2); align-self: flex-start; margin-top: 8px; }
