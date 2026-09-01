@@ -1,0 +1,388 @@
+{%- liquid
+  assign logo_url = settings.logo_light_url
+  if settings.logo_light != blank
+    assign logo_url = settings.logo_light | image_url: width: 400
+  endif
+  assign book_url = settings.booking_url
+  assign transparent = false
+  if template.name == 'index' and section.settings.transparent_on_home
+    assign transparent = true
+  endif
+-%}
+
+<div class="bn-wrap{% unless transparent %} bn-solid{% endunless %}" id="bnWrap" data-header>
+  {%- if section.settings.show_announcement -%}
+    {%- assign msgs = '' -%}
+    {%- if section.settings.announcement_1 != blank -%}{%- assign msgs = msgs | append: section.settings.announcement_1 | append: '|' -%}{%- endif -%}
+    {%- if section.settings.announcement_2 != blank -%}{%- assign msgs = msgs | append: section.settings.announcement_2 | append: '|' -%}{%- endif -%}
+    {%- if section.settings.announcement_3 != blank -%}{%- assign msgs = msgs | append: section.settings.announcement_3 | append: '|' -%}{%- endif -%}
+    {%- assign msg_list = msgs | split: '|' -%}
+    {%- if msg_list.size > 0 -%}
+      <div class="bn-ann" data-announcements="{{ msgs | strip_newlines | escape }}"><span id="bnMsg">{{ msg_list[0] }}</span></div>
+    {%- endif -%}
+  {%- endif -%}
+
+  <div class="bn-bar">
+    <a class="bn-logo" href="{{ routes.root_url }}">
+      <img src="{{ logo_url }}" alt="{{ shop.name | escape }}" width="220" height="56">
+    </a>
+
+    <nav class="bn-nav" aria-label="Main">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'mega' -%}
+            {%- liquid
+              assign cols = 0
+              if block.settings.col1_menu != blank
+                assign cols = cols | plus: 1
+              endif
+              if block.settings.col2_menu != blank
+                assign cols = cols | plus: 1
+              endif
+              if block.settings.col3_menu != blank
+                assign cols = cols | plus: 1
+              endif
+              if block.settings.service_text != blank
+                assign cols = cols | plus: 1
+              endif
+              assign has_feature = false
+              if block.settings.feature_title != blank
+                assign has_feature = true
+              endif
+            -%}
+            <div class="bn-item" data-mega {{ block.shopify_attributes }}>
+              <a href="{{ block.settings.url | default: '#' }}" aria-haspopup="true" aria-expanded="false">{{ block.settings.title }}</a>
+              <div class="bn-mega bn-mega--{{ block.settings.width }} bn-mega--cols-{{ cols }}{% if has_feature %} bn-mega--feature{% endif %}">
+                {%- if block.settings.col1_menu != blank -%}
+                  {%- liquid
+                    assign is_last = false
+                    if cols == 1
+                      assign is_last = true
+                    endif
+                  -%}
+                  {%- render 'mega-column', heading: block.settings.col1_heading, menu: block.settings.col1_menu, two_col: block.settings.col1_two_col, more_label: block.settings.col1_more_label, more_url: block.settings.col1_more_url, sub_heading: block.settings.col1_sub_heading, pills_menu: block.settings.col1_pills_menu, highlight: block.settings.col1_highlight, last: is_last -%}
+                {%- endif -%}
+                {%- if block.settings.col2_menu != blank -%}
+                  {%- liquid
+                    assign is_last = false
+                    if cols == 2
+                      assign is_last = true
+                    endif
+                  -%}
+                  {%- render 'mega-column', heading: block.settings.col2_heading, menu: block.settings.col2_menu, two_col: block.settings.col2_two_col, more_label: block.settings.col2_more_label, more_url: block.settings.col2_more_url, sub_heading: block.settings.col2_sub_heading, pills_menu: block.settings.col2_pills_menu, highlight: block.settings.col2_highlight, last: is_last -%}
+                {%- endif -%}
+                {%- if block.settings.col3_menu != blank -%}
+                  {%- liquid
+                    assign is_last = false
+                    if block.settings.service_text == blank
+                      assign is_last = true
+                    endif
+                  -%}
+                  {%- render 'mega-column', heading: block.settings.col3_heading, menu: block.settings.col3_menu, two_col: block.settings.col3_two_col, more_label: block.settings.col3_more_label, more_url: block.settings.col3_more_url, sub_heading: block.settings.col3_sub_heading, pills_menu: block.settings.col3_pills_menu, highlight: block.settings.col3_highlight, last: is_last -%}
+                {%- endif -%}
+                {%- if block.settings.service_text != blank -%}
+                  <div class="bn-col last bn-svc">
+                    {%- if block.settings.service_heading != blank -%}<div class="bn-h">{{ block.settings.service_heading }}</div>{%- endif -%}
+                    <p>{{ block.settings.service_text }}</p>
+                    {%- if block.settings.service_link_label != blank -%}
+                      <a class="bn-more" href="{{ block.settings.service_url | default: '#' }}">{{ block.settings.service_link_label }}</a>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+                {%- if has_feature -%}
+                  <a class="bn-feat" href="{{ block.settings.feature_url | default: '#' }}">
+                    {%- if block.settings.feature_image != blank -%}
+                      {{ block.settings.feature_image | image_url: width: 900 | image_tag: loading: 'lazy', alt: block.settings.feature_title }}
+                    {%- elsif block.settings.feature_image_url != blank -%}
+                      <img src="{{ block.settings.feature_image_url }}" alt="" loading="lazy" width="900" height="600">
+                    {%- endif -%}
+                    <span class="bn-fg"></span>
+                    <span class="bn-fc">
+                      {%- if block.settings.feature_eyebrow != blank -%}<span class="bn-fe">{{ block.settings.feature_eyebrow }}</span>{%- endif -%}
+                      <span class="bn-ft">{{ block.settings.feature_title }}</span>
+                      {%- if block.settings.feature_link_label != blank -%}<span class="bn-fl">{{ block.settings.feature_link_label }} &rarr;</span>{%- endif -%}
+                    </span>
+                  </a>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- when 'link' -%}
+            <a class="bn-top{% if block.settings.highlight %} bn-sale{% endif %}" href="{{ block.settings.url | default: '#' }}" {{ block.shopify_attributes }}>{{ block.settings.title }}</a>
+        {%- endcase -%}
+      {%- endfor -%}
+    </nav>
+
+    <div class="bn-utils">
+      <a href="{{ routes.search_url }}" title="Search" aria-label="Search">{% render 'icon', name: 'search' %}</a>
+      {%- if shop.customer_accounts_enabled -%}
+        <a class="bn-desktop" href="{{ routes.account_url }}" title="Account" aria-label="Account">{% render 'icon', name: 'account' %}</a>
+      {%- endif -%}
+      <a class="bn-cart" href="{{ routes.cart_url }}" title="Cart" aria-label="Cart">
+        {% render 'icon', name: 'cart' %}
+        <span class="bn-count" data-cart-count{% if cart.item_count == 0 %} hidden{% endif %}>{{ cart.item_count }}</span>
+      </a>
+      {%- if section.settings.show_phone and settings.store_phone_display != blank -%}
+        <span class="bn-div bn-desktop"></span>
+        <a class="bn-phone bn-desktop" href="tel:{{ settings.store_phone_tel }}">{% render 'icon', name: 'phone', size: 14 %}{{ settings.store_phone_display }}</a>
+      {%- endif -%}
+      {%- if section.settings.book_label != blank and book_url != blank -%}
+        <a class="bn-book bn-desktop" href="{{ book_url }}" target="_blank" rel="noopener">{{ section.settings.book_label }}</a>
+      {%- endif -%}
+    </div>
+
+    <button class="bn-burger" id="bnBurger" type="button" aria-label="Open menu" aria-controls="bnDrawer" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</div>
+
+<div class="bn-ov" id="bnOv"></div>
+<aside class="bn-drawer" id="bnDrawer" aria-label="Mobile menu" aria-hidden="true">
+  <div class="bn-dhead">
+    <img src="{{ logo_url }}" alt="{{ shop.name | escape }}" width="160" height="40">
+    <button class="bn-dclose" id="bnClose" type="button" aria-label="Close menu">&times;</button>
+  </div>
+  <div class="bn-dsearch">
+    <form action="{{ routes.search_url }}" method="get" role="search">
+      <label class="visually-hidden" for="bnDrawerSearch">Search</label>
+      {% render 'icon', name: 'search', size: 15 %}
+      <input id="bnDrawerSearch" type="search" name="q" placeholder="{{ section.settings.search_placeholder }}">
+    </form>
+  </div>
+  <div class="bn-dlinks">
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'mega' -%}
+          <div class="bn-acc{% if forloop.index == section.settings.drawer_open_index %} eopen{% endif %}">
+            <button class="bn-atop" type="button" aria-expanded="false">{{ block.settings.title }}<span class="bn-pm"></span></button>
+            <div class="bn-sub">
+              {%- for i in (1..3) -%}
+                {%- liquid
+                  assign key = 'col' | append: i | append: '_menu'
+                  assign hkey = 'col' | append: i | append: '_heading'
+                  assign menu = block.settings[key]
+                -%}
+                {%- if menu != blank and menu.links.size > 0 -%}
+                  {%- if block.settings[hkey] != blank and i > 1 -%}<div class="bn-subh">{{ block.settings[hkey] }}</div>{%- endif -%}
+                  {%- for link in menu.links -%}<a href="{{ link.url }}">{{ link.title }}</a>{%- endfor -%}
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if block.settings.url != blank -%}<a class="bn-suball" href="{{ block.settings.url }}">All {{ block.settings.title | downcase }}</a>{%- endif -%}
+            </div>
+          </div>
+        {%- when 'link' -%}
+          <a class="bn-dlink{% if block.settings.highlight %} sale{% endif %}" href="{{ block.settings.url | default: '#' }}">{{ block.settings.title }}</a>
+      {%- endcase -%}
+    {%- endfor -%}
+    {%- if shop.customer_accounts_enabled -%}
+      <a class="bn-dlink" href="{{ routes.account_url }}">Account</a>
+    {%- endif -%}
+  </div>
+  <div class="bn-dfoot">
+    {%- if section.settings.book_label != blank and book_url != blank -%}
+      <a class="bn-dbook" href="{{ book_url }}" target="_blank" rel="noopener">{{ section.settings.book_label }}</a>
+    {%- endif -%}
+    {%- if settings.store_phone_display != blank -%}
+      <a class="bn-dphone" href="tel:{{ settings.store_phone_tel }}">{% render 'icon', name: 'phone', size: 13 %}{{ settings.store_phone_display }}</a>
+    {%- endif -%}
+  </div>
+</aside>
+
+{% stylesheet %}
+  .bn-wrap, .bn-wrap *, .bn-drawer, .bn-drawer * { box-sizing: border-box; }
+  .bn-wrap { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; font-family: var(--font-body); }
+  .bn-ann { background: var(--navy); color: var(--gold-2); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; text-align: center; padding: 9px 24px; font-weight: 400; }
+  .bn-ann span { transition: opacity .2s; display: inline-block; }
+  .bn-bar { display: flex; align-items: center; justify-content: space-between; padding: 22px 56px; gap: 32px; transition: background .3s, padding .3s, box-shadow .3s; }
+  .bn-wrap:not(.bn-scrolled):not(.bn-solid) .bn-bar { background: linear-gradient(180deg, rgba(var(--navy-rgb), .82), rgba(var(--navy-rgb), .12)); }
+  .bn-wrap.bn-scrolled .bn-bar, .bn-wrap.bn-solid .bn-bar { background: var(--navy); box-shadow: 0 4px 18px rgba(var(--navy-rgb), .35); padding: 12px 56px; }
+  .bn-logo img { height: 56px; width: auto; display: block; transition: height .3s; }
+  .bn-wrap.bn-scrolled .bn-logo img, .bn-wrap.bn-solid .bn-logo img { height: 42px; }
+  .bn-nav { display: flex; align-items: center; gap: 30px; }
+  .bn-top, .bn-item > a { color: var(--cream); font-size: 13.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 400; padding: 10px 0; display: inline-block; transition: color .2s; cursor: pointer; white-space: nowrap; }
+  .bn-top:hover, .bn-item:hover > a { color: var(--gold-3); }
+  .bn-sale { color: var(--gold-2) !important; font-weight: 500; }
+  .bn-sale:hover { color: #ecd478 !important; }
+  .bn-utils { display: flex; align-items: center; gap: 20px; }
+  .bn-utils a { color: var(--cream); display: flex; align-items: center; transition: color .2s; }
+  .bn-utils a:hover { color: var(--gold-3); }
+  .bn-phone { font-size: 13px; letter-spacing: .06em; gap: 8px; white-space: nowrap; }
+  .bn-div { width: 1px; height: 20px; background: rgba(var(--cream-rgb), .25); }
+  .bn-book { border: 1px solid rgba(var(--cream-rgb), .45); color: var(--cream); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; padding: 10px 18px; font-weight: 500; transition: .2s; white-space: nowrap; }
+  .bn-book:hover { background: var(--gold); border-color: var(--gold); color: var(--navy) !important; }
+  .bn-wrap.bn-scrolled .bn-book, .bn-wrap.bn-solid .bn-book { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+  .bn-cart { position: relative; }
+  .bn-count { position: absolute; top: -6px; right: -8px; background: var(--gold); color: var(--navy); font-size: 9px; font-weight: 700; min-width: 15px; height: 15px; padding: 0 3px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .bn-count[hidden] { display: none; }
+
+  /* Mega menus */
+  .bn-item { position: static; }
+  .bn-mega { position: absolute; left: 0; right: 0; top: 100%; background: var(--cream); border-bottom: 2px solid var(--gold); box-shadow: 0 22px 42px rgba(var(--navy-rgb), .18); padding: 44px 56px 48px; display: none; gap: 0; }
+  .bn-item.bn-open .bn-mega { display: grid; }
+  .bn-item.bn-open > a { color: var(--gold-3); }
+  .bn-mega--cols-1 { grid-template-columns: 1fr; }
+  .bn-mega--cols-2 { grid-template-columns: 1fr 1fr; }
+  .bn-mega--cols-3 { grid-template-columns: 1fr 1fr 1.2fr; }
+  .bn-mega--feature.bn-mega--cols-1 { grid-template-columns: 1fr 300px; }
+  .bn-mega--feature.bn-mega--cols-2 { grid-template-columns: 1fr 1fr 360px; }
+  .bn-mega--feature.bn-mega--cols-3 { grid-template-columns: 1.1fr 1fr 1fr 360px; }
+  .bn-mega--narrow { max-width: 1080px; }
+  .bn-mega--compact { max-width: 960px; }
+  .bn-mega--small { max-width: 740px; }
+  .bn-col { display: flex; flex-direction: column; padding: 0 48px; border-right: 1px solid rgba(var(--gold-dark-rgb), .18); }
+  .bn-col:first-child { padding-left: 0; }
+  .bn-col.last { border-right: none; }
+  .bn-h { font-size: 11.5px; letter-spacing: .32em; text-transform: uppercase; color: var(--gold-dark); font-weight: 500; margin-bottom: 18px; }
+  .bn-h.mt { margin: 26px 0 14px; }
+  .bn-links { display: flex; flex-direction: column; gap: 11px; }
+  .bn-links.two { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 32px; }
+  .bn-links a { color: var(--body); font-size: 15px; font-weight: 300; transition: color .2s; }
+  .bn-links a:hover { color: var(--ink); }
+  .bn-new { color: var(--gold-dark) !important; font-weight: 500 !important; display: flex; align-items: center; }
+  .bn-dot { width: 5px; height: 5px; background: var(--gold); transform: rotate(45deg); display: inline-block; margin-right: 8px; }
+  .bn-more { margin-top: 24px; color: var(--gold-dark); font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; border-bottom: 1px solid var(--gold-2); padding-bottom: 3px; align-self: flex-start; }
+  .bn-more:hover { color: var(--ink); }
+  .bn-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .bn-pills a { border: 1px solid rgba(var(--gold-dark-rgb), .35); color: var(--body); font-size: 12.5px; padding: 6px 12px; }
+  .bn-pills a:hover { border-color: var(--gold); color: var(--ink); }
+  .bn-feat { position: relative; display: block; height: 340px; overflow: hidden; background: var(--navy-2); }
+  .bn-feat img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .8; }
+  .bn-fg { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(var(--navy-rgb), 0) 30%, rgba(var(--navy-rgb), .85)); }
+  .bn-fc { position: absolute; left: 26px; right: 26px; bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .bn-fe { font-size: 10.5px; letter-spacing: .32em; text-transform: uppercase; color: var(--gold-2); font-weight: 500; }
+  .bn-ft { font-family: var(--font-heading); font-size: 27px; font-weight: 500; color: var(--cream); line-height: 1.15; }
+  .bn-fl { color: var(--gold-3); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; font-weight: 500; border-bottom: 1px solid var(--gold-2); padding-bottom: 3px; align-self: flex-start; }
+  .bn-svc p { font-size: 14px; line-height: 1.65; color: var(--body); margin: 0 0 14px; font-weight: 300; }
+
+  /* Burger + drawer */
+  .bn-burger { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; width: 24px; padding: 0; }
+  .bn-burger span { height: 1.6px; background: var(--cream); display: block; width: 100%; }
+  .bn-burger span:last-child { width: 16px; }
+  .bn-drawer { position: fixed; top: 0; left: 0; bottom: 0; width: 88%; max-width: 390px; background: var(--cream); z-index: 1002; transform: translateX(-100%); transition: transform .3s; display: flex; flex-direction: column; font-family: var(--font-body); }
+  .bn-drawer.open { transform: none; }
+  .bn-ov { position: fixed; inset: 0; background: rgba(var(--navy-rgb), .5); z-index: 1001; opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .bn-ov.open { opacity: 1; pointer-events: auto; }
+  .bn-dhead { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; background: var(--navy); }
+  .bn-dhead img { height: 40px; width: auto; }
+  .bn-dclose { color: var(--cream); font-size: 26px; line-height: 1; background: none; border: none; cursor: pointer; }
+  .bn-dsearch { padding: 16px 18px; border-bottom: 1px solid rgba(var(--gold-dark-rgb), .18); }
+  .bn-dsearch form { display: flex; align-items: center; gap: 10px; border: 1px solid rgba(var(--gold-dark-rgb), .35); padding: 0 14px; color: var(--muted); }
+  .bn-dsearch input { border: 0; background: transparent; padding: 11px 0; font-size: 14px; font-weight: 300; font-family: var(--font-body); color: var(--ink); width: 100%; outline: none; border-radius: 0; }
+  .bn-dlinks { flex: 1; overflow-y: auto; }
+  .bn-acc { border-bottom: 1px solid rgba(var(--gold-dark-rgb), .14); }
+  .bn-acc > .bn-atop { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 16px 18px; color: var(--ink); font-size: 14px; letter-spacing: .08em; text-transform: uppercase; font-weight: 500; background: none; border: none; cursor: pointer; text-align: left; font-family: inherit; }
+  .bn-acc > .bn-atop .bn-pm:after { content: '+'; color: var(--gold-dark); }
+  .bn-acc.eopen > .bn-atop .bn-pm:after { content: '\2212'; }
+  .bn-sub { display: none; flex-direction: column; gap: 13px; padding: 2px 18px 18px 30px; background: var(--sand); }
+  .bn-acc.eopen .bn-sub { display: flex; }
+  .bn-sub a { color: var(--body); font-size: 14.5px; font-weight: 300; }
+  .bn-sub .bn-subh { font-size: 10.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--gold-dark); font-weight: 500; margin-top: 10px; }
+  .bn-sub .bn-suball { color: var(--gold-dark); font-weight: 500; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+  .bn-dlink { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; color: var(--ink); font-size: 14px; letter-spacing: .08em; text-transform: uppercase; font-weight: 500; border-bottom: 1px solid rgba(var(--gold-dark-rgb), .14); }
+  .bn-dlink.sale { color: var(--gold-dark); font-weight: 600; }
+  .bn-dfoot { padding: 18px; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid rgba(var(--gold-dark-rgb), .18); background: var(--sand); }
+  .bn-dbook { background: var(--gold); color: var(--navy); font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; padding: 14px; text-align: center; }
+  .bn-dphone { display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(23, 29, 80, .3); color: var(--ink); font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; padding: 13px; }
+
+  @media (max-width: 1279px) {
+    .bn-nav { gap: 20px; }
+    .bn-phone { display: none; }
+    .bn-div { display: none; }
+  }
+  @media (max-width: 1023px) {
+    .bn-nav, .bn-desktop { display: none !important; }
+    .bn-bar { padding: 14px 18px !important; }
+    .bn-wrap.bn-scrolled .bn-bar, .bn-wrap.bn-solid .bn-bar { padding: 12px 18px !important; }
+    .bn-burger { display: flex; }
+    .bn-logo img { height: 42px !important; }
+    .bn-ann { font-size: 11px; padding: 8px 16px; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "section-header",
+  "settings": [
+    { "type": "checkbox", "id": "transparent_on_home", "label": "Transparent over the home page hero", "default": true },
+    { "type": "header", "content": "Announcement bar" },
+    { "type": "checkbox", "id": "show_announcement", "label": "Show announcement bar", "default": true },
+    { "type": "text", "id": "announcement_1", "label": "Message 1", "default": "Free shipping Australia-wide · Afterpay available" },
+    { "type": "text", "id": "announcement_2", "label": "Message 2", "default": "On-site workshop — repairs never sent away" },
+    { "type": "text", "id": "announcement_3", "label": "Message 3", "default": "68 Langtree Ave, Mildura · Book an appointment" },
+    { "type": "header", "content": "Utilities" },
+    { "type": "checkbox", "id": "show_phone", "label": "Show phone number", "default": true },
+    { "type": "text", "id": "book_label", "label": "Booking button label", "default": "Book an Appointment", "info": "The link comes from Theme settings → Store details." },
+    { "type": "text", "id": "search_placeholder", "label": "Mobile search placeholder", "default": "Search rings, brands, watches…" },
+    { "type": "range", "id": "drawer_open_index", "label": "Mobile menu: section open by default", "min": 0, "max": 6, "step": 1, "default": 2, "info": "0 = none. Counts menu items from the left." }
+  ],
+  "blocks": [
+    {
+      "type": "mega",
+      "name": "Mega menu",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Jewellery" },
+        { "type": "url", "id": "url", "label": "Link (when the title is clicked)" },
+        { "type": "select", "id": "width", "label": "Panel width", "options": [
+          { "value": "full", "label": "Full width" },
+          { "value": "narrow", "label": "Narrow (1080px)" },
+          { "value": "compact", "label": "Compact (960px)" },
+          { "value": "small", "label": "Small (740px)" }
+        ], "default": "full" },
+
+        { "type": "header", "content": "Column 1" },
+        { "type": "text", "id": "col1_heading", "label": "Heading" },
+        { "type": "link_list", "id": "col1_menu", "label": "Menu" },
+        { "type": "checkbox", "id": "col1_two_col", "label": "Show links in two columns", "default": false },
+        { "type": "text", "id": "col1_highlight", "label": "Highlight link (exact title)", "info": "Rendered in gold with a diamond dot, e.g. New Arrivals" },
+        { "type": "text", "id": "col1_more_label", "label": "\"More\" link label" },
+        { "type": "url", "id": "col1_more_url", "label": "\"More\" link URL" },
+        { "type": "text", "id": "col1_sub_heading", "label": "Sub-heading (below links)" },
+        { "type": "link_list", "id": "col1_pills_menu", "label": "Pill links (below sub-heading)" },
+
+        { "type": "header", "content": "Column 2" },
+        { "type": "text", "id": "col2_heading", "label": "Heading" },
+        { "type": "link_list", "id": "col2_menu", "label": "Menu" },
+        { "type": "checkbox", "id": "col2_two_col", "label": "Show links in two columns", "default": false },
+        { "type": "text", "id": "col2_highlight", "label": "Highlight link (exact title)" },
+        { "type": "text", "id": "col2_more_label", "label": "\"More\" link label" },
+        { "type": "url", "id": "col2_more_url", "label": "\"More\" link URL" },
+        { "type": "text", "id": "col2_sub_heading", "label": "Sub-heading (below links)" },
+        { "type": "link_list", "id": "col2_pills_menu", "label": "Pill links (below sub-heading)" },
+
+        { "type": "header", "content": "Column 3" },
+        { "type": "text", "id": "col3_heading", "label": "Heading" },
+        { "type": "link_list", "id": "col3_menu", "label": "Menu" },
+        { "type": "checkbox", "id": "col3_two_col", "label": "Show links in two columns", "default": false },
+        { "type": "text", "id": "col3_highlight", "label": "Highlight link (exact title)" },
+        { "type": "text", "id": "col3_more_label", "label": "\"More\" link label" },
+        { "type": "url", "id": "col3_more_url", "label": "\"More\" link URL" },
+        { "type": "text", "id": "col3_sub_heading", "label": "Sub-heading (below links)" },
+        { "type": "link_list", "id": "col3_pills_menu", "label": "Pill links (below sub-heading)" },
+
+        { "type": "header", "content": "Text column (e.g. Watch Services)" },
+        { "type": "text", "id": "service_heading", "label": "Heading" },
+        { "type": "textarea", "id": "service_text", "label": "Text" },
+        { "type": "text", "id": "service_link_label", "label": "Link label" },
+        { "type": "url", "id": "service_url", "label": "Link URL" },
+
+        { "type": "header", "content": "Feature card (image)" },
+        { "type": "image_picker", "id": "feature_image", "label": "Image" },
+        { "type": "text", "id": "feature_image_url", "label": "Image URL fallback", "info": "Used until an image is chosen." },
+        { "type": "text", "id": "feature_eyebrow", "label": "Eyebrow" },
+        { "type": "text", "id": "feature_title", "label": "Title" },
+        { "type": "text", "id": "feature_link_label", "label": "Link label" },
+        { "type": "url", "id": "feature_url", "label": "Link URL" }
+      ]
+    },
+    {
+      "type": "link",
+      "name": "Simple link",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Sale" },
+        { "type": "url", "id": "url", "label": "Link" },
+        { "type": "checkbox", "id": "highlight", "label": "Highlight in gold (Sale)", "default": false }
+      ]
+    }
+  ],
+  "max_blocks": 8
+}
+{% endschema %}
