@@ -228,7 +228,7 @@
   var stickyPrice = q('[data-sticky-price]');
   var stickyAdd = q('[data-sticky-add]');
   var badge = q('[data-sale-badge]');
-  var mainImg = q('[data-main-image]');
+  var mainImg = q('.pd__mainimg img');
   var thumbs = qa('[data-thumb]');
   var designWrap = q('[data-design-number-wrap]');
   var designEls = qa('[data-design-number]');
