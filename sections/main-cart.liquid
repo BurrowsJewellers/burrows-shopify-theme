@@ -56,7 +56,10 @@
           {%- endif -%}
           <div class="cart__row"><span>Subtotal</span><b>{{ cart.total_price | money }}</b></div>
           {%- if cart.total_discount > 0 -%}<div class="cart__row cart__row--muted"><span>Discounts</span><span>&minus;{{ cart.total_discount | money }}</span></div>{%- endif -%}
-          {%- if s.afterpay_text != blank -%}<div class="cart__afterpay">{{ s.afterpay_text | replace: '[amount]', cart.total_price | divided_by: 4 | money }}</div>{%- endif -%}
+          {%- if s.afterpay_text != blank -%}
+            {%- assign quarter = cart.total_price | divided_by: 4 | money -%}
+            <div class="cart__afterpay">{{ s.afterpay_text | replace: '[amount]', quarter }}</div>
+          {%- endif -%}
           <p class="cart__shipnote">{{ s.shipping_note }}</p>
           <button class="btn btn--gold btn--lg cart__checkout" type="submit" name="checkout">{{ s.checkout_label }}</button>
           <button class="cart__update" type="submit" name="update">Update cart</button>

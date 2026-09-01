@@ -319,8 +319,11 @@
 (function () {
   var el = document.querySelector('[data-recommendations]');
   if (!el || !el.getAttribute('data-url')) return;
+  var url = el.getAttribute('data-url');
+  var preview = new URLSearchParams(window.location.search).get('preview_theme_id');
+  if (preview) url += '&preview_theme_id=' + encodeURIComponent(preview);
   var load = function () {
-    fetch(el.getAttribute('data-url'))
+    fetch(url)
       .then(function (r) { return r.text(); })
       .then(function (html) {
         var doc = new DOMParser().parseFromString(html, 'text/html');
