@@ -1,0 +1,33 @@
+<section class="full-width trust bg-navy-2">
+  {%- for block in section.blocks -%}
+    <div class="trust__item" {{ block.shopify_attributes }}><span class="diamond-dot"></span>{{ block.settings.text }}</div>
+  {%- endfor -%}
+</section>
+
+{% stylesheet %}
+  .trust { border-top: 1px solid rgba(var(--gold-rgb), .25); display: flex; justify-content: center; gap: 72px; padding: 18px 40px; flex-wrap: wrap; }
+  .trust__item { display: flex; align-items: center; gap: 10px; color: rgba(var(--cream-rgb), .8); font-size: 13px; letter-spacing: .08em; }
+  @media (max-width: 1023px) {
+    .trust { gap: 12px 28px; padding: 16px var(--gutter-mobile); justify-content: flex-start; }
+    .trust__item { font-size: 12px; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Trust bar",
+  "blocks": [
+    { "type": "item", "name": "Item", "settings": [ { "type": "text", "id": "text", "label": "Text", "default": "Local Mildura jeweller" } ] }
+  ],
+  "max_blocks": 6,
+  "presets": [{
+    "name": "Trust bar",
+    "blocks": [
+      { "type": "item", "settings": { "text": "Local Mildura jeweller" } },
+      { "type": "item", "settings": { "text": "On-site workshop & custom design" } },
+      { "type": "item", "settings": { "text": "Free shipping Australia-wide" } },
+      { "type": "item", "settings": { "text": "Afterpay available" } }
+    ]
+  }]
+}
+{% endschema %}

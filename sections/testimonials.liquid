@@ -1,0 +1,75 @@
+{%- assign s = section.settings -%}
+<section class="full-width section bg-navy on-dark reviews">
+  <div class="container">
+    <div class="section-head reviews__head">
+      <div class="reviews__stars">★★★★★</div>
+      <h2 class="h2">{{ s.heading }}</h2>
+      {%- if s.subheading != blank -%}<div class="reviews__sub">{{ s.subheading }}</div>{%- endif -%}
+    </div>
+    <div class="reviews__grid">
+      {%- for block in section.blocks -%}
+        <div class="reviews__card{% if forloop.first and block.settings.image != blank or forloop.first and block.settings.image_url != blank %} reviews__card--media{% endif %}" {{ block.shopify_attributes }}>
+          {%- if forloop.first and block.settings.image != blank -%}
+            <div class="reviews__img">{{ block.settings.image | image_url: width: 800 | image_tag: loading: 'lazy', alt: '' }}</div>
+          {%- elsif forloop.first and block.settings.image_url != blank -%}
+            <div class="reviews__img"><img src="{{ block.settings.image_url }}" alt="" loading="lazy" width="800" height="1000"></div>
+          {%- endif -%}
+          <div class="reviews__body">
+            <div class="reviews__stars reviews__stars--sm">★★★★★</div>
+            <p>&ldquo;{{ block.settings.quote }}&rdquo;</p>
+            <div class="reviews__by">{{ block.settings.author }}{% if block.settings.source != blank %} &middot; {{ block.settings.source }}{% endif %}</div>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .reviews__head { margin-bottom: 52px; }
+  .reviews__stars { color: var(--gold-2); font-size: 18px; letter-spacing: .35em; margin-bottom: 14px; }
+  .reviews__stars--sm { font-size: 14px; letter-spacing: .25em; margin: 0; }
+  .reviews__sub { font-size: 13.5px; color: rgba(var(--cream-rgb), .55); letter-spacing: .08em; margin-top: 12px; }
+  .reviews__grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 24px; align-items: stretch; }
+  .reviews__card { background: var(--navy-2); border: 1px solid rgba(var(--gold-rgb), .2); display: flex; }
+  .reviews__card--media { display: grid; grid-template-columns: 200px 1fr; }
+  .reviews__img { position: relative; min-height: 200px; }
+  .reviews__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .reviews__body { padding: 32px 30px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+  .reviews__body p { font-family: var(--font-heading); font-size: 20px; line-height: 1.5; color: var(--cream); margin: 0; font-style: italic; }
+  .reviews__by { font-size: 13px; color: rgba(var(--cream-rgb), .6); letter-spacing: .1em; margin-top: auto; }
+  @media (max-width: 1023px) {
+    .reviews__grid { grid-template-columns: 1fr; gap: 16px; }
+    .reviews__card--media { grid-template-columns: 1fr; }
+    .reviews__img { min-height: 180px; }
+    .reviews__body { padding: 24px 22px; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Trusted by Mildura for generations" },
+    { "type": "text", "id": "subheading", "label": "Sub-heading", "default": "From our Google reviews" }
+  ],
+  "blocks": [
+    { "type": "review", "name": "Review", "settings": [
+      { "type": "textarea", "id": "quote", "label": "Quote", "default": "They remodelled my grandmother's ring into something I wear every day." },
+      { "type": "text", "id": "author", "label": "Name", "default": "Sarah" },
+      { "type": "text", "id": "source", "label": "Source", "default": "Google review" },
+      { "type": "image_picker", "id": "image", "label": "Image (first card only)" },
+      { "type": "text", "id": "image_url", "label": "Image URL fallback (first card only)" }
+    ] }
+  ],
+  "max_blocks": 3,
+  "presets": [{
+    "name": "Testimonials",
+    "blocks": [
+      { "type": "review", "settings": { "quote": "They remodelled my grandmother's ring into something I wear every day. Couldn't fault the care they took.", "author": "Sarah", "source": "Google review", "image_url": "https://images.unsplash.com/photo-1631897817977-a1005c199b36?fm=jpg&q=75&w=800&auto=format&fit=crop" } },
+      { "type": "review", "settings": { "quote": "The team helped me design the perfect engagement ring. She said yes — and everyone asks where it's from.", "author": "Daniel", "source": "Google review" } },
+      { "type": "review", "settings": { "quote": "Proper old-school service. Repairs done on site in days, not weeks. Wouldn't go anywhere else in Mildura.", "author": "Margaret", "source": "Google review" } }
+    ]
+  }]
+}
+{% endschema %}

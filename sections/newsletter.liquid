@@ -1,0 +1,44 @@
+{%- assign s = section.settings -%}
+<section class="full-width nl bg-sand">
+  <h2 class="h2 nl__heading">{{ s.heading }}</h2>
+  {%- if s.text != blank -%}<p class="nl__text">{{ s.text }}</p>{%- endif -%}
+  {%- form 'customer', class: 'nl__form', id: 'NewsletterForm' -%}
+    <input type="hidden" name="contact[tags]" value="newsletter">
+    <div class="nl__row">
+      <label class="visually-hidden" for="NewsletterEmail">Email address</label>
+      <input class="input nl__input" id="NewsletterEmail" type="email" name="contact[email]" required placeholder="{{ s.placeholder }}" autocomplete="email">
+      <button class="btn btn--gold nl__btn" type="submit">{{ s.button }}</button>
+    </div>
+    {%- if form.posted_successfully? -%}<div class="nl__ok">{{ s.success }}</div>{%- endif -%}
+    {%- if form.errors -%}<div class="nl__err">{{ form.errors | default_errors }}</div>{%- endif -%}
+  {%- endform -%}
+</section>
+
+{% stylesheet %}
+  .nl { padding: 76px var(--gutter); text-align: center; }
+  .nl__heading { font-size: clamp(30px, 3.2vw, 38px); margin-bottom: 12px; }
+  .nl__text { font-size: 15.5px; color: var(--body); margin: 0 0 32px; font-weight: 300; }
+  .nl__row { display: flex; justify-content: center; max-width: 520px; margin: 0 auto; }
+  .nl__input { flex: 1; border-right: none; border-radius: 0; }
+  .nl__btn { border-radius: 0; }
+  .nl__ok { margin-top: 16px; font-size: 14px; color: #8a7020; letter-spacing: .06em; }
+  .nl__err { margin-top: 16px; font-size: 14px; color: #a33; }
+  @media (max-width: 600px) {
+    .nl__row { flex-direction: column; }
+    .nl__input { border-right: 1px solid #c2b168; border-bottom: none; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "First to know" },
+    { "type": "textarea", "id": "text", "label": "Text", "default": "Early access to new collections, Pandora launches and sale previews. No noise — a few emails a year." },
+    { "type": "text", "id": "placeholder", "label": "Placeholder", "default": "Your email address" },
+    { "type": "text", "id": "button", "label": "Button", "default": "Subscribe" },
+    { "type": "text", "id": "success", "label": "Success message", "default": "Thanks — you're on the list." }
+  ],
+  "presets": [{ "name": "Newsletter" }]
+}
+{% endschema %}

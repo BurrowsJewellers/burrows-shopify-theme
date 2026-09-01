@@ -1,0 +1,48 @@
+<section class="full-width section--tight bg-cream brands">
+  <div class="container brands__row">
+    {%- if section.settings.label != blank -%}<div class="brands__label">{{ section.settings.label }}</div>{%- endif -%}
+    <div class="brands__list">
+      {%- for block in section.blocks -%}
+        <a href="{{ block.settings.url | default: '#' }}" {{ block.shopify_attributes }}>{{ block.settings.name }}</a>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .brands { border-top: 1px solid rgba(23, 21, 18, .08); }
+  .brands__row { display: flex; align-items: center; justify-content: space-between; gap: 48px; }
+  .brands__label { font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); white-space: nowrap; font-weight: 500; }
+  .brands__list { display: flex; align-items: center; justify-content: space-between; flex: 1; gap: 40px; flex-wrap: wrap; }
+  .brands__list a { font-family: var(--font-heading); font-size: 23px; letter-spacing: .18em; text-transform: uppercase; color: #9fa1b5; transition: color .25s; white-space: nowrap; }
+  .brands__list a:hover { color: var(--ink); }
+  @media (max-width: 1023px) {
+    .brands__row { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .brands__list { justify-content: flex-start; gap: 16px 28px; }
+    .brands__list a { font-size: 19px; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Brand strip",
+  "settings": [ { "type": "text", "id": "label", "label": "Label", "default": "Stockists of" } ],
+  "blocks": [
+    { "type": "brand", "name": "Brand", "settings": [
+      { "type": "text", "id": "name", "label": "Name", "default": "Pandora" },
+      { "type": "url", "id": "url", "label": "Link" }
+    ] }
+  ],
+  "max_blocks": 8,
+  "presets": [{
+    "name": "Brand strip",
+    "blocks": [
+      { "type": "brand", "settings": { "name": "Pandora", "url": "shopify://collections/pandora" } },
+      { "type": "brand", "settings": { "name": "Thomas Sabo", "url": "shopify://collections/thomas-sabo" } },
+      { "type": "brand", "settings": { "name": "Ania Haie", "url": "shopify://collections/ania-haie" } },
+      { "type": "brand", "settings": { "name": "Citizen", "url": "shopify://collections/citizen" } },
+      { "type": "brand", "settings": { "name": "Casio", "url": "shopify://collections/casio" } }
+    ]
+  }]
+}
+{% endschema %}

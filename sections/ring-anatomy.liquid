@@ -1,0 +1,117 @@
+{%- assign s = section.settings -%}
+<section class="full-width anat bg-navy on-dark" data-anatomy>
+  <div class="anat__sticky">
+    <div class="anat__head">
+      {%- if s.eyebrow != blank -%}<div class="eyebrow anat__eyebrow">{{ s.eyebrow }}</div>{%- endif -%}
+      <h2 class="h2">{{ s.heading }}</h2>
+      {%- if s.text != blank -%}<p class="anat__intro">{{ s.text }}</p>{%- endif -%}
+    </div>
+
+    <div class="anat__stage">
+      <div class="anat__ring">
+        <div class="anat__part anat__part--diamond" data-anatomy-part="diamond">
+          <svg width="200" height="150" viewBox="0 0 200 150" fill="none" aria-hidden="true">
+            <path d="M60 18 L140 18 L164 62 L100 142 L36 62 Z" stroke="var(--gold-3)" stroke-width="1.6"/>
+            <path d="M60 18 L74 62 M140 18 L126 62 M36 62 L164 62 M74 62 L100 142 M126 62 L100 142 M60 18 L36 62 M140 18 L164 62 M74 62 L100 18 M126 62 L100 18" stroke="var(--gold)" stroke-width="1" opacity=".8"/>
+          </svg>
+        </div>
+        <div class="anat__part anat__part--crown" data-anatomy-part="crown">
+          <svg width="168" height="110" viewBox="0 0 168 110" fill="none" aria-hidden="true">
+            <path d="M22 6 C16 40 16 62 30 78 M146 6 C152 40 152 62 138 78" stroke="var(--gold-3)" stroke-width="1.8"/>
+            <path d="M52 20 C48 44 48 60 56 74 M116 20 C120 44 120 60 112 74" stroke="var(--gold-3)" stroke-width="1.6"/>
+            <path d="M26 52 L142 52 M34 70 L134 70" stroke="var(--gold)" stroke-width="1" opacity=".8"/>
+            <path d="M30 78 C50 96 118 96 138 78" stroke="var(--gold-3)" stroke-width="1.6"/>
+          </svg>
+        </div>
+        <div class="anat__part anat__part--shank" data-anatomy-part="shank">
+          <svg width="270" height="270" viewBox="0 0 270 270" fill="none" aria-hidden="true">
+            <path d="M85 36 A118 118 0 1 0 185 36" stroke="var(--gold-3)" stroke-width="1.8"/>
+            <path d="M96 55 A96 96 0 1 0 174 55" stroke="var(--gold)" stroke-width="1.2" opacity=".85"/>
+            <path d="M85 36 L96 55 M185 36 L174 55" stroke="var(--gold-3)" stroke-width="1.4"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="anat__labels">
+      {%- for block in section.blocks -%}
+        <div class="anat__label" data-anatomy-label {{ block.shopify_attributes }}>
+          <div class="anat__label-head">
+            <span class="anat__num">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+            <h3 class="h3">{{ block.settings.title }}</h3>
+          </div>
+          <p>{{ block.settings.text }}</p>
+        </div>
+      {%- endfor -%}
+      {%- if s.cta_label != blank -%}
+        <div class="anat__label anat__cta" data-anatomy-label>
+          <a class="btn btn--gold" href="{{ s.cta_url | default: '#' }}">{{ s.cta_label }}</a>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .anat { height: 340vh; position: relative; }
+  .anat__sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
+  .anat__head { position: absolute; top: 64px; left: 0; right: 0; text-align: center; z-index: 3; padding: 0 var(--gutter); }
+  .anat__eyebrow { margin-bottom: 14px; display: block; }
+  .anat__intro { font-size: 15px; color: rgba(var(--cream-rgb), .55); margin: 14px auto 0; max-width: 520px; font-weight: 300; line-height: 1.7; }
+  .anat__stage { position: relative; height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .anat__ring { position: relative; width: 340px; height: 540px; margin-top: 60px; }
+  .anat__part { position: absolute; will-change: transform; }
+  .anat__part--diamond { left: 70px; top: 0; }
+  .anat__part--crown { left: 86px; top: 158px; }
+  .anat__part--shank { left: 35px; top: 250px; }
+  .anat__labels { position: relative; display: flex; flex-direction: column; gap: 52px; padding-right: 120px; max-width: 520px; margin-top: 40px; }
+  .anat__label { opacity: 0; will-change: transform, opacity; }
+  .anat__label-head { display: flex; align-items: baseline; gap: 14px; }
+  .anat__num { font-family: var(--font-heading); font-size: 20px; color: var(--gold); }
+  .anat__label p { font-size: 14.5px; line-height: 1.7; color: rgba(var(--cream-rgb), .6); margin: 10px 0 0; font-weight: 300; }
+  @media (prefers-reduced-motion: reduce) {
+    .anat__label { opacity: 1 !important; transform: none !important; }
+    .anat__part { transform: none !important; }
+  }
+  @media (max-width: 1023px) {
+    .anat { height: auto; }
+    .anat__sticky { position: relative; height: auto; grid-template-columns: 1fr; padding: var(--section-pad-mobile) var(--gutter-mobile); gap: 24px; }
+    .anat__head { position: static; padding: 0; }
+    .anat__stage { height: auto; }
+    .anat__ring { transform: scale(.75); transform-origin: top center; height: 420px; margin-top: 0; }
+    .anat__labels { padding-right: 0; margin-top: 0; gap: 32px; max-width: none; }
+    .anat__label { opacity: 1 !important; transform: none !important; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Ring anatomy (scroll)",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The Ring Builder" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "One ring. Three decisions." },
+    { "type": "textarea", "id": "text", "label": "Intro", "default": "Keep scrolling — every engagement ring we build comes apart into three choices you make with us." },
+    { "type": "text", "id": "cta_label", "label": "Button label", "default": "Open the Ring Builder" },
+    { "type": "url", "id": "cta_url", "label": "Button link" }
+  ],
+  "blocks": [
+    {
+      "type": "part",
+      "name": "Part",
+      "limit": 3,
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "The Diamond" },
+        { "type": "textarea", "id": "text", "label": "Text", "default": "Sourced direct from the supplier — no middleman margin." }
+      ]
+    }
+  ],
+  "presets": [{
+    "name": "Ring anatomy (scroll)",
+    "blocks": [
+      { "type": "part", "settings": { "title": "The Diamond", "text": "Sourced direct from the supplier — no middleman margin. Choose cut, carat, colour and clarity, certified stone in hand before you commit." } },
+      { "type": "part", "settings": { "title": "The Crown", "text": "The setting that holds your stone — claw, bezel or halo. Hand-set at our Mildura bench, not in a factory." } },
+      { "type": "part", "settings": { "title": "The Shank", "text": "The band — yellow, white or rose gold, or platinum. Settings sourced direct, so the price stays competitive." } }
+    ]
+  }]
+}
+{% endschema %}
