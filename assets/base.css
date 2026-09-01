@@ -231,3 +231,17 @@ h1, h2, h3, h4, .h1, .h2, .h3 {
 .form-errors { background: #fbeaea; color: #8f2020; padding: 14px 18px; margin-bottom: 20px; font-size: 14px; }
 .form-errors ul { margin: 6px 0 0; padding-left: 18px; }
 .form-success { background: #eef5e8; color: #2f5d1c; padding: 14px 18px; margin-bottom: 20px; font-size: 14px; }
+
+/* Shop pages on white ---------------------------------------
+   body.shop-white is set in layout/theme.liquid when
+   Theme settings → Colours → "Shop page background" is White.
+   Product photos are shot on white, so on these pages the image
+   tiles go white too and the photos sit flat on the page. */
+body.shop-white { background: #fff; }
+.shop-white .col, .shop-white .pd, .shop-white .srch, .shop-white .cart, .shop-white .lc,
+.shop-white .bg-cream { background: #fff; }
+.shop-white .pc__img, .shop-white .pd__mainimg, .shop-white .pd__thumb, .shop-white .cart__img { background: #fff; }
+.shop-white .pc__badge { background: rgba(255, 255, 255, .9); }
+.shop-white .col__pop, .shop-white .bn-mega { background: #fff; }
+.shop-white .col__pill[open] > summary, .shop-white .pd__radio:checked + label { color: #fff; }
+.shop-white .cart__note, .shop-white .input { background: #fff; }

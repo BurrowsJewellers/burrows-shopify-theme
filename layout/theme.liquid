@@ -30,6 +30,10 @@
     if template.name == 'index'
       assign body_class = body_class | append: ' has-transparent-header'
     endif
+    assign shop_templates = 'collection,product,search,cart,list-collections' | split: ','
+    if settings.shop_background == 'white' and shop_templates contains template.name
+      assign body_class = body_class | append: ' shop-white'
+    endif
   -%}
   <body class="{{ body_class }}">
     <a class="skip-link" href="#MainContent">Skip to content</a>
