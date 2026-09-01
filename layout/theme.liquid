@@ -7,6 +7,7 @@
     {%- endif -%}
 
     {% render 'meta-tags' %}
+    {% render 'integrations-head' %}
 
     {%- if settings.google_fonts_url != blank -%}
       <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,5 +43,6 @@
     {% sections 'footer-group' %}
 
     <script src="{{ 'theme.js' | asset_url }}" defer></script>
+    {% render 'integrations-body' %}
   </body>
 </html>

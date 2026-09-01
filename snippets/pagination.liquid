@@ -1,0 +1,19 @@
+{% doc %}
+  Pagination controls.
+  @param {paginate} paginate - the paginate object
+{% enddoc %}
+{%- if paginate.pages > 1 -%}
+  <nav class="pagination" aria-label="Pagination">
+    {%- if paginate.previous -%}<a href="{{ paginate.previous.url }}" rel="prev" aria-label="Previous page">&larr;</a>{%- endif -%}
+    {%- for part in paginate.parts -%}
+      {%- if part.is_link -%}
+        <a href="{{ part.url }}">{{ part.title }}</a>
+      {%- elsif part.title == paginate.current_page -%}
+        <span class="current" aria-current="page">{{ part.title }}</span>
+      {%- else -%}
+        <span>{{ part.title }}</span>
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if paginate.next -%}<a href="{{ paginate.next.url }}" rel="next" aria-label="Next page">&rarr;</a>{%- endif -%}
+  </nav>
+{%- endif -%}

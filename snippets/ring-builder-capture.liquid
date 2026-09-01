@@ -1,0 +1,186 @@
+{% comment %}
+  Burrows Jewellers — persona-aware ring builder capture (P1 / P2 / P3).
+  Ported verbatim from the Turbo theme layout. Runs site-wide; only acts on the
+  persona landing pages and the /apps/ring-creator/ pages (VDB ring builder).
+  Klaviyo public key WrhRZn — lists SFFPMs (saved designs), TpGYE4 (guide).
+{% endcomment %}
+<!-- ============================================================
+     BURROWS JEWELLERS - Persona-aware builder capture (P1 / P2 / P3)
+     Runs site-wide via theme.liquid:
+       * On a persona LANDING page it remembers the visitor's persona
+         (P1 design-guide / P2 custom-design / P3 inspiration). On the P1
+         page it also remembers if they submit the buying-guide form, so we
+         don't re-offer the guide in the builder.
+       * On the ring builder REVIEW step it shows the matching popup:
+           - P1 (and has NOT grabbed the guide):  "Download our buying guide"
+             -> captures Name + Email to the Guide Downloaders list (TpGYE4).
+           - P3 (from inspiration):  "Save / share your design"  -> list SFFPMs.
+           - P2 / direct / P1-who-has-the-guide:  "Save your design"  -> SFFPMs.
+         Every capture is stamped with a "Design Persona" property.
+     WHERE: paste before </body> in theme.liquid (replaces the old snippet),
+            or a GTM Custom HTML tag firing on ALL pages.
+     Klaviyo: public key WrhRZn  -  lists: SFFPMs (saved designs), TpGYE4 (guide)
+     ============================================================ -->
+<style>
+  .bjsd-overlay{position:fixed;inset:0;background:rgba(20,21,40,.55);display:none;align-items:center;justify-content:center;z-index:99999;padding:20px;font-family:'Manrope','Helvetica Neue',Helvetica,Arial,sans-serif;}
+  .bjsd-overlay.bjsd-open{display:flex;}
+  .bjsd-card{background:#fff;max-width:440px;width:100%;border-radius:10px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;}
+  .bjsd-x{position:absolute;top:8px;right:12px;border:0;background:transparent;font-size:26px;line-height:1;color:#8a8a99;cursor:pointer;}
+  .bjsd-body,.bjsd-done{padding:34px 30px 30px;text-align:center;}
+  .bjsd-done{display:none;}
+  .bjsd-eyebrow{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#C9AE17;font-weight:700;margin:0 0 10px;}
+  .bjsd-h{font-size:25px;color:#20214C;font-weight:600;margin:0 0 10px;}
+  .bjsd-sub{font-size:15px;line-height:1.55;color:#33334d;margin:0 0 20px;}
+  .bjsd-input{width:100%;padding:13px 14px;border:1px solid #d8d4c8;border-radius:6px;font-size:15px;margin:0 0 12px;font-family:inherit;box-sizing:border-box;}
+  .bjsd-consent{display:flex;gap:9px;text-align:left;font-size:12.5px;line-height:1.5;color:#6b6b78;margin:0 0 16px;}
+  .bjsd-consent input[type=checkbox]{-webkit-appearance:checkbox!important;appearance:checkbox!important;display:inline-block!important;position:static!important;opacity:1!important;width:16px!important;height:16px!important;min-width:16px!important;margin:2px 0 0 0!important;flex:0 0 auto!important;pointer-events:auto!important;clip:auto!important;visibility:visible!important;}
+  .bjsd-btn{width:100%;background:#20214C;color:#fff;border:1.5px solid #C9AE17;border-radius:6px;padding:14px;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:inherit;}
+  .bjsd-btn:hover{opacity:.92;}
+  .bjsd-err{color:#b00020;font-size:13px;margin:10px 0 0;min-height:16px;}
+</style>
+<script>
+(function(){
+  var path=location.pathname;
+
+  // ---- 1) Persona tagging on landing pages ----
+  var LANDING={'/pages/design-guide':'p1','/pages/custom-design':'p2','/pages/inspiration':'p3'};
+  for(var key in LANDING){ if(path.indexOf(key)>=0){ try{localStorage.setItem('bj_persona',LANDING[key]);}catch(e){} break; } }
+
+  // ---- 1b) On the P1 page, remember a buying-guide form submit ----
+  if(path.indexOf('/pages/design-guide')>=0){
+    window.addEventListener('klaviyoForms', function(e){
+      try{ if(e && e.detail && e.detail.type==='submit'){ localStorage.setItem('bj_guide_done','1'); } }catch(_){}
+    });
+  }
+
+  // ---- 2) Only the ring builder shows the popup ----
+  if(!/\/apps\/ring-creator\//.test(path)) return;
+  if(window.__bjsdInit) return; window.__bjsdInit=true;
+
+  var PUBLIC_KEY='WrhRZn';
+  var REVISION='2025-07-15';
+  var shown=false;
+
+  // ---- persona + guide state ----
+  var persona=''; try{persona=localStorage.getItem('bj_persona')||'';}catch(e){}
+  var guideDone=false; try{guideDone=!!localStorage.getItem('bj_guide_done');}catch(e){}
+  var personaLabel=(persona==='p3')?'Persona 3 (Inspiration)':(persona==='p1')?'Persona 1 (Uneducated)':(persona==='p2')?'Persona 2 (Educated)':'Direct to builder';
+
+  // ---- variants ----
+  var V_P1={list:'TpGYE4',name:true,consentItem:'the guide',eyebrow:'Free Guide',h:'New to all this? Start here.',sub:'Grab our free Engagement Ring Buying Guide - diamonds, metals, settings and sizing, all in plain English. We will email it straight to you.',btn:'Email me the guide',done:'Check your inbox - your guide is on its way.'};
+  var V_P3={list:'SFFPMs',name:false,consentItem:'my design',eyebrow:'Your Design',h:'Found one you love?',sub:'Save it, or share it with someone special. We will email you a link to this exact ring so you can pick up right where you left off.',btn:'Save my design',done:'Check your inbox for a link to your design.'};
+  var V_DEFAULT={list:'SFFPMs',name:false,consentItem:'my design',eyebrow:'Your Design',h:'Love it? Save your design.',sub:'Pop in your email and we will send you a link to this exact ring, so you can pick up right where you left off.',btn:'Email me my design',done:'Check your inbox for a link to your design.'};
+  var V = (persona==='p1' && !guideDone) ? V_P1 : (persona==='p3') ? V_P3 : V_DEFAULT;
+
+  function $(s,r){return (r||document).querySelector(s);}
+
+  function isReview(){
+    if(/rb-ring-review/i.test(location.pathname)) return true;
+    var act=document.querySelector('[class*="rb-active-step"],[class*="rb-current"]');
+    if(act && /review/i.test(act.textContent||'')) return true;
+    return false;
+  }
+
+  function summary(){
+    try{
+      var p=new URLSearchParams(location.search);
+      var metal=(p.get('metal_type')||'').replace('|',' ').trim();
+      var total='';
+      var t=document.querySelector('[class*="grand-total"],[class*="total-price"],[class*="price-total"],[class*="rb-total"]');
+      if(t) total=(t.textContent||'').replace(/\s+/g,' ').trim().slice(0,40);
+      return [metal,total].filter(Boolean).join(' - ');
+    }catch(e){ return ''; }
+  }
+
+  function buildModal(){
+    if($('#bjsd-overlay')) return;
+    var o=document.createElement('div'); o.id='bjsd-overlay'; o.className='bjsd-overlay';
+    o.innerHTML=''
+      +'<div class="bjsd-card" role="dialog" aria-modal="true">'
+      +'<button class="bjsd-x" aria-label="Close">&times;</button>'
+      +'<div class="bjsd-body">'
+      +'<p class="bjsd-eyebrow">'+V.eyebrow+'</p>'
+      +'<h2 class="bjsd-h">'+V.h+'</h2>'
+      +'<p class="bjsd-sub">'+V.sub+'</p>'
+      +'<form id="bjsd-form" novalidate>'
+      +(V.name?'<input id="bjsd-name" type="text" required placeholder="First name" class="bjsd-input">':'')
+      +'<input id="bjsd-email" type="email" required placeholder="Email address" class="bjsd-input">'
+      +'<label class="bjsd-consent"><input id="bjsd-consent" type="checkbox" required> Yes, email me '+V.consentItem+' and the occasional update from Burrows Jewellers. Unsubscribe anytime.</label>'
+      +'<button type="submit" class="bjsd-btn">'+V.btn+'</button>'
+      +'<p class="bjsd-err" id="bjsd-err"></p>'
+      +'</form></div>'
+      +'<div class="bjsd-done" id="bjsd-done"><p class="bjsd-eyebrow">Done</p><h2 class="bjsd-h">Thank you!</h2><p class="bjsd-sub">'+V.done+'</p><button class="bjsd-btn" id="bjsd-close2">Keep building</button></div>'
+      +'</div>';
+    document.body.appendChild(o);
+    function close(){ o.classList.remove('bjsd-open'); try{sessionStorage.setItem('bjsd_dismissed','1');}catch(e){} }
+    o.querySelector('.bjsd-x').addEventListener('click',close);
+    o.addEventListener('click',function(e){ if(e.target===o) close(); });
+    $('#bjsd-close2').addEventListener('click',close);
+    $('#bjsd-form').addEventListener('submit',function(e){
+      e.preventDefault();
+      var email=($('#bjsd-email').value||'').trim();
+      var name=V.name?(($('#bjsd-name')||{}).value||'').trim():'';
+      var consent=$('#bjsd-consent').checked;
+      var err=$('#bjsd-err'); err.textContent='';
+      if(V.name && !name){ err.textContent='Please enter your first name.'; return; }
+      if(!email || !/.+@.+\..+/.test(email)){ err.textContent='Please enter a valid email.'; return; }
+      if(!consent){ err.textContent='Please tick the box so we can email you.'; return; }
+      submit(email,name);
+    });
+  }
+
+  function openModal(){ buildModal(); $('#bjsd-overlay').classList.add('bjsd-open'); }
+
+  function submit(email,name){
+    var err=$('#bjsd-err'); if(err) err.textContent='';
+    var props={'Saved Design URL':location.href,'Design Summary':summary(),'Design Persona':personaLabel};
+    try{
+      if(window.klaviyo){
+        var idp=Object.assign({'$email':email},props); if(name) idp['$first_name']=name;
+        if(typeof klaviyo.identify==='function') klaviyo.identify(idp);
+        else klaviyo.push(['identify',idp]);
+      }
+    }catch(e){}
+    var attrs={email:email, properties:props, subscriptions:{email:{marketing:{consent:'SUBSCRIBED'}}}};
+    if(name) attrs.first_name=name;
+    var body={data:{type:'subscription',attributes:{
+      custom_source:'Ring Builder - '+(V===V_P1?'Buying Guide':'Save Your Design')+' ('+personaLabel+')',
+      profile:{data:{type:'profile',attributes:attrs}}
+    },relationships:{list:{data:{type:'list',id:V.list}}}}};
+    fetch('https://a.klaviyo.com/client/subscriptions/?company_id='+PUBLIC_KEY,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','revision':REVISION},
+      body:JSON.stringify(body)
+    }).then(function(r){
+      if(r.ok || r.status===202){ showDone(); }
+      else { r.text().then(function(t){ console.warn('Klaviyo subscribe failed',r.status,t); }); if(err) err.textContent='Sorry, something went wrong. Please try again.'; }
+    }).catch(function(e){ console.warn(e); if(err) err.textContent='Sorry, something went wrong. Please try again.'; });
+  }
+
+  function showDone(){
+    try{ localStorage.setItem('bjsd_done','1'); }catch(e){}
+    var b=$('.bjsd-body'), d=$('#bjsd-done'); if(b) b.style.display='none'; if(d) d.style.display='block';
+  }
+
+  function maybeShow(){
+    if(shown) return;
+    try{ if(localStorage.getItem('bjsd_done')) return; }catch(e){}
+    try{ if(sessionStorage.getItem('bjsd_dismissed')) return; }catch(e){}
+    if(isReview()){ shown=true; setTimeout(openModal,900); }
+  }
+
+  // Poll for the review step (handles in-app navigation + slow loads)
+  ['pushState','replaceState'].forEach(function(m){
+    var orig=history[m];
+    history[m]=function(){ var r=orig.apply(this,arguments); window.dispatchEvent(new Event('bjsd:route')); return r; };
+  });
+  window.addEventListener('popstate',function(){ setTimeout(maybeShow,250); });
+  window.addEventListener('bjsd:route',function(){ setTimeout(maybeShow,250); });
+  var __bjsdTries=0;
+  var __bjsdPoll=setInterval(function(){
+    __bjsdTries++;
+    if(shown || __bjsdTries>900){ clearInterval(__bjsdPoll); return; }
+    maybeShow();
+  }, 1000);
+})();
+</script>

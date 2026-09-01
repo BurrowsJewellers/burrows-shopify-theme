@@ -2,7 +2,7 @@
   {
     "name": "theme_info",
     "theme_name": "Burrows",
-    "theme_version": "0.1.0",
+    "theme_version": "0.2.0",
     "theme_author": "Burrows Jewellers",
     "theme_documentation_url": "https://github.com/BurrowsJewellers/burrows-shopify-theme",
     "theme_support_url": "https://github.com/BurrowsJewellers/burrows-shopify-theme/issues"
@@ -55,6 +55,17 @@
       { "type": "image_picker", "id": "logo_light", "label": "Logo — white (for dark backgrounds)" },
       { "type": "text", "id": "logo_light_url", "label": "Logo URL fallback", "default": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/Burrows_Jeweller_Primary_Logo_White.png?v=1783317504", "info": "Used until an image is chosen above." },
       { "type": "image_picker", "id": "favicon", "label": "Favicon (32×32 px recommended)" }
+    ]
+  },
+  {
+    "name": "Integrations",
+    "settings": [
+      { "type": "header", "content": "Tracking" },
+      { "type": "text", "id": "gtm_id", "label": "Google Tag Manager container ID", "default": "GTM-P2T3RJW6", "info": "Leave empty to disable." },
+      { "type": "text", "id": "google_merchant_id", "label": "Google Customer Reviews merchant ID", "default": "673343398", "info": "Shows the Google rating badge bottom-left. Leave empty to hide." },
+      { "type": "checkbox", "id": "calendly_tracking", "label": "Send Calendly bookings to Meta Pixel / GA4 / dataLayer", "default": true },
+      { "type": "header", "content": "Ring builder" },
+      { "type": "checkbox", "id": "ring_builder_capture", "label": "Enable the persona / saved-design capture popup on the ring builder (Klaviyo)", "default": true }
     ]
   }
 ]

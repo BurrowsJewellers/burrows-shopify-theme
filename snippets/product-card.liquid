@@ -1,0 +1,39 @@
+{% doc %}
+  Product card used in collection grids, search results and recommendations.
+  @param {product} product
+  @param {boolean} [show_vendor] - default true
+  @param {string} [loading] - lazy | eager
+{% enddoc %}
+{%- liquid
+  assign vendor_on = true
+  if show_vendor == false
+    assign vendor_on = false
+  endif
+  assign load = loading | default: 'lazy'
+  assign on_sale = false
+  if product.compare_at_price > product.price
+    assign on_sale = true
+  endif
+-%}
+<div class="pc">
+  <a class="pc__img" href="{{ product.url }}" aria-label="{{ product.title | escape }}">
+    {%- if product.featured_image -%}
+      {{ product.featured_image | image_url: width: 700 | image_tag: class: 'pc__main', loading: load, alt: product.title, widths: '350, 500, 700', sizes: '(max-width: 820px) 50vw, 25vw' }}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'pc__main pc__placeholder' }}
+    {%- endif -%}
+    {%- if product.images[1] -%}
+      {{ product.images[1] | image_url: width: 700 | image_tag: class: 'pc__sec', loading: 'lazy', alt: '' }}
+    {%- endif -%}
+    {%- if on_sale -%}<span class="pc__badge pc__badge--sale">Sale</span>
+    {%- elsif product.available == false -%}<span class="pc__badge">Sold out</span>{%- endif -%}
+  </a>
+  <div class="pc__body">
+    {%- if vendor_on and product.vendor != blank -%}<div class="pc__brand">{{ product.vendor }}</div>{%- endif -%}
+    <a class="pc__title" href="{{ product.url }}">{{ product.title }}</a>
+    <div class="pc__price">
+      <span class="pc__now{% if on_sale %} on{% endif %}">{% if product.price_varies %}from {% endif %}{{ product.price | money }}</span>
+      {%- if on_sale -%}<span class="pc__was">{{ product.compare_at_price | money }}</span>{%- endif -%}
+    </div>
+  </div>
+</div>

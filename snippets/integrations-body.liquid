@@ -1,0 +1,33 @@
+{%- comment -%} Third-party scripts loaded at the end of <body>. Controlled from Theme settings → Integrations. {%- endcomment -%}
+{%- if settings.gtm_id != blank -%}
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ settings.gtm_id }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+{%- endif -%}
+
+{%- if settings.google_merchant_id != blank -%}
+<script src="https://apis.google.com/js/platform.js?onload=renderBadge" async defer></script>
+<script>
+  window.renderBadge = function() {
+    var ratingBadgeContainer = document.createElement("div");
+    document.body.appendChild(ratingBadgeContainer);
+    window.gapi.load('ratingbadge', function() {
+      window.gapi.ratingbadge.render(ratingBadgeContainer, { "merchant_id": {{ settings.google_merchant_id }}, "position": "BOTTOM_LEFT" });
+    });
+  }
+</script>
+{%- endif -%}
+
+{%- if settings.calendly_tracking -%}
+<script>
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.event && e.data.event === 'calendly.event_scheduled') {
+    if (typeof fbq === 'function') { fbq('track', 'Schedule', { content_name: 'Calendly Booking', event_source: 'website' }); }
+    if (typeof gtag === 'function') { gtag('event', 'generate_lead', { event_category: 'Calendly', event_label: 'Booking Confirmed', value: 1 }); }
+    if (window.dataLayer) { window.dataLayer.push({ event: 'calendly_booking' }); }
+  }
+});
+</script>
+{%- endif -%}
+
+{%- if settings.ring_builder_capture -%}
+  {%- render 'ring-builder-capture' -%}
+{%- endif -%}
