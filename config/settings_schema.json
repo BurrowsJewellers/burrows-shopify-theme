@@ -198,9 +198,8 @@
       {
         "type": "text",
         "id": "logo_light_url",
-        "label": "Logo URL fallback",
-        "default": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/Burrows_Jeweller_Primary_Logo_White.png?v=1783317504",
-        "info": "Used until an image is chosen above."
+        "label": "Logo URL override",
+        "info": "Optional. The theme ships with the Burrows white logo (assets/logo-white.png); pick an image above or paste a URL here to replace it."
       },
       {
         "type": "image_picker",
