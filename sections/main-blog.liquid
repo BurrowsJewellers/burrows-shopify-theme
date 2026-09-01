@@ -1,0 +1,41 @@
+<section class="full-width blg">
+  <div class="page-hero">
+    <h1>{{ blog.title }}</h1>
+    <div class="page-hero__diamond"></div>
+  </div>
+  <div class="blg__grid">
+    {%- paginate blog.articles by 9 -%}
+      {%- for article in blog.articles -%}
+        <article class="blg__card">
+          <a class="blg__media" href="{{ article.url }}">
+            {%- if article.image -%}{{ article.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: article.title }}{%- else -%}{{ 'image' | placeholder_svg_tag: 'placeholder' }}{%- endif -%}
+          </a>
+          <div class="blg__meta">{{ article.published_at | date: '%-d %B %Y' }}</div>
+          <h2 class="blg__title"><a href="{{ article.url }}">{{ article.title }}</a></h2>
+          <p class="blg__excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 28 }}</p>
+          <a class="link-gold" href="{{ article.url }}">Read more</a>
+        </article>
+      {%- endfor -%}
+      {%- render 'pagination', paginate: paginate -%}
+    {%- endpaginate -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .blg { background: var(--cream); }
+  .blg__grid { max-width: var(--page-max); margin: 0 auto; padding: 0 var(--gutter) var(--section-pad); display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 28px; }
+  .blg__grid .pagination { grid-column: 1 / -1; }
+  .blg__card { display: flex; flex-direction: column; gap: 10px; }
+  .blg__media { position: relative; aspect-ratio: 4 / 3; background: var(--sand); overflow: hidden; display: block; margin-bottom: 6px; }
+  .blg__media img, .blg__media svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .blg__meta { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-dark); font-weight: 500; }
+  .blg__title { font-size: 24px; }
+  .blg__title a:hover { color: var(--gold-dark); }
+  .blg__excerpt { font-size: 14.5px; line-height: 1.7; color: var(--body); font-weight: 300; margin: 0; }
+  @media (max-width: 900px) { .blg__grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .blg__grid { grid-template-columns: 1fr; } }
+{% endstylesheet %}
+
+{% schema %}
+{ "name": "Blog", "settings": [] }
+{% endschema %}

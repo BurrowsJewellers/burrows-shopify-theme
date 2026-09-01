@@ -1,0 +1,27 @@
+{%- assign s = section.settings -%}
+<section class="full-width cl bg-{{ s.background }}{% if s.padding %} cl--pad{% endif %}">
+  <div class="cl__inner cl__inner--{{ s.width }}">
+    {{ s.liquid }}
+  </div>
+</section>
+
+{% stylesheet %}
+  .cl--pad { padding: 48px var(--gutter); }
+  .cl__inner { margin: 0 auto; }
+  .cl__inner--narrow { max-width: 760px; }
+  .cl__inner--wide { max-width: var(--page-max); }
+  .cl__inner--full { max-width: none; }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Custom Liquid / HTML",
+  "settings": [
+    { "type": "liquid", "id": "liquid", "label": "Liquid or HTML", "default": "<p>Add your custom code here.</p>" },
+    { "type": "select", "id": "width", "label": "Width", "options": [ { "value": "narrow", "label": "Narrow" }, { "value": "wide", "label": "Wide" }, { "value": "full", "label": "Full width" } ], "default": "wide" },
+    { "type": "select", "id": "background", "label": "Background", "options": [ { "value": "cream", "label": "Cream" }, { "value": "sand", "label": "Sand" } ], "default": "cream" },
+    { "type": "checkbox", "id": "padding", "label": "Add vertical padding", "default": true }
+  ],
+  "presets": [{ "name": "Custom Liquid / HTML" }]
+}
+{% endschema %}

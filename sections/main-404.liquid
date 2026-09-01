@@ -1,0 +1,28 @@
+<section class="full-width nf">
+  <div class="page-hero">
+    <div class="eyebrow">404</div>
+    <h1>{{ section.settings.heading }}</h1>
+    <div class="page-hero__diamond"></div>
+    <p>{{ section.settings.text }}</p>
+  </div>
+  <div class="nf__actions">
+    <a class="btn btn--gold" href="{{ routes.all_products_collection_url }}">Shop all jewellery</a>
+    <a class="btn btn--outline-dark" href="{{ routes.root_url }}">Back home</a>
+  </div>
+</section>
+
+{% stylesheet %}
+  .nf { background: var(--cream); padding-bottom: var(--section-pad); }
+  .nf .page-hero .eyebrow { margin-bottom: 16px; }
+  .nf__actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; padding: 0 var(--gutter); }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "404 page",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "We couldn't find that page" },
+    { "type": "text", "id": "text", "label": "Text", "default": "It may have moved, or the link may be out of date." }
+  ]
+}
+{% endschema %}

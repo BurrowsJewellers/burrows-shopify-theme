@@ -1,0 +1,80 @@
+{%- assign s = section.settings -%}
+<section class="full-width rt bg-{{ s.background }}{% if s.background == 'navy' %} on-dark{% endif %} rt--{{ s.align }}" id="{{ section.id }}">
+  <div class="rt__inner rt__inner--{{ s.width }}">
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'eyebrow' -%}
+          <div class="eyebrow rt__eyebrow" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
+        {%- when 'heading' -%}
+          {%- if block.settings.level == 'h1' -%}
+            <h1 class="h1 rt__heading" {{ block.shopify_attributes }}>{{ block.settings.text }}</h1>
+          {%- else -%}
+            <h2 class="h2 rt__heading" {{ block.shopify_attributes }}>{{ block.settings.text }}</h2>
+          {%- endif -%}
+        {%- when 'text' -%}
+          <div class="rte lede rt__text" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
+        {%- when 'button' -%}
+          {%- liquid
+            assign href = block.settings.url
+            if href == blank and block.settings.use_booking_url
+              assign href = settings.booking_url
+            endif
+          -%}
+          <div class="rt__actions" {{ block.shopify_attributes }}>
+            {%- if block.settings.style == 'link' -%}
+              <a class="link-gold" href="{{ href | default: '#' }}">{{ block.settings.label }}</a>
+            {%- else -%}
+              <a class="btn btn--{{ block.settings.style }}" href="{{ href | default: '#' }}">{{ block.settings.label }}</a>
+            {%- endif -%}
+          </div>
+      {%- endcase -%}
+    {%- endfor -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .rt { padding: var(--section-pad) var(--gutter); }
+  .rt__inner { margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+  .rt__inner--narrow { max-width: 760px; }
+  .rt__inner--medium { max-width: 960px; }
+  .rt__inner--wide { max-width: var(--page-max); }
+  .rt--center { text-align: center; }
+  .rt--center .rt__inner { align-items: center; }
+  .rt--left .rt__inner { align-items: flex-start; }
+  .rt__text { font-size: 16px; }
+  .rt__text h2, .rt__text h3, .rt__text h4 { color: var(--ink); margin: 20px 0 8px; }
+  .rt__text h2 { font-size: 30px; } .rt__text h3 { font-size: 24px; } .rt__text h4 { font-size: 19px; }
+  .rt__text ul, .rt__text ol { padding-left: 22px; margin: 0 0 14px; }
+  .rt__actions { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  .rt--tight { padding-top: 48px; padding-bottom: 48px; }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Rich text",
+  "settings": [
+    { "type": "select", "id": "background", "label": "Background", "options": [
+      { "value": "cream", "label": "Cream" }, { "value": "sand", "label": "Sand" }, { "value": "navy", "label": "Navy" }
+    ], "default": "cream" },
+    { "type": "select", "id": "align", "label": "Alignment", "options": [ { "value": "center", "label": "Centre" }, { "value": "left", "label": "Left" } ], "default": "center" },
+    { "type": "select", "id": "width", "label": "Width", "options": [ { "value": "narrow", "label": "Narrow" }, { "value": "medium", "label": "Medium" }, { "value": "wide", "label": "Wide" } ], "default": "narrow" }
+  ],
+  "blocks": [
+    { "type": "eyebrow", "name": "Eyebrow", "limit": 1, "settings": [ { "type": "text", "id": "text", "label": "Text", "default": "Burrows Jewellers" } ] },
+    { "type": "heading", "name": "Heading", "limit": 1, "settings": [
+      { "type": "text", "id": "text", "label": "Heading", "default": "Heading" },
+      { "type": "select", "id": "level", "label": "Heading level", "options": [ { "value": "h1", "label": "Page title (H1)" }, { "value": "h2", "label": "Section (H2)" } ], "default": "h2" }
+    ] },
+    { "type": "text", "name": "Text", "settings": [ { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Write something here.</p>" } ] },
+    { "type": "button", "name": "Button", "settings": [
+      { "type": "text", "id": "label", "label": "Label", "default": "Learn more" },
+      { "type": "url", "id": "url", "label": "Link" },
+      { "type": "checkbox", "id": "use_booking_url", "label": "Use the booking URL from Theme settings", "default": false },
+      { "type": "select", "id": "style", "label": "Style", "options": [
+        { "value": "gold", "label": "Solid gold" }, { "value": "ink", "label": "Solid navy" }, { "value": "outline-dark", "label": "Outline" }, { "value": "link", "label": "Gold text link" }
+      ], "default": "gold" }
+    ] }
+  ],
+  "presets": [{ "name": "Rich text", "blocks": [ { "type": "heading" }, { "type": "text" } ] }]
+}
+{% endschema %}

@@ -1,0 +1,49 @@
+<article class="full-width art">
+  <div class="page-hero">
+    <nav class="crumbs crumbs--center" aria-label="Breadcrumb"><a href="{{ routes.root_url }}">Home</a><span>&rsaquo;</span><a href="{{ blog.url }}">{{ blog.title }}</a><span>&rsaquo;</span><span class="cur">{{ article.title | truncatewords: 6 }}</span></nav>
+    <h1>{{ article.title }}</h1>
+    <div class="page-hero__diamond"></div>
+    <p>{{ article.published_at | date: '%-d %B %Y' }}{% if article.author != blank %} &middot; {{ article.author }}{% endif %}</p>
+  </div>
+  {%- if article.image -%}
+    <div class="art__hero">{{ article.image | image_url: width: 1600 | image_tag: loading: 'eager', alt: article.title }}</div>
+  {%- endif -%}
+  <div class="prose">{{ article.content }}</div>
+
+  {%- if blog.comments_enabled? -%}
+    <div class="art__comments">
+      {%- if article.comments_count > 0 -%}
+        <h2 class="h3">{{ article.comments_count }} {% if article.comments_count == 1 %}comment{% else %}comments{% endif %}</h2>
+        {%- paginate article.comments by 10 -%}
+          {%- for comment in article.comments -%}
+            <div class="art__comment"><b>{{ comment.author }}</b> <span>{{ comment.created_at | date: '%-d %B %Y' }}</span><div>{{ comment.content }}</div></div>
+          {%- endfor -%}
+          {%- render 'pagination', paginate: paginate -%}
+        {%- endpaginate -%}
+      {%- endif -%}
+      {%- form 'new_comment', article -%}
+        <h2 class="h3">Leave a comment</h2>
+        {%- if form.posted_successfully? -%}<div class="form-success">Thanks — your comment is awaiting approval.</div>{%- endif -%}
+        {%- if form.errors -%}<div class="form-errors">{{ form.errors | default_errors }}</div>{%- endif -%}
+        <div class="field"><label for="CommentAuthor">Name</label><input class="input" id="CommentAuthor" type="text" name="comment[author]" value="{{ form.author }}" required></div>
+        <div class="field"><label for="CommentEmail">Email</label><input class="input" id="CommentEmail" type="email" name="comment[email]" value="{{ form.email }}" required></div>
+        <div class="field"><label for="CommentBody">Comment</label><textarea class="input" id="CommentBody" name="comment[body]" required>{{ form.body }}</textarea></div>
+        <button class="btn btn--gold" type="submit">Post comment</button>
+      {%- endform -%}
+    </div>
+  {%- endif -%}
+</article>
+
+{% stylesheet %}
+  .art { background: var(--cream); }
+  .art__hero { max-width: 1000px; margin: 0 auto 40px; padding: 0 var(--gutter); }
+  .art__hero img { width: 100%; height: auto; }
+  .art__comments { max-width: 760px; margin: 0 auto; padding: 0 var(--gutter) var(--section-pad); }
+  .art__comment { padding: 16px 0; border-bottom: 1px solid rgba(var(--gold-dark-rgb), .18); font-size: 14.5px; color: var(--body); }
+  .art__comment span { color: var(--muted); font-size: 12px; margin-left: 8px; }
+  .art__comments h2 { margin: 32px 0 16px; }
+{% endstylesheet %}
+
+{% schema %}
+{ "name": "Article", "settings": [] }
+{% endschema %}

@@ -1,0 +1,126 @@
+{%- assign s = section.settings -%}
+<section class="full-width cart">
+  <div class="page-hero">
+    <h1>{{ s.heading }}</h1>
+    <div class="page-hero__diamond"></div>
+    {%- if cart.item_count > 0 -%}<p>{{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %}</p>{%- endif -%}
+  </div>
+
+  <div class="cart__inner">
+    {%- if cart.item_count == 0 -%}
+      <div class="cart__empty">
+        <p>{{ s.empty_text }}</p>
+        <a class="btn btn--gold" href="{{ s.empty_url | default: routes.all_products_collection_url }}">{{ s.empty_label }}</a>
+      </div>
+    {%- else -%}
+      <form action="{{ routes.cart_url }}" method="post" class="cart__form" id="CartForm">
+        <div class="cart__items">
+          {%- for item in cart.items -%}
+            <div class="cart__item">
+              <a class="cart__img" href="{{ item.url }}">
+                {%- if item.image -%}
+                  {{ item.image | image_url: width: 300 | image_tag: loading: 'lazy', alt: item.title }}
+                {%- else -%}
+                  {{ 'product-1' | placeholder_svg_tag: 'placeholder' }}
+                {%- endif -%}
+              </a>
+              <div class="cart__details">
+                {%- if item.product.vendor != blank -%}<div class="cart__brand">{{ item.product.vendor }}</div>{%- endif -%}
+                <a class="cart__title" href="{{ item.url }}">{{ item.product.title }}</a>
+                {%- unless item.product.has_only_default_variant -%}<div class="cart__variant">{{ item.variant.title }}</div>{%- endunless -%}
+                {%- if item.properties.size > 0 -%}
+                  <ul class="cart__props">
+                    {%- for prop in item.properties -%}
+                      {%- assign first_char = prop.first | slice: 0 -%}
+                      {%- if prop.last != blank and first_char != '_' -%}<li>{{ prop.first }}: {{ prop.last }}</li>{%- endif -%}
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+                {%- if item.selling_plan_allocation -%}<div class="cart__variant">{{ item.selling_plan_allocation.selling_plan.name }}</div>{%- endif -%}
+                <div class="cart__unit">{{ item.final_price | money }}{% if item.original_price > item.final_price %} <s>{{ item.original_price | money }}</s>{% endif %}</div>
+                <a class="cart__remove" href="{{ item.url_to_remove }}">Remove</a>
+              </div>
+              <div class="cart__qty">
+                <label class="visually-hidden" for="Qty-{{ item.index | plus: 1 }}">Quantity</label>
+                <input class="input" id="Qty-{{ item.index | plus: 1 }}" type="number" name="updates[]" value="{{ item.quantity }}" min="0" data-cart-qty>
+              </div>
+              <div class="cart__line">{{ item.final_line_price | money }}</div>
+            </div>
+          {%- endfor -%}
+        </div>
+
+        <aside class="cart__summary">
+          {%- if s.show_note -%}
+            <label class="cart__note-label" for="CartNote">{{ s.note_label }}</label>
+            <textarea class="input cart__note" id="CartNote" name="note" rows="3">{{ cart.note }}</textarea>
+          {%- endif -%}
+          <div class="cart__row"><span>Subtotal</span><b>{{ cart.total_price | money }}</b></div>
+          {%- if cart.total_discount > 0 -%}<div class="cart__row cart__row--muted"><span>Discounts</span><span>&minus;{{ cart.total_discount | money }}</span></div>{%- endif -%}
+          {%- if s.afterpay_text != blank -%}<div class="cart__afterpay">{{ s.afterpay_text | replace: '[amount]', cart.total_price | divided_by: 4 | money }}</div>{%- endif -%}
+          <p class="cart__shipnote">{{ s.shipping_note }}</p>
+          <button class="btn btn--gold btn--lg cart__checkout" type="submit" name="checkout">{{ s.checkout_label }}</button>
+          <button class="cart__update" type="submit" name="update">Update cart</button>
+          <a class="link-gold cart__continue" href="{{ s.empty_url | default: routes.all_products_collection_url }}">Continue shopping</a>
+        </aside>
+      </form>
+    {%- endif -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .cart { background: var(--cream); }
+  .cart__inner { max-width: var(--page-max); margin: 0 auto; padding: 0 var(--gutter) var(--section-pad); }
+  .cart__empty { text-align: center; padding: 20px 0 40px; display: flex; flex-direction: column; align-items: center; gap: 24px; color: var(--body); }
+  .cart__form { display: grid; grid-template-columns: 1fr 360px; gap: 48px; align-items: start; }
+  .cart__items { display: flex; flex-direction: column; border-top: 1px solid rgba(var(--gold-dark-rgb), .18); }
+  .cart__item { display: grid; grid-template-columns: 110px 1fr 90px 110px; gap: 24px; align-items: center; padding: 24px 0; border-bottom: 1px solid rgba(var(--gold-dark-rgb), .18); }
+  .cart__img { position: relative; aspect-ratio: 1; background: var(--sand); overflow: hidden; display: block; }
+  .cart__img img, .cart__img svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cart__details { display: flex; flex-direction: column; gap: 4px; }
+  .cart__brand { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--gold-dark); font-weight: 500; }
+  .cart__title { font-size: 16px; color: var(--ink); }
+  .cart__title:hover { color: var(--gold-dark); }
+  .cart__variant, .cart__props { font-size: 13px; color: var(--muted); }
+  .cart__props { list-style: none; padding: 0; margin: 0; }
+  .cart__unit { font-size: 14px; color: var(--body); margin-top: 4px; }
+  .cart__unit s { color: var(--muted); margin-left: 8px; }
+  .cart__remove { font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-dark); border-bottom: 1px solid var(--gold-2); align-self: flex-start; margin-top: 8px; }
+  .cart__qty .input { padding: 12px 10px; text-align: center; }
+  .cart__line { text-align: right; font-weight: 500; color: var(--ink); }
+  .cart__summary { background: var(--sand); padding: 32px 30px; display: flex; flex-direction: column; gap: 16px; position: sticky; top: calc(var(--header-total, 100px) + 16px); }
+  .cart__note-label { font-size: 11.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-dark); font-weight: 500; }
+  .cart__note { background: var(--cream); }
+  .cart__row { display: flex; justify-content: space-between; font-size: 16px; color: var(--ink); }
+  .cart__row b { font-weight: 500; font-size: 20px; }
+  .cart__row--muted { font-size: 14px; color: var(--body); }
+  .cart__afterpay { font-size: 13px; color: var(--body); }
+  .cart__shipnote { font-size: 12.5px; color: var(--muted); margin: 0; }
+  .cart__checkout { width: 100%; }
+  .cart__update { background: none; border: 1px solid var(--ink); color: var(--ink); font-family: var(--font-body); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; padding: 12px; cursor: pointer; }
+  .cart__update:hover { background: var(--ink); color: var(--cream); }
+  .cart__continue { align-self: center; }
+  @media (max-width: 900px) {
+    .cart__form { grid-template-columns: 1fr; gap: 32px; }
+    .cart__item { grid-template-columns: 80px 1fr; gap: 16px; }
+    .cart__qty { grid-column: 2; justify-self: start; width: 90px; }
+    .cart__line { grid-column: 2; text-align: left; }
+    .cart__summary { position: static; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Cart page",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Your cart" },
+    { "type": "text", "id": "checkout_label", "label": "Checkout button", "default": "Checkout" },
+    { "type": "checkbox", "id": "show_note", "label": "Show order note", "default": true },
+    { "type": "text", "id": "note_label", "label": "Note label", "default": "Order note or engraving request" },
+    { "type": "text", "id": "afterpay_text", "label": "Afterpay line", "default": "or 4 payments of [amount] with Afterpay", "info": "[amount] is replaced with a quarter of the subtotal." },
+    { "type": "text", "id": "shipping_note", "label": "Shipping note", "default": "Shipping and taxes calculated at checkout. Free shipping Australia-wide on orders over $99." },
+    { "type": "text", "id": "empty_text", "label": "Empty cart text", "default": "Your cart is empty." },
+    { "type": "text", "id": "empty_label", "label": "Empty cart button", "default": "Continue shopping" },
+    { "type": "url", "id": "empty_url", "label": "Empty cart button link" }
+  ]
+}
+{% endschema %}

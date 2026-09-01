@@ -1,0 +1,57 @@
+{%- assign s = section.settings -%}
+<section class="full-width faq bg-{{ s.background }}">
+  <div class="faq__inner{% if s.image != blank or s.image_url != blank %} faq__inner--media{% endif %}">
+    <div class="faq__list">
+      {%- if s.eyebrow != blank -%}<div class="eyebrow faq__eyebrow">{{ s.eyebrow }}</div>{%- endif -%}
+      {%- if s.heading != blank -%}<h2 class="h2 faq__heading">{{ s.heading }}</h2>{%- endif -%}
+      {%- for block in section.blocks -%}
+        <details class="acc" {{ block.shopify_attributes }}{% if forloop.first and s.open_first %} open{% endif %}>
+          <summary>{{ block.settings.question }}<span class="pm"></span></summary>
+          <div class="acc__body rte">{{ block.settings.answer }}</div>
+        </details>
+      {%- endfor -%}
+    </div>
+    {%- if s.image != blank or s.image_url != blank -%}
+      <div class="faq__media">
+        {% render 'bg-image', image: s.image, fallback: s.image_url, alt: s.heading, width: 1000 %}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .faq { padding: var(--section-pad) var(--gutter); }
+  .faq__inner { max-width: 820px; margin: 0 auto; }
+  .faq__inner--media { max-width: var(--page-max); display: grid; grid-template-columns: 1.2fr 1fr; gap: 64px; align-items: start; }
+  .faq__eyebrow { display: block; margin-bottom: 14px; }
+  .faq__heading { margin-bottom: 28px; }
+  .faq .acc > summary { text-transform: none; letter-spacing: 0; font-family: var(--font-heading); font-size: 21px; font-weight: 500; padding: 18px 0; }
+  .faq__media { position: relative; min-height: 420px; background: var(--sand); }
+  .faq__media .cover { position: absolute; inset: 0; }
+  .faq__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width: 1023px) {
+    .faq__inner--media { grid-template-columns: 1fr; gap: 32px; }
+    .faq__media { min-height: 280px; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "FAQ",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Frequently asked questions" },
+    { "type": "checkbox", "id": "open_first", "label": "Open the first question by default", "default": false },
+    { "type": "select", "id": "background", "label": "Background", "options": [ { "value": "cream", "label": "Cream" }, { "value": "sand", "label": "Sand" } ], "default": "cream" },
+    { "type": "image_picker", "id": "image", "label": "Side image (optional)" },
+    { "type": "text", "id": "image_url", "label": "Side image URL fallback" }
+  ],
+  "blocks": [
+    { "type": "question", "name": "Question", "settings": [
+      { "type": "text", "id": "question", "label": "Question", "default": "How do I care for my jewellery?" },
+      { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Bring it in — cleaning and checks are done at our Mildura bench.</p>" }
+    ] }
+  ],
+  "presets": [{ "name": "FAQ", "blocks": [ { "type": "question" }, { "type": "question" } ] }]
+}
+{% endschema %}

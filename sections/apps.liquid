@@ -1,0 +1,29 @@
+{%- assign s = section.settings -%}
+<section class="full-width apps bg-{{ s.background }}{% if s.padding %} apps--pad{% endif %}">
+  <div class="apps__inner apps__inner--{{ s.width }}">
+    {%- for block in section.blocks -%}
+      {%- render block -%}
+    {%- endfor -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .apps--pad { padding: 40px var(--gutter); }
+  .apps__inner { margin: 0 auto; }
+  .apps__inner--narrow { max-width: 760px; }
+  .apps__inner--wide { max-width: var(--page-max); }
+  .apps__inner--full { max-width: none; }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Apps",
+  "settings": [
+    { "type": "select", "id": "width", "label": "Width", "options": [ { "value": "narrow", "label": "Narrow" }, { "value": "wide", "label": "Wide" }, { "value": "full", "label": "Full width" } ], "default": "wide" },
+    { "type": "select", "id": "background", "label": "Background", "options": [ { "value": "cream", "label": "Cream" }, { "value": "sand", "label": "Sand" } ], "default": "cream" },
+    { "type": "checkbox", "id": "padding", "label": "Add vertical padding", "default": true }
+  ],
+  "blocks": [ { "type": "@app" } ],
+  "presets": [{ "name": "Apps" }]
+}
+{% endschema %}

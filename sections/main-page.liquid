@@ -1,0 +1,21 @@
+{%- assign s = section.settings -%}
+<section class="full-width pg">
+  {%- if s.show_title -%}
+    <div class="page-hero">
+      {%- if s.show_breadcrumbs -%}<nav class="crumbs crumbs--center" aria-label="Breadcrumb"><a href="{{ routes.root_url }}">Home</a><span>&rsaquo;</span><span class="cur">{{ page.title }}</span></nav>{%- endif -%}
+      <h1>{{ page.title }}</h1>
+      <div class="page-hero__diamond"></div>
+    </div>
+  {%- endif -%}
+  <div class="prose">{{ page.content }}</div>
+</section>
+
+{% schema %}
+{
+  "name": "Page content",
+  "settings": [
+    { "type": "checkbox", "id": "show_title", "label": "Show page title", "default": true },
+    { "type": "checkbox", "id": "show_breadcrumbs", "label": "Show breadcrumbs", "default": true }
+  ]
+}
+{% endschema %}
