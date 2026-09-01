@@ -17,22 +17,72 @@
     "trust": {
       "type": "trust-bar",
       "blocks": {
-        "t1": { "type": "item", "settings": { "text": "Local Mildura jeweller" } },
-        "t2": { "type": "item", "settings": { "text": "On-site workshop & custom design" } },
-        "t3": { "type": "item", "settings": { "text": "Free shipping Australia-wide" } },
-        "t4": { "type": "item", "settings": { "text": "Afterpay available" } }
+        "t1": {
+          "type": "item",
+          "settings": {
+            "text": "Local Mildura jeweller"
+          }
+        },
+        "t2": {
+          "type": "item",
+          "settings": {
+            "text": "On-site workshop & custom design"
+          }
+        },
+        "t3": {
+          "type": "item",
+          "settings": {
+            "text": "Free shipping Australia-wide"
+          }
+        },
+        "t4": {
+          "type": "item",
+          "settings": {
+            "text": "Afterpay available"
+          }
+        }
       },
-      "block_order": ["t1", "t2", "t3", "t4"],
+      "block_order": [
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ],
       "settings": {}
     },
     "workshop": {
       "type": "image-with-text",
       "blocks": {
-        "b1": { "type": "button", "settings": { "label": "Build Your Ring", "url": "shopify://pages/ring-builder", "style": "ink" } },
-        "b2": { "type": "button", "settings": { "label": "Start a Custom Design", "url": "shopify://pages/custom-designs", "style": "link" } },
-        "b3": { "type": "button", "settings": { "label": "Repairs & remodelling", "url": "shopify://pages/services", "style": "link" } }
+        "b1": {
+          "type": "button",
+          "settings": {
+            "label": "Build Your Ring",
+            "url": "shopify://pages/ring-builder",
+            "style": "ink"
+          }
+        },
+        "b2": {
+          "type": "button",
+          "settings": {
+            "label": "Start a Custom Design",
+            "url": "shopify://pages/custom-designs",
+            "style": "link"
+          }
+        },
+        "b3": {
+          "type": "button",
+          "settings": {
+            "label": "Repairs & remodelling",
+            "url": "shopify://pages/services",
+            "style": "link"
+          }
+        }
       },
-      "block_order": ["b1", "b2", "b3"],
+      "block_order": [
+        "b1",
+        "b2",
+        "b3"
+      ],
       "settings": {
         "image_url": "https://images.unsplash.com/photo-1715374033196-0ff662284a7e?fm=jpg&q=75&w=1200&auto=format&fit=crop",
         "image_alt": "Jeweller at the bench — close-up hands, tools, warm light",
@@ -48,11 +98,33 @@
     "anatomy": {
       "type": "ring-anatomy",
       "blocks": {
-        "p1": { "type": "part", "settings": { "title": "The Diamond", "text": "Sourced direct from the supplier — no middleman margin. Choose cut, carat, colour and clarity, certified stone in hand before you commit." } },
-        "p2": { "type": "part", "settings": { "title": "The Crown", "text": "The setting that holds your stone — claw, bezel or halo. Hand-set at our Mildura bench, not in a factory." } },
-        "p3": { "type": "part", "settings": { "title": "The Shank", "text": "The band — yellow, white or rose gold, or platinum. Settings sourced direct, so the price stays competitive." } }
+        "p1": {
+          "type": "part",
+          "settings": {
+            "title": "The Diamond",
+            "text": "Sourced direct from the supplier — no middleman margin. Choose cut, carat, colour and clarity, certified stone in hand before you commit."
+          }
+        },
+        "p2": {
+          "type": "part",
+          "settings": {
+            "title": "The Crown",
+            "text": "The setting that holds your stone — claw, bezel or halo. Hand-set at our Mildura bench, not in a factory."
+          }
+        },
+        "p3": {
+          "type": "part",
+          "settings": {
+            "title": "The Shank",
+            "text": "The band — yellow, white or rose gold, or platinum. Settings sourced direct, so the price stays competitive."
+          }
+        }
       },
-      "block_order": ["p1", "p2", "p3"],
+      "block_order": [
+        "p1",
+        "p2",
+        "p3"
+      ],
       "settings": {
         "eyebrow": "The Ring Builder",
         "heading": "One ring. Three decisions.",
@@ -64,13 +136,51 @@
     "wedding": {
       "type": "image-with-text",
       "blocks": {
-        "s1": { "type": "step", "settings": { "title": "Choose your metal", "text": "yellow, white or rose gold, or platinum" } },
-        "s2": { "type": "step", "settings": { "title": "Set profile & width", "text": "flat, half-round or comfort fit, sized in store" } },
-        "s3": { "type": "step", "settings": { "title": "Finish & engrave", "text": "polished, brushed or hammered, engraved in-house" } },
-        "b1": { "type": "button", "settings": { "label": "Build Your Wedding Bands", "url": "shopify://pages/wedding-ring-builder", "style": "ink" } },
-        "b2": { "type": "button", "settings": { "label": "Book a fitting", "use_booking_url": true, "style": "link" } }
+        "s1": {
+          "type": "step",
+          "settings": {
+            "title": "Choose your metal",
+            "text": "yellow, white or rose gold, or platinum"
+          }
+        },
+        "s2": {
+          "type": "step",
+          "settings": {
+            "title": "Set profile & width",
+            "text": "flat, half-round or comfort fit, sized in store"
+          }
+        },
+        "s3": {
+          "type": "step",
+          "settings": {
+            "title": "Finish & engrave",
+            "text": "polished, brushed or hammered, engraved in-house"
+          }
+        },
+        "b1": {
+          "type": "button",
+          "settings": {
+            "label": "Build Your Wedding Bands",
+            "url": "shopify://pages/wedding-ring-builder",
+            "style": "ink"
+          }
+        },
+        "b2": {
+          "type": "button",
+          "settings": {
+            "label": "Book a fitting",
+            "use_booking_url": true,
+            "style": "link"
+          }
+        }
       },
-      "block_order": ["s1", "s2", "s3", "b1", "b2"],
+      "block_order": [
+        "s1",
+        "s2",
+        "s3",
+        "b1",
+        "b2"
+      ],
       "settings": {
         "image_url": "https://images.unsplash.com/photo-1529519195486-16945f0fb37f?fm=jpg&q=75&w=1200&auto=format&fit=crop",
         "image_alt": "Couple's hands with wedding bands",
@@ -86,45 +196,178 @@
     "categories": {
       "type": "category-grid",
       "blocks": {
-        "c1": { "type": "tile", "settings": { "label": "Rings", "url": "shopify://collections/rings", "image_url": "https://images.unsplash.com/photo-1719924998065-0c60e329ef58?fm=jpg&q=75&w=900&auto=format&fit=crop" } },
-        "c2": { "type": "tile", "settings": { "label": "Necklaces", "url": "shopify://collections/necklace", "image_url": "https://images.unsplash.com/photo-1724937721130-c9a9a4ee477e?fm=jpg&q=75&w=900&auto=format&fit=crop" } },
-        "c3": { "type": "tile", "settings": { "label": "Earrings", "url": "shopify://collections/earrings", "image_url": "https://images.unsplash.com/photo-1693212793204-bcea856c75fe?fm=jpg&q=75&w=900&auto=format&fit=crop" } },
-        "c4": { "type": "tile", "settings": { "label": "Bracelets", "url": "shopify://collections/bracelets", "image_url": "https://images.unsplash.com/photo-1639065643006-e217c4fee12e?fm=jpg&q=75&w=900&auto=format&fit=crop" } },
-        "c5": { "type": "tile", "settings": { "label": "Watches — Citizen, Casio & more", "url": "shopify://collections/watches", "image_url": "https://images.unsplash.com/photo-1524805444758-089113d48a6d?fm=jpg&q=75&w=1920&auto=format&fit=crop", "cta": "Shop watches", "wide": true } }
+        "c1": {
+          "type": "tile",
+          "settings": {
+            "label": "Rings",
+            "url": "shopify://collections/rings",
+            "image_url": "https://images.unsplash.com/photo-1719924998065-0c60e329ef58?fm=jpg&q=75&w=900&auto=format&fit=crop"
+          }
+        },
+        "c2": {
+          "type": "tile",
+          "settings": {
+            "label": "Necklaces",
+            "url": "shopify://collections/necklace",
+            "image_url": "https://images.unsplash.com/photo-1724937721130-c9a9a4ee477e?fm=jpg&q=75&w=900&auto=format&fit=crop"
+          }
+        },
+        "c3": {
+          "type": "tile",
+          "settings": {
+            "label": "Earrings",
+            "url": "shopify://collections/earrings",
+            "image_url": "https://images.unsplash.com/photo-1693212793204-bcea856c75fe?fm=jpg&q=75&w=900&auto=format&fit=crop"
+          }
+        },
+        "c4": {
+          "type": "tile",
+          "settings": {
+            "label": "Bracelets",
+            "url": "shopify://collections/bracelets",
+            "image_url": "https://images.unsplash.com/photo-1639065643006-e217c4fee12e?fm=jpg&q=75&w=900&auto=format&fit=crop"
+          }
+        },
+        "c5": {
+          "type": "tile",
+          "settings": {
+            "label": "Watches — Citizen, Casio & more",
+            "url": "shopify://collections/watches",
+            "image_url": "https://images.unsplash.com/photo-1524805444758-089113d48a6d?fm=jpg&q=75&w=1920&auto=format&fit=crop",
+            "cta": "Shop watches",
+            "wide": true
+          }
+        }
       },
-      "block_order": ["c1", "c2", "c3", "c4", "c5"],
-      "settings": { "eyebrow": "Shop the Collection", "heading": "Find something they'll keep forever" }
+      "block_order": [
+        "c1",
+        "c2",
+        "c3",
+        "c4",
+        "c5"
+      ],
+      "settings": {
+        "eyebrow": "Shop the Collection",
+        "heading": "Find something they'll keep forever"
+      }
     },
     "brands": {
       "type": "brand-strip",
       "blocks": {
-        "b1": { "type": "brand", "settings": { "name": "Pandora", "url": "shopify://collections/pandora" } },
-        "b2": { "type": "brand", "settings": { "name": "Thomas Sabo", "url": "shopify://collections/thomas-sabo" } },
-        "b3": { "type": "brand", "settings": { "name": "Ania Haie", "url": "shopify://collections/ania-haie" } },
-        "b4": { "type": "brand", "settings": { "name": "Citizen", "url": "shopify://collections/citizen" } },
-        "b5": { "type": "brand", "settings": { "name": "Casio", "url": "shopify://collections/casio" } }
+        "b1": {
+          "type": "brand",
+          "settings": {
+            "name": "Pandora",
+            "url": "shopify://collections/pandora"
+          }
+        },
+        "b2": {
+          "type": "brand",
+          "settings": {
+            "name": "Thomas Sabo",
+            "url": "shopify://collections/thomas-sabo"
+          }
+        },
+        "b3": {
+          "type": "brand",
+          "settings": {
+            "name": "Ania Haie",
+            "url": "shopify://collections/ania-haie"
+          }
+        },
+        "b4": {
+          "type": "brand",
+          "settings": {
+            "name": "Citizen",
+            "url": "shopify://collections/citizen"
+          }
+        },
+        "b5": {
+          "type": "brand",
+          "settings": {
+            "name": "Casio",
+            "url": "shopify://collections/casio"
+          }
+        }
       },
-      "block_order": ["b1", "b2", "b3", "b4", "b5"],
-      "settings": { "label": "Stockists of" }
+      "block_order": [
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5"
+      ],
+      "settings": {
+        "label": "Stockists of"
+      }
     },
     "reviews": {
       "type": "testimonials",
       "blocks": {
-        "r1": { "type": "review", "settings": { "quote": "They remodelled my grandmother's ring into something I wear every day. Couldn't fault the care they took.", "author": "Sarah", "source": "Google review", "image_url": "https://images.unsplash.com/photo-1631897817977-a1005c199b36?fm=jpg&q=75&w=800&auto=format&fit=crop" } },
-        "r2": { "type": "review", "settings": { "quote": "The team helped me design the perfect engagement ring. She said yes — and everyone asks where it's from.", "author": "Daniel", "source": "Google review" } },
-        "r3": { "type": "review", "settings": { "quote": "Proper old-school service. Repairs done on site in days, not weeks. Wouldn't go anywhere else in Mildura.", "author": "Margaret", "source": "Google review" } }
+        "r1": {
+          "type": "review",
+          "settings": {
+            "quote": "They remodelled my grandmother's ring into something I wear every day. Couldn't fault the care they took.",
+            "author": "Sarah",
+            "source": "Google review",
+            "image_url": "https://images.unsplash.com/photo-1631897817977-a1005c199b36?fm=jpg&q=75&w=800&auto=format&fit=crop"
+          }
+        },
+        "r2": {
+          "type": "review",
+          "settings": {
+            "quote": "The team helped me design the perfect engagement ring. She said yes — and everyone asks where it's from.",
+            "author": "Daniel",
+            "source": "Google review"
+          }
+        },
+        "r3": {
+          "type": "review",
+          "settings": {
+            "quote": "Proper old-school service. Repairs done on site in days, not weeks. Wouldn't go anywhere else in Mildura.",
+            "author": "Margaret",
+            "source": "Google review"
+          }
+        }
       },
-      "block_order": ["r1", "r2", "r3"],
-      "settings": { "heading": "Trusted by Mildura for generations", "subheading": "From our Google reviews" }
+      "block_order": [
+        "r1",
+        "r2",
+        "r3"
+      ],
+      "settings": {
+        "heading": "Trusted by Mildura for generations",
+        "subheading": "From our Google reviews"
+      }
     },
     "visit": {
       "type": "visit-us",
       "blocks": {
-        "f1": { "type": "fact", "settings": { "label": "Hours", "value": "<p>Mon–Fri 9:00am – 5:00pm<br>Sat 9:30am – 1:30pm · Sun closed</p>" } },
-        "f2": { "type": "fact", "settings": { "label": "Parking", "value": "<p>Street parking on Langtree Ave &amp; Deakin Ave</p>" } }
+        "f1": {
+          "type": "fact",
+          "settings": {
+            "label": "Hours",
+            "value": "<p>Mon–Fri 9:00am – 5:00pm<br>Sat 9:30am – 1:30pm · Sun closed</p>"
+          }
+        },
+        "f2": {
+          "type": "fact",
+          "settings": {
+            "label": "Parking",
+            "value": "<p>Street parking on Langtree Ave &amp; Deakin Ave</p>"
+          }
+        }
       },
-      "block_order": ["f1", "f2"],
-      "settings": { "eyebrow": "Visit Us", "show_phone": true, "book_label": "Book an Appointment", "directions_label": "Get Directions" }
+      "block_order": [
+        "f1",
+        "f2"
+      ],
+      "settings": {
+        "eyebrow": "Visit Us",
+        "show_phone": true,
+        "book_label": "Book an Appointment",
+        "directions_label": "Get Directions"
+      }
     },
     "newsletter": {
       "type": "newsletter",
@@ -137,5 +380,16 @@
       }
     }
   },
-  "order": ["hero", "trust", "workshop", "anatomy", "wedding", "categories", "brands", "reviews", "visit", "newsletter"]
+  "order": [
+    "hero",
+    "trust",
+    "workshop",
+    "anatomy",
+    "wedding",
+    "categories",
+    "brands",
+    "reviews",
+    "visit",
+    "newsletter"
+  ]
 }
