@@ -1,0 +1,45 @@
+{% style %}
+  :root {
+    --navy: {{ settings.color_navy }};
+    --navy-2: {{ settings.color_navy_2 }};
+    --navy-3: #141838;
+    --ink: {{ settings.color_ink }};
+    --body: {{ settings.color_body }};
+    --muted: {{ settings.color_muted }};
+    --cream: {{ settings.color_cream }};
+    --sand: {{ settings.color_sand }};
+    --gold: {{ settings.color_gold }};
+    --gold-2: {{ settings.color_gold_2 }};
+    --gold-3: {{ settings.color_gold_3 }};
+    --gold-dark: {{ settings.color_gold_dark }};
+    --cream-rgb: {{ settings.color_cream | color_extract: 'red' }}, {{ settings.color_cream | color_extract: 'green' }}, {{ settings.color_cream | color_extract: 'blue' }};
+    --navy-rgb: {{ settings.color_navy | color_extract: 'red' }}, {{ settings.color_navy | color_extract: 'green' }}, {{ settings.color_navy | color_extract: 'blue' }};
+    --gold-rgb: {{ settings.color_gold | color_extract: 'red' }}, {{ settings.color_gold | color_extract: 'green' }}, {{ settings.color_gold | color_extract: 'blue' }};
+    --gold-dark-rgb: {{ settings.color_gold_dark | color_extract: 'red' }}, {{ settings.color_gold_dark | color_extract: 'green' }}, {{ settings.color_gold_dark | color_extract: 'blue' }};
+
+    --font-heading: '{{ settings.font_heading }}', Georgia, 'Times New Roman', serif;
+    --font-body: '{{ settings.font_body }}', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+
+    --page-max: 1240px;
+    --gutter: 56px;
+    --gutter-mobile: 20px;
+    --section-pad: 96px;
+    --section-pad-mobile: 64px;
+    --header-height: 100px;
+
+    /* Aliases kept for the Skeleton-derived sections (collection, product, cart…) until they are restyled */
+    --font-primary--family: var(--font-body);
+    --page-width: var(--page-max);
+    --page-margin: var(--gutter);
+    --color-background: var(--cream);
+    --color-foreground: var(--ink);
+    --style-border-radius-inputs: 0px;
+  }
+  @media (max-width: 1023px) {
+    :root {
+      --gutter: var(--gutter-mobile);
+      --section-pad: var(--section-pad-mobile);
+      --header-height: 70px;
+    }
+  }
+{% endstyle %}

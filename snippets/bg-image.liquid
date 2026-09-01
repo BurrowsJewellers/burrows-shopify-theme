@@ -1,0 +1,29 @@
+{% doc %}
+  Cover image filling its positioned parent, optionally with scroll parallax.
+  @param {image} [image] - image_picker value
+  @param {string} [fallback] - URL used when no image is chosen
+  @param {string} [alt]
+  @param {number} [parallax] - parallax factor (0 = none), e.g. 0.14
+  @param {number} [width] - max rendered width for Shopify images (default 1600)
+  @param {string} [loading] - lazy | eager (default lazy)
+{% enddoc %}
+{%- liquid
+  assign w = width | default: 1600
+  assign load = loading | default: 'lazy'
+  assign factor = parallax | default: 0
+-%}
+{%- liquid
+  assign wrapper_class = 'cover'
+  if factor > 0
+    assign wrapper_class = 'parallax'
+  endif
+-%}
+<div class="{{ wrapper_class }}"{% if factor > 0 %} data-parallax="{{ factor }}"{% endif %}>
+  {%- if image != blank -%}
+    {{ image | image_url: width: w | image_tag: loading: load, alt: alt, sizes: '100vw', widths: '600, 900, 1200, 1600, 1920' }}
+  {%- elsif fallback != blank -%}
+    <img src="{{ fallback }}" alt="{{ alt | escape }}" loading="{{ load }}" width="1600" height="1000">
+  {%- else -%}
+    {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder' }}
+  {%- endif -%}
+</div>

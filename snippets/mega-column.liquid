@@ -1,0 +1,35 @@
+{% doc %}
+  One column of a mega menu.
+  @param {string} heading
+  @param {object} menu - linklist
+  @param {boolean} [two_col]
+  @param {string} [more_label]
+  @param {string} [more_url]
+  @param {string} [sub_heading]
+  @param {object} [pills_menu] - linklist rendered as pills
+  @param {string} [highlight] - link title to render with the gold "new" dot
+  @param {boolean} [last]
+{% enddoc %}
+<div class="bn-col{% if last %} last{% endif %}">
+  {%- if heading != blank -%}<div class="bn-h">{{ heading }}</div>{%- endif -%}
+  {%- if menu != blank and menu.links.size > 0 -%}
+    <div class="bn-links{% if two_col %} two{% endif %}">
+      {%- for link in menu.links -%}
+        {%- if highlight != blank and link.title == highlight -%}
+          <a class="bn-new" href="{{ link.url }}"><span class="bn-dot"></span>{{ link.title }}</a>
+        {%- else -%}
+          <a href="{{ link.url }}">{{ link.title }}</a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+  {%- if sub_heading != blank -%}<div class="bn-h mt">{{ sub_heading }}</div>{%- endif -%}
+  {%- if pills_menu != blank and pills_menu.links.size > 0 -%}
+    <div class="bn-pills">
+      {%- for link in pills_menu.links -%}<a href="{{ link.url }}">{{ link.title }}</a>{%- endfor -%}
+    </div>
+  {%- endif -%}
+  {%- if more_label != blank -%}
+    <a class="bn-more" href="{{ more_url | default: '#' }}">{{ more_label }}</a>
+  {%- endif -%}
+</div>

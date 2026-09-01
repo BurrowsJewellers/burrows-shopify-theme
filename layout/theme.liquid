@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta name="theme-color" content="{{ settings.color_navy }}">
+    {%- if settings.favicon != blank -%}
+      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+    {%- endif -%}
+
+    {% render 'meta-tags' %}
+
+    {%- if settings.google_fonts_url != blank -%}
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="{{ settings.google_fonts_url }}" rel="stylesheet">
+    {%- endif -%}
+
+    {% render 'css-variables' %}
+    {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+
+    {{ content_for_header }}
+  </head>
+
+  {%- liquid
+    assign body_class = 'template-' | append: template.name
+    if template.suffix != blank
+      assign body_class = body_class | append: ' template-' | append: template.name | append: '-' | append: template.suffix
+    endif
+    if template.name == 'index'
+      assign body_class = body_class | append: ' has-transparent-header'
+    endif
+  -%}
+  <body class="{{ body_class }}">
+    <a class="skip-link" href="#MainContent">Skip to content</a>
+
+    {% sections 'header-group' %}
+
+    <main id="MainContent" class="main-content" role="main" tabindex="-1">
+      {{ content_for_layout }}
+    </main>
+
+    {% sections 'footer-group' %}
+
+    <script src="{{ 'theme.js' | asset_url }}" defer></script>
+  </body>
+</html>

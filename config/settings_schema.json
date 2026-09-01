@@ -1,0 +1,60 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Burrows",
+    "theme_version": "0.1.0",
+    "theme_author": "Burrows Jewellers",
+    "theme_documentation_url": "https://github.com/BurrowsJewellers/burrows-shopify-theme",
+    "theme_support_url": "https://github.com/BurrowsJewellers/burrows-shopify-theme/issues"
+  },
+  {
+    "name": "Colours",
+    "settings": [
+      { "type": "header", "content": "Brand palette" },
+      { "type": "color", "id": "color_navy", "label": "Navy (dark backgrounds)", "default": "#0f1233" },
+      { "type": "color", "id": "color_navy_2", "label": "Navy — raised panels", "default": "#191e4a" },
+      { "type": "color", "id": "color_ink", "label": "Ink (headings, dark buttons)", "default": "#171d50" },
+      { "type": "color", "id": "color_body", "label": "Body text", "default": "#484b66" },
+      { "type": "color", "id": "color_muted", "label": "Muted text", "default": "#7f829b" },
+      { "type": "color", "id": "color_cream", "label": "Cream (light backgrounds)", "default": "#f6f1e7" },
+      { "type": "color", "id": "color_sand", "label": "Sand (alternate light background)", "default": "#ece3d2" },
+      { "type": "color", "id": "color_gold", "label": "Gold (primary accent)", "default": "#d6af35" },
+      { "type": "color", "id": "color_gold_2", "label": "Gold — light", "default": "#d9bc55" },
+      { "type": "color", "id": "color_gold_3", "label": "Gold — hover", "default": "#e4c355" },
+      { "type": "color", "id": "color_gold_dark", "label": "Gold — dark (eyebrows on light)", "default": "#8f7420" }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      { "type": "paragraph", "content": "The theme loads Cormorant Garamond (headings) and Manrope (body) from Google Fonts." },
+      { "type": "text", "id": "font_heading", "label": "Heading font family", "default": "Cormorant Garamond" },
+      { "type": "text", "id": "font_body", "label": "Body font family", "default": "Manrope" },
+      { "type": "text", "id": "google_fonts_url", "label": "Google Fonts stylesheet URL", "default": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@200;300;400;500;600;700;800&display=swap" }
+    ]
+  },
+  {
+    "name": "Store details",
+    "settings": [
+      { "type": "header", "content": "Used across the header, footer and Visit Us section" },
+      { "type": "text", "id": "store_phone_display", "label": "Phone (as displayed)", "default": "03 5023 2357" },
+      { "type": "text", "id": "store_phone_tel", "label": "Phone (tel: link, international)", "default": "+61350232357" },
+      { "type": "text", "id": "store_address_line", "label": "Street address", "default": "68 Langtree Avenue, Mildura" },
+      { "type": "text", "id": "store_address_short", "label": "Short address (footer)", "default": "68 Langtree Ave, Mildura VIC" },
+      { "type": "text", "id": "booking_url", "label": "Book an appointment URL", "default": "https://calendly.com/workshop-burrowsjewellers/ring-consultation-online" },
+      { "type": "text", "id": "directions_url", "label": "Get directions URL", "default": "https://www.google.com/maps/search/?api=1&query=Burrows+Jewellers+68+Langtree+Ave+Mildura+VIC+3500" },
+      { "type": "text", "id": "map_embed_url", "label": "Google Maps embed URL", "default": "https://maps.google.com/maps?q=Burrows%20Jewellers%2C%2068%20Langtree%20Ave%2C%20Mildura%20VIC%203500&z=16&output=embed" },
+      { "type": "header", "content": "Social" },
+      { "type": "text", "id": "social_instagram", "label": "Instagram URL", "default": "https://www.instagram.com/burrowsjewellers" },
+      { "type": "text", "id": "social_facebook", "label": "Facebook URL", "default": "https://www.facebook.com/burrowsjewellers" }
+    ]
+  },
+  {
+    "name": "Logo",
+    "settings": [
+      { "type": "image_picker", "id": "logo_light", "label": "Logo — white (for dark backgrounds)" },
+      { "type": "text", "id": "logo_light_url", "label": "Logo URL fallback", "default": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/Burrows_Jeweller_Primary_Logo_White.png?v=1783317504", "info": "Used until an image is chosen above." },
+      { "type": "image_picker", "id": "favicon", "label": "Favicon (32×32 px recommended)" }
+    ]
+  }
+]
