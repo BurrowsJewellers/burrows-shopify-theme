@@ -15,6 +15,7 @@
     assign on_sale = true
   endif
 -%}
+{%- unless product.tags contains 'hidden-service' -%}
 <div class="pc">
   <a class="pc__img" href="{{ product.url }}" aria-label="{{ product.title | escape }}">
     {%- if product.featured_image -%}
@@ -37,3 +38,4 @@
     </div>
   </div>
 </div>
+{%- endunless -%}

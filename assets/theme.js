@@ -259,6 +259,128 @@
       if (on && mainImg) { mainImg.src = t.getAttribute('data-full'); mainImg.removeAttribute('srcset'); }
     });
   }
+
+  /* ---- Ring sizing / resizing (block "ring_sizing") ---- */
+  var sizing = (function () {
+    var box = q('[data-sizing]');
+    var mapEl = q('[data-sizing-map]');
+    if (!box || !mapEl) return null;
+    var data;
+    try { data = JSON.parse(mapEl.textContent); } catch (e) { return null; }
+    var steps = parseInt(box.getAttribute('data-steps'), 10) || 2;
+    var prefixes = (box.getAttribute('data-prefixes') || '').split(',').map(function (p) { return p.trim(); }).filter(Boolean);
+    var vals = box.querySelector('[data-sizing-vals]');
+    var current = box.querySelector('[data-sizing-current]');
+    var summary = box.querySelector('[data-sizing-summary]');
+    var note = box.querySelector('[data-sizing-note]');
+    var contact = q('[data-sizing-contact]');
+    var form = q('.pd__form');
+    var state = { active: false, base: null, chosen: null, metal: null, resize: null, variant: null };
+
+    /* UK sizes: A..Z with half sizes -> index 0..51 */
+    function parseSize(str) {
+      if (!str) return null;
+      var m = String(str).trim().toUpperCase().replace(/\s+/g, '').match(/^([A-Z])(½|1\/2|\.5|HALF)?$/);
+      if (!m) return null;
+      return (m[1].charCodeAt(0) - 65) * 2 + (m[2] ? 1 : 0);
+    }
+    function fmtSize(idx) { return String.fromCharCode(65 + Math.floor(idx / 2)) + (idx % 2 ? '½' : ''); }
+    function carat(str) { var m = String(str || '').match(/(\d+)/); return m ? m[1] : null; }
+    function resizeFor(metal) {
+      var c = carat(metal);
+      if (!c) return null;
+      return (data.resize || []).find(function (r) { return carat(r.title) === c; }) || null;
+    }
+    function inDepartment(sku) {
+      return prefixes.some(function (p) { return String(sku || '').indexOf(p) === 0; });
+    }
+
+    function render() {
+      vals.innerHTML = '';
+      var lo = Math.max(0, state.base - steps), hi = Math.min(51, state.base + steps);
+      for (var i = lo; i <= hi; i++) {
+        var id = 'rs-' + i;
+        var input = document.createElement('input');
+        input.type = 'radio'; input.className = 'visually-hidden pd__radio'; input.id = id; input.name = 'ring-size'; input.value = i;
+        if (i === state.chosen) input.checked = true;
+        var label = document.createElement('label');
+        label.setAttribute('for', id);
+        label.innerHTML = fmtSize(i) + (i === state.base ? '<small>as made</small>' : '<small>+' + money(state.resize.price) + '</small>');
+        vals.appendChild(input); vals.appendChild(label);
+      }
+      refresh();
+    }
+    function refresh() {
+      if (current) current.textContent = fmtSize(state.chosen);
+      var changed = state.chosen !== state.base;
+      if (summary) {
+        summary.innerHTML = changed
+          ? 'Resize from <b>' + fmtSize(state.base) + '</b> to <b>' + fmtSize(state.chosen) + '</b> &mdash; <b>+' + money(state.resize.price) + '</b> added at checkout'
+          : 'Made in size <b>' + fmtSize(state.base) + '</b> &mdash; no resizing charge';
+      }
+      if (note) note.hidden = !changed;
+    }
+
+    vals.addEventListener('change', function (e) {
+      if (e.target && e.target.name === 'ring-size') { state.chosen = parseInt(e.target.value, 10); refresh(); }
+    });
+
+    function setVariant(v) {
+      var info = (data.variants || {})[String(v.id)] || {};
+      var base = parseSize(info.size);
+      var rs = resizeFor(info.metal);
+      var eligible = inDepartment(info.sku);
+      state.variant = v;
+      if (eligible && base !== null && rs) {
+        state.active = true; state.base = base; state.resize = rs; state.metal = info.metal;
+        if (state.chosen === null || state.chosen < base - steps || state.chosen > base + steps) state.chosen = base;
+        box.hidden = false;
+        if (contact) contact.hidden = true;
+        render();
+      } else {
+        state.active = false;
+        box.hidden = true;
+        if (contact) contact.hidden = !eligible;
+      }
+    }
+
+    /* Add ring + resizing service together */
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        if (!state.active || !window.fetch) return;
+        e.preventDefault();
+        var qtyEl = form.querySelector('[name="quantity"]');
+        var qty = Math.max(1, parseInt(qtyEl && qtyEl.value, 10) || 1);
+        var vid = parseInt(form.querySelector('[name="id"]').value, 10);
+        var from = fmtSize(state.base), to = fmtSize(state.chosen);
+        var items = [{ id: vid, quantity: qty, properties: { 'Ring size': to } }];
+        if (state.chosen !== state.base) {
+          items[0].properties['Resizing'] = from + ' → ' + to + ' (+' + money(state.resize.price) + ')';
+          items.push({ id: state.resize.id, quantity: qty, properties: {
+            'For': data.productTitle + (state.variant.sku ? ' · ' + state.variant.sku : ''),
+            'From': from, 'To': to, '_ring_variant': String(vid)
+          } });
+        }
+        var btn = form.querySelector('[data-add-button]');
+        if (btn) btn.disabled = true;
+        fetch(window.Shopify && window.Shopify.routes ? window.Shopify.routes.root + 'cart/add.js' : '/cart/add.js', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ items: items })
+        }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+          .then(function (res) {
+            if (!res.ok) throw new Error(res.body && res.body.description || 'Could not add to cart');
+            window.location.href = (window.Shopify && window.Shopify.routes ? window.Shopify.routes.root : '/') + 'cart';
+          })
+          .catch(function (err) {
+            if (btn) btn.disabled = false;
+            if (summary) summary.innerHTML = '<span style="color:#8f2020">' + (err.message || 'Sorry, something went wrong adding this to your cart.') + '</span>';
+          });
+      });
+    }
+
+    return { setVariant: setVariant };
+  })();
+
   function update(pushUrl) {
     var v = findVariant(currentOptions());
     qa('[data-option-index]').forEach(function (fs) {
@@ -285,6 +407,7 @@
     designEls.forEach(function (el) { el.textContent = dn; });
     if (designWrap) designWrap.hidden = !dn;
     if (designRow) designRow.hidden = !dn;
+    if (sizing) sizing.setVariant(v);
     if (skuEl) skuEl.textContent = v.sku || '';
     if (skuRow) skuRow.hidden = !v.sku;
     if (addDiamond) {
@@ -313,6 +436,31 @@
   if (stickyAdd && addBtn) stickyAdd.addEventListener('click', function () { addBtn.click(); });
 
   update(false);
+})();
+
+
+/* ---------------- Cart: drop resizing lines whose ring is no longer in the cart ---------------- */
+(function () {
+  var items = Array.prototype.slice.call(document.querySelectorAll('[data-cart-item]'));
+  if (!items.length || !window.fetch) return;
+  var present = {};
+  items.forEach(function (el) { present[el.getAttribute('data-variant-id')] = true; });
+  var orphans = items.filter(function (el) {
+    var f = el.getAttribute('data-for-variant');
+    return f && !present[f];
+  });
+  if (!orphans.length) return;
+  var root = (window.Shopify && window.Shopify.routes) ? window.Shopify.routes.root : '/';
+  /* Remove highest line numbers first so earlier indexes stay valid */
+  orphans.sort(function (a, b) { return parseInt(b.getAttribute('data-line'), 10) - parseInt(a.getAttribute('data-line'), 10); });
+  orphans.reduce(function (chain, el) {
+    return chain.then(function () {
+      return fetch(root + 'cart/change.js', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ line: parseInt(el.getAttribute('data-line'), 10), quantity: 0 })
+      });
+    });
+  }, Promise.resolve()).then(function () { window.location.reload(); }).catch(function () {});
 })();
 
 /* ---------------- Product recommendations (Section Rendering API) ---------------- */

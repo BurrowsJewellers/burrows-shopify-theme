@@ -91,6 +91,32 @@
               </div>
             {%- endunless -%}
 
+          {%- when 'ring_sizing' -%}
+            {%- liquid
+              assign rs = block.settings
+              assign resize_product = rs.resize_product
+              assign product_size = product.metafields.custom.ring_size_product | metafield_text
+              assign product_metal = product.metafields.custom.metal_type_product | metafield_text
+            -%}
+            <div class="pd__sizing" data-sizing data-steps="{{ rs.steps }}" data-prefixes="{{ rs.prefixes | escape }}" data-label="{{ rs.label | escape }}" hidden {{ block.shopify_attributes }}>
+              <fieldset class="pd__opt">
+                <legend class="pd__opt-label">{{ rs.label }} &mdash; <b data-sizing-current></b></legend>
+                <div class="pd__vals pd__vals--sizing" data-sizing-vals></div>
+                <div class="pd__sizing-summary" data-sizing-summary></div>
+                {%- if rs.note != blank -%}<div class="pd__note" data-sizing-note hidden>{{ rs.note }}</div>{%- endif -%}
+              </fieldset>
+            </div>
+            {%- if rs.contact_text != blank -%}
+              <div class="pd__sizing-contact" data-sizing-contact hidden>
+                <a href="{{ rs.contact_url | default: '/pages/contact' }}">{{ rs.contact_text }}</a>
+              </div>
+            {%- endif -%}
+            <script type="application/json" data-sizing-map>{
+              "variants": { {%- for v in product.variants -%}"{{ v.id }}": { "sku": {{ v.sku | json }}, "size": {{ v.metafields.custom.ring_size_variant | metafield_text | default: product_size | json }}, "metal": {{ v.metafields.custom.metal_type | metafield_text | default: product_metal | json }} }{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%} },
+              "resize": [ {%- for rv in resize_product.variants -%}{ "id": {{ rv.id }}, "title": {{ rv.title | json }}, "price": {{ rv.price }} }{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%} ],
+              "productTitle": {{ product.title | json }}
+            }</script>
+
           {%- when 'buy_buttons' -%}
             <div {{ block.shopify_attributes }}>
               {%- form 'product', product, id: form_id, class: 'pd__form', novalidate: 'novalidate' -%}
@@ -236,6 +262,15 @@
   .pd__radio:focus-visible + label { outline: 2px solid var(--gold); outline-offset: 2px; }
   .pd__vals label.soldout { opacity: .45; text-decoration: line-through; }
   .pd__note { font-size: 12.5px; color: var(--muted); font-weight: 300; }
+  .pd__sizing { margin-bottom: 22px; }
+  .pd__sizing[hidden], .pd__sizing-contact[hidden], .pd__sizing-summary:empty { display: none; }
+  .pd__vals--sizing label { flex-direction: column; gap: 1px; line-height: 1.1; padding: 0 10px; }
+  .pd__vals--sizing label small { font-size: 10px; letter-spacing: .04em; color: var(--gold-dark); }
+  .pd__radio:checked + label small { color: var(--gold-2); }
+  .pd__sizing-summary { font-size: 13px; color: var(--ink); }
+  .pd__sizing-summary b { font-weight: 500; }
+  .pd__sizing-contact { margin: -8px 0 22px; font-size: 13px; }
+  .pd__sizing-contact a { color: var(--gold-dark); border-bottom: 1px solid var(--gold-2); }
   .pd__cartrow { display: flex; gap: 12px; margin-bottom: 14px; }
   .pd__qty { display: flex; align-items: center; border: 1px solid rgba(var(--gold-dark-rgb), .35); }
   .pd__qty button { width: 40px; height: 52px; display: flex; align-items: center; justify-content: center; color: var(--gold-dark); cursor: pointer; font-size: 16px; background: none; border: none; }
@@ -298,7 +333,17 @@
       { "type": "checkbox", "id": "show_design_number", "label": "Show design number (variant metafield custom.design_number_variant)", "default": true }
     ] },
     { "type": "text", "name": "Text", "settings": [ { "type": "richtext", "id": "text", "label": "Text", "default": "<p>This product will be shipped directly from our warehouse.</p>" } ] },
-    { "type": "variant_picker", "name": "Variant picker", "limit": 1, "settings": [ { "type": "text", "id": "size_note", "label": "Note under size options", "default": "Free resizing in our Mildura workshop, for life." } ] },
+    { "type": "variant_picker", "name": "Variant picker", "limit": 1, "settings": [ { "type": "text", "id": "size_note", "label": "Note under size options", "default": "Sized and finished in our Mildura workshop." } ] },
+    { "type": "ring_sizing", "name": "Ring size / resizing", "limit": 1, "settings": [
+      { "type": "paragraph", "content": "Shows a ring-size picker on rings whose SKU starts with one of the department prefixes. The ring's own size comes from the variant metafield custom.ring_size_variant (or custom.ring_size_product); the metal from custom.metal_type. Choosing a different size adds the matching variant of the resizing product to the cart." },
+      { "type": "product", "id": "resize_product", "label": "Resizing product", "info": "Its variants are matched to the ring's metal by carat (e.g. a \"9ct gold\" variant is used for rings tagged 9k)." },
+      { "type": "text", "id": "prefixes", "label": "SKU prefixes (comma separated)", "default": "001,002,004" },
+      { "type": "range", "id": "steps", "label": "Half-sizes offered each way", "min": 1, "max": 6, "step": 1, "default": 2 },
+      { "type": "text", "id": "label", "label": "Label", "default": "Ring size" },
+      { "type": "text", "id": "note", "label": "Note when a different size is chosen", "default": "Resized in our Mildura workshop before dispatch — allow 3–5 extra working days." },
+      { "type": "text", "id": "contact_text", "label": "Fallback text (no size on file, or other metal)", "default": "Need a different size? Contact us about sizing." },
+      { "type": "url", "id": "contact_url", "label": "Fallback link" }
+    ] },
     { "type": "buy_buttons", "name": "Buy buttons", "limit": 1, "settings": [
       { "type": "text", "id": "label", "label": "Add to cart label", "default": "Add to Cart" },
       { "type": "checkbox", "id": "show_quantity", "label": "Show quantity selector", "default": true },

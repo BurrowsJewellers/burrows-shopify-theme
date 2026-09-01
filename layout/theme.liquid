@@ -7,6 +7,7 @@
     {%- endif -%}
 
     {% render 'meta-tags' %}
+    {%- if product.tags contains 'hidden-service' -%}<meta name="robots" content="noindex">{%- endif -%}
     {% render 'integrations-head' %}
 
     {%- if settings.google_fonts_url != blank -%}

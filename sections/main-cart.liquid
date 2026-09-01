@@ -16,7 +16,7 @@
       <form action="{{ routes.cart_url }}" method="post" class="cart__form" id="CartForm">
         <div class="cart__items">
           {%- for item in cart.items -%}
-            <div class="cart__item">
+            <div class="cart__item" data-cart-item data-line="{{ forloop.index }}" data-variant-id="{{ item.variant_id }}"{% if item.properties._ring_variant %} data-for-variant="{{ item.properties._ring_variant }}"{% endif %}>
               <a class="cart__img" href="{{ item.url }}">
                 {%- if item.image -%}
                   {{ item.image | image_url: width: 300 | image_tag: loading: 'lazy', alt: item.title }}
