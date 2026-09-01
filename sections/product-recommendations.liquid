@@ -1,0 +1,32 @@
+{%- assign s = section.settings -%}
+<section class="full-width rec bg-{{ s.background }}" data-recommendations data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ s.limit }}&intent=related">
+  {%- if recommendations.performed and recommendations.products_count > 0 -%}
+    <div class="container">
+      <h2 class="h2 rec__heading">{{ s.heading }}</h2>
+      <div class="product-grid">
+        {%- for p in recommendations.products -%}
+          {%- render 'product-card', product: p -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+</section>
+
+{% stylesheet %}
+  .rec { padding: 0 var(--gutter); }
+  .rec .container { padding: 60px 0 80px; border-top: 1px solid rgba(var(--gold-dark-rgb), .14); }
+  .rec__heading { font-size: 34px; margin-bottom: 30px; }
+  .rec:empty { display: none; }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Related products",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "You may also like" },
+    { "type": "range", "id": "limit", "label": "Number of products", "min": 2, "max": 8, "step": 1, "default": 4 },
+    { "type": "select", "id": "background", "label": "Background", "options": [ { "value": "cream", "label": "Cream" }, { "value": "sand", "label": "Sand" } ], "default": "cream" }
+  ],
+  "presets": [{ "name": "Related products" }]
+}
+{% endschema %}
