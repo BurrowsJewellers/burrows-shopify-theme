@@ -1,1 +1,101 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Burrows Jewellers | Fine Jewellery & Watches in Australia – Shop Now","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Since 1975, Burrows Jewellers has been dedicated to helping customers find jewellery that captures their most cherished memories. Our collection includes engagement rings, wedding bands, earrings, necklaces, bracelets, and watches from renowned brands. With a commitment to quality, authenticity, and exceptional customer service, we’ve become a trusted name in jewellery across Australia. Explore our collection online or visit our store to experience the difference at Burrows Jewellers.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What types of jewellery does Burrows Jewellers offer?","answer":"<p>Burrows Jewellers offers a wide range of fine jewellery, including engagement rings, wedding bands, necklaces, earrings, and bracelets. We also carry an exclusive selection of luxury watches from top brands.</p>"}},"q2":{"type":"question","settings":{"question":"Are all items at Burrows Jewellers authentic?","answer":"<p>Yes, all items at Burrows Jewellers are authentic and sourced from reputable designers and manufacturers. We take pride in offering genuine jewellery and watches that meet high standards of quality.</p>"}},"q3":{"type":"question","settings":{"question":"Can I get my jewellery repaired at Burrows Jewellers?","answer":"<p>Absolutely! Burrows Jewellers offers expert jewellery repair services. Whether you need resizing, cleaning, or stone replacement, our skilled jewellers are here to help.</p>"}},"q4":{"type":"question","settings":{"question":"Where is Burrows Jewellers located?","answer":"<p>We are located in Mildura, Australia, but you can also explore our full collection online at burrowsjewellers.com.au. We offer shipping across Australia.</p>"}},"q5":{"type":"question","settings":{"question":"Does Burrows Jewellers offer custom jewellery design?","answer":"<p>Yes, we specialize in custom jewellery design, allowing you to create a one-of-a-kind piece. Our team will work closely with you to bring your vision to life, ensuring a beautiful and unique creation.</p>"}}},"block_order":["q1","q2","q3","q4","q5"],"settings":{"heading":"FAQ","open_first":false,"background":"sand"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Burrows Jewellers | Fine Jewellery & Watches in Australia – Shop Now",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Since 1975, Burrows Jewellers has been dedicated to helping customers find jewellery that captures their most cherished memories. Our collection includes engagement rings, wedding bands, earrings, necklaces, bracelets, and watches from renowned brands. With a commitment to quality, authenticity, and exceptional customer service, we’ve become a trusted name in jewellery across Australia. Explore our collection online or visit our store to experience the difference at Burrows Jewellers.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What types of jewellery does Burrows Jewellers offer?",
+            "answer": "<p>Burrows Jewellers offers a wide range of fine jewellery, including engagement rings, wedding bands, necklaces, earrings, and bracelets. We also carry an exclusive selection of luxury watches from top brands.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Are all items at Burrows Jewellers authentic?",
+            "answer": "<p>Yes, all items at Burrows Jewellers are authentic and sourced from reputable designers and manufacturers. We take pride in offering genuine jewellery and watches that meet high standards of quality.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "Can I get my jewellery repaired at Burrows Jewellers?",
+            "answer": "<p>Absolutely! Burrows Jewellers offers expert jewellery repair services. Whether you need resizing, cleaning, or stone replacement, our skilled jewellers are here to help.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Where is Burrows Jewellers located?",
+            "answer": "<p>We are located in Mildura, Australia, but you can also explore our full collection online at burrowsjewellers.com.au. We offer shipping across Australia.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Does Burrows Jewellers offer custom jewellery design?",
+            "answer": "<p>Yes, we specialize in custom jewellery design, allowing you to create a one-of-a-kind piece. Our team will work closely with you to bring your vision to life, ensuring a beautiful and unique creation.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

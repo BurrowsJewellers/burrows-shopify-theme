@@ -1,1 +1,86 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Discover Your Perfect Diamond Ring at Burrows Jewellers","level":"h2"}},"text":{"type":"text","settings":{"text":"<h4>Finding the ideal diamond ring to celebrate love, commitment, or a special occasion is a joyful journey at Burrows Jewellers. Our extensive collection showcases a diverse range of diamond engagement rings, diamond wedding bands, and diamond occasion rings. Whether you're seeking a specific cut, carat weight, or a unique style, you're certain to discover the perfect diamond ring that captures your heart at Burrows Jewellers.</h4><h4>Our commitment to craftsmanship and quality ensures that each diamond in our collection is selected with precision and care. With a wide selection of cuts and styles, from timeless classics to modern designs, our diamond rings are a testament to luxury and elegance. At Burrows Jewellers, we understand that a diamond ring is more than jewelry; it's a symbol of love and cherished moments.</h4><h4>Allow our team of experts to guide you through this memorable journey and help you find the diamond ring that perfectly suits your taste and celebrates life's special moments. Explore the beauty of our diamond collection at Burrows Jewellers and embark on a journey to find your dream diamond ring.</h4>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"How to choose the perfect Diamond Ring?","answer":"<p>Selecting a diamond ring is a highly personal decision, and it starts with understanding the recipient's style and preferences. Begin by choosing the metal for your diamond ring, whether it's the timeless appeal of yellow gold, the romantic charm of rose gold, the classic elegance of white gold, or even the understated beauty of sterling silver. Next, focus on the diamond itself, considering factors like carat weight and cut.</p><p>You may opt for the brilliance of a princess cut diamond ring or the unique charm of an emerald cut or pear-shaped diamond ring. Additionally, think about the ring's style – whether you prefer a simple band that emphasizes the dazzling diamond or a more intricate design featuring multiple diamonds and the possibility of accent stones like sapphires and rubies. If you find yourself unsure about where to begin your search for the perfect diamond ring, our expert team is here to assist you. Schedule a Virtual Appointment or visit our stores to receive personalized guidance.</p>"}},"q2":{"type":"question","settings":{"question":"How do I choose the right diamond cut?","answer":"<p>Selecting the right diamond cut for your engagement ring is crucial. The cut significantly impacts the diamond's brilliance and overall appearance. Prioritize a high-quality cut, aiming for an \"Excellent\" or \"Very Good\" grade. Additionally, choose a diamond shape that aligns with your personal style and preferences. Ultimately, the right cut ensures your engagement ring sparkles with timeless beauty, symbolizing your enduring love and commitment.</p>"}},"q3":{"type":"question","settings":{"question":"How to take care of a diamond ring?","answer":"<p>Properly caring for your diamond ring is crucial to maintain its brilliance and allure. Begin by regularly cleaning your diamond ring using a gentle detergent or specialized jewelry cleaner, ensuring it stays free from dirt and oils. Avoid exposing it to harsh chemicals, as this can affect both the metal and the diamond. When not wearing it, store your diamond ring in a separate compartment or soft pouch to prevent scratching. For professional care, schedule annual inspections with a trusted jeweler to safeguard your diamond ring's integrity and luster. Furthermore, remember to protect it from impacts and extreme temperature fluctuations. While exercising, it's advisable to remove your diamond ring. For any resizing needs, entrust a reputable jeweler with your precious diamond ring.</p>"}}},"block_order":["q1","q2","q3"],"settings":{"heading":"Frequently Asked Questions","open_first":false,"background":"sand","image":"shopify://shop_images/1705632376959-256bcf1d06d73ef717fc-8ab44785f9131ebd6a76450adc748df5medium.jpg"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Discover Your Perfect Diamond Ring at Burrows Jewellers",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<h4>Finding the ideal diamond ring to celebrate love, commitment, or a special occasion is a joyful journey at Burrows Jewellers. Our extensive collection showcases a diverse range of diamond engagement rings, diamond wedding bands, and diamond occasion rings. Whether you're seeking a specific cut, carat weight, or a unique style, you're certain to discover the perfect diamond ring that captures your heart at Burrows Jewellers.</h4><h4>Our commitment to craftsmanship and quality ensures that each diamond in our collection is selected with precision and care. With a wide selection of cuts and styles, from timeless classics to modern designs, our diamond rings are a testament to luxury and elegance. At Burrows Jewellers, we understand that a diamond ring is more than jewelry; it's a symbol of love and cherished moments.</h4><h4>Allow our team of experts to guide you through this memorable journey and help you find the diamond ring that perfectly suits your taste and celebrates life's special moments. Explore the beauty of our diamond collection at Burrows Jewellers and embark on a journey to find your dream diamond ring.</h4>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "How to choose the perfect Diamond Ring?",
+            "answer": "<p>Selecting a diamond ring is a highly personal decision, and it starts with understanding the recipient's style and preferences. Begin by choosing the metal for your diamond ring, whether it's the timeless appeal of yellow gold, the romantic charm of rose gold, the classic elegance of white gold, or even the understated beauty of sterling silver. Next, focus on the diamond itself, considering factors like carat weight and cut.</p><p>You may opt for the brilliance of a princess cut diamond ring or the unique charm of an emerald cut or pear-shaped diamond ring. Additionally, think about the ring's style – whether you prefer a simple band that emphasizes the dazzling diamond or a more intricate design featuring multiple diamonds and the possibility of accent stones like sapphires and rubies. If you find yourself unsure about where to begin your search for the perfect diamond ring, our expert team is here to assist you. Schedule a Virtual Appointment or visit our stores to receive personalized guidance.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "How do I choose the right diamond cut?",
+            "answer": "<p>Selecting the right diamond cut for your engagement ring is crucial. The cut significantly impacts the diamond's brilliance and overall appearance. Prioritize a high-quality cut, aiming for an \"Excellent\" or \"Very Good\" grade. Additionally, choose a diamond shape that aligns with your personal style and preferences. Ultimately, the right cut ensures your engagement ring sparkles with timeless beauty, symbolizing your enduring love and commitment.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "How to take care of a diamond ring?",
+            "answer": "<p>Properly caring for your diamond ring is crucial to maintain its brilliance and allure. Begin by regularly cleaning your diamond ring using a gentle detergent or specialized jewelry cleaner, ensuring it stays free from dirt and oils. Avoid exposing it to harsh chemicals, as this can affect both the metal and the diamond. When not wearing it, store your diamond ring in a separate compartment or soft pouch to prevent scratching. For professional care, schedule annual inspections with a trusted jeweler to safeguard your diamond ring's integrity and luster. Furthermore, remember to protect it from impacts and extreme temperature fluctuations. While exercising, it's advisable to remove your diamond ring. For any resizing needs, entrust a reputable jeweler with your precious diamond ring.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3"
+      ],
+      "settings": {
+        "heading": "Frequently Asked Questions",
+        "open_first": false,
+        "background": "sand",
+        "image": "shopify://shop_images/1705632376959-256bcf1d06d73ef717fc-8ab44785f9131ebd6a76450adc748df5medium.jpg"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

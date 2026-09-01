@@ -1,1 +1,48 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Explore Our Range Of Women’s Bracelets & Bangles","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>From minimal to statement, our bracelets, bangles, and cuffs come in all shapes and sizes. We believe that ion is key, so mix or match shapes when stacking or opt for a minimal approach with a single piece.</p><p>Designed to offer fine detailing and organic textures, our bangles and cuffs are individual, considered and easy-to-wear. Echoing nature's nuances, you will find playful design and detailing on a selection of our bolder cuffs. Layer finer bangles in gold, silver, or both.</p><p>Wear your story with an initial bracelet in the letter and metal of your choice. These singular pieces personalise and look, and layer effortlessly.</p><p>Our silver, gold, and rose gold chain bracelets honour the beauty of organic form. The designs feature metal shapes, semi-precious gemstones, and freshwater pearls - our favourite treasure from the sea. Many of the pieces are engravable - wear to wear a date, initial, or monogram for added sentimentality.<br/><br/><a href=\"https://burrowsjewellers.com.au/pages/kirstin-ash-jewellery-care-instructions\" title=\"https://burrowsjewellers.com.au/pages/kirstin-ash-jewellery-care-instructions\">Jewellery Care Instruction</a></p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}}},"order":["main","text"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Explore Our Range Of Women’s Bracelets & Bangles",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>From minimal to statement, our bracelets, bangles, and cuffs come in all shapes and sizes. We believe that ion is key, so mix or match shapes when stacking or opt for a minimal approach with a single piece.</p><p>Designed to offer fine detailing and organic textures, our bangles and cuffs are individual, considered and easy-to-wear. Echoing nature's nuances, you will find playful design and detailing on a selection of our bolder cuffs. Layer finer bangles in gold, silver, or both.</p><p>Wear your story with an initial bracelet in the letter and metal of your choice. These singular pieces personalise and look, and layer effortlessly.</p><p>Our silver, gold, and rose gold chain bracelets honour the beauty of organic form. The designs feature metal shapes, semi-precious gemstones, and freshwater pearls - our favourite treasure from the sea. Many of the pieces are engravable - wear to wear a date, initial, or monogram for added sentimentality.<br/><br/><a href=\"https://burrowsjewellers.com.au/pages/kirstin-ash-jewellery-care-instructions\" title=\"https://burrowsjewellers.com.au/pages/kirstin-ash-jewellery-care-instructions\">Jewellery Care Instruction</a></p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text"
+  ]
+}

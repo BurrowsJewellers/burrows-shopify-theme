@@ -1,1 +1,101 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Georgini Jewellery Collection | Elegance Meets Affordability at Burrows Jewellers","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Georgini jewellery is celebrated for its fusion of classic elegance and contemporary design. Known for affordability without compromising on quality, Georgini offers a range of pieces that are meticulously crafted with sterling silver, gold plating, and premium stones. Whether you’re looking for a statement piece or a subtle touch of glamour, Georgini’s range of rings, necklaces, earrings, and bracelets has something for every style and occasion.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What materials are used in Georgini jewellery?","answer":"<p>Georgini jewellery is crafted from premium materials, including 925 sterling silver, rhodium, and gold plating. The brand is also known for using quality stones that add elegance to each piece.</p>"}},"q2":{"type":"question","settings":{"question":"Is Georgini jewellery suitable for everyday wear?","answer":"<p>Yes, Georgini designs its jewellery to be versatile, allowing it to be worn for both casual and formal occasions. With proper care, Georgini jewellery is durable enough for everyday wear.</p>"}},"q3":{"type":"question","settings":{"question":"How should I care for my Georgini jewellery?","answer":"<p>To keep your Georgini pieces looking their best, store them in a dry, cool place. Clean sterling silver and gold-plated items with a soft, dry cloth and avoid contact with harsh chemicals.</p>"}},"q4":{"type":"question","settings":{"question":"Where can I buy authentic Georgini jewellery in Australia?","answer":"<p>You can find genuine Georgini jewellery at Burrows Jewellers. As an authorized retailer, we ensure that you receive only authentic pieces from the Georgini collection.</p>"}},"q5":{"type":"question","settings":{"question":"Does Georgini offer a warranty on their jewellery?","answer":"<p>Yes, Georgini provides a warranty on its jewellery to cover any manufacturing defects. For warranty details or claims, please check our store’s warranty policy or contact us directly.</p>"}}},"block_order":["q1","q2","q3","q4","q5"],"settings":{"heading":"FAQ","open_first":false,"background":"sand"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Georgini Jewellery Collection | Elegance Meets Affordability at Burrows Jewellers",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Georgini jewellery is celebrated for its fusion of classic elegance and contemporary design. Known for affordability without compromising on quality, Georgini offers a range of pieces that are meticulously crafted with sterling silver, gold plating, and premium stones. Whether you’re looking for a statement piece or a subtle touch of glamour, Georgini’s range of rings, necklaces, earrings, and bracelets has something for every style and occasion.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What materials are used in Georgini jewellery?",
+            "answer": "<p>Georgini jewellery is crafted from premium materials, including 925 sterling silver, rhodium, and gold plating. The brand is also known for using quality stones that add elegance to each piece.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Is Georgini jewellery suitable for everyday wear?",
+            "answer": "<p>Yes, Georgini designs its jewellery to be versatile, allowing it to be worn for both casual and formal occasions. With proper care, Georgini jewellery is durable enough for everyday wear.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "How should I care for my Georgini jewellery?",
+            "answer": "<p>To keep your Georgini pieces looking their best, store them in a dry, cool place. Clean sterling silver and gold-plated items with a soft, dry cloth and avoid contact with harsh chemicals.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Where can I buy authentic Georgini jewellery in Australia?",
+            "answer": "<p>You can find genuine Georgini jewellery at Burrows Jewellers. As an authorized retailer, we ensure that you receive only authentic pieces from the Georgini collection.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Does Georgini offer a warranty on their jewellery?",
+            "answer": "<p>Yes, Georgini provides a warranty on its jewellery to cover any manufacturing defects. For warranty details or claims, please check our store’s warranty policy or contact us directly.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

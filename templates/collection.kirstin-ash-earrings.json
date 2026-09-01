@@ -1,1 +1,48 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Explore Our Range Of Earrings","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Inspired by nature, our collection of earrings feature organic shapes, semi-precious stones, and freshwater pearls. Crafted from quality metals with the highest attention to detail, each piece is designed with versatility in mind. Elevate your everyday look or layer styles for a bold, statement look. From delicate studs to statement hoops, our ever-evolving collection has something for everyone.</p><p>Kirstin Ash has earrings plated in 9 karat,14 karat, and 18 karat gold, as well as a collection of sterling silver designs. Many of our earrings are set with semi-precious stones hand-selected for their luster and clarity, including opals, pearls, smokey quartz, tigers eye, citrine, white agate, topaz and diamonds.<br/><br/><a href=\"https://burrowsjewellers.com.au/pages/kirstin-ash-jewellery-care-instructions\" title=\"https://burrowsjewellers.com.au/pages/kirstin-ash-jewellery-care-instructions\">Jewellery Care Instruction</a></p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}}},"order":["main","text"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Explore Our Range Of Earrings",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Inspired by nature, our collection of earrings feature organic shapes, semi-precious stones, and freshwater pearls. Crafted from quality metals with the highest attention to detail, each piece is designed with versatility in mind. Elevate your everyday look or layer styles for a bold, statement look. From delicate studs to statement hoops, our ever-evolving collection has something for everyone.</p><p>Kirstin Ash has earrings plated in 9 karat,14 karat, and 18 karat gold, as well as a collection of sterling silver designs. Many of our earrings are set with semi-precious stones hand-selected for their luster and clarity, including opals, pearls, smokey quartz, tigers eye, citrine, white agate, topaz and diamonds.<br/><br/><a href=\"https://burrowsjewellers.com.au/pages/kirstin-ash-jewellery-care-instructions\" title=\"https://burrowsjewellers.com.au/pages/kirstin-ash-jewellery-care-instructions\">Jewellery Care Instruction</a></p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text"
+  ]
+}

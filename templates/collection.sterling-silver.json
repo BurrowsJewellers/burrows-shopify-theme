@@ -1,1 +1,110 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Sterling Silver Jewellery","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Discover the finest <strong>Sterling Silver Jewellery</strong> in Australia at <strong>Burrows Jewellers</strong>. Our curated collection features timeless earrings, necklaces, bracelets, rings, and pendants, perfect for any occasion. Crafted from high-quality <strong>925 Sterling Silver</strong>, our pieces offer unmatched elegance, durability, and affordability. Whether you're looking for a classic design or a modern statement, our <strong>Sterling Silver Collection</strong> caters to all styles. Enjoy <strong>free shipping across Australia</strong>, exceptional customer service, and the guarantee of superior craftsmanship. Shop now and elevate your style with our <strong>premium Sterling Silver jewellery</strong>.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What is Sterling Silver, and Why Choose It for Jewellery?","answer":"<p>Sterling silver, also known as <strong>925 Silver</strong>, contains 92.5% pure silver, offering the perfect blend of elegance and durability. It is the ideal material for crafting exquisite <strong>sterling silver jewellery</strong>, providing a lustrous finish while maintaining affordability.</p>"}},"q2":{"type":"question","settings":{"question":"Is Sterling Silver Jewellery Safe for Sensitive Skin?","answer":"<p>Yes, <strong>925 Sterling Silver jewellery</strong> is hypoallergenic and an excellent option for individuals with sensitive skin. At <strong>Burrows Jewellers</strong>, we ensure that our <strong>sterling silver jewellery in Australia</strong> is nickel-free and safe for daily wear.</p>"}},"q3":{"type":"question","settings":{"question":"How Should I Care for My Sterling Silver Jewellery?","answer":"<p>To maintain the brilliance of your <strong>sterling silver jewellery</strong>, avoid exposure to moisture, perfumes, or harsh chemicals. Regularly polish your <strong>925 sterling silver</strong> pieces with a soft cloth to prevent tarnishing and keep them looking like new.</p>"}},"q4":{"type":"question","settings":{"question":"Is Sterling Silver Jewellery a Worthwhile Investment?","answer":"<p>Absolutely! <strong>Sterling silver jewellery</strong> offers a balance between beauty and affordability. Its lasting durability makes it a timeless addition to any jewellery collection, and with proper care, it will retain its value for years to come.</p>"}},"q5":{"type":"question","settings":{"question":"Does Burrows Jewellers Offer Custom Sterling Silver Jewellery?","answer":"<p>Yes, we provide bespoke <strong>sterling silver jewellery designs</strong> in Australia. Whether you're looking for personalized rings, necklaces, or pendants, our expert jewellers will bring your vision to life with premium-quality <strong>925 sterling silver</strong>.</p>"}},"q6":{"type":"question","settings":{"question":"Can I Wear Sterling Silver Jewellery Every Day?","answer":"<p>Yes, <strong>sterling silver jewellery</strong> is durable enough for everyday wear. Ensure your pieces avoid prolonged exposure to water, harsh chemicals, or physical damage to keep them in top condition.</p>"}}},"block_order":["q1","q2","q3","q4","q5","q6"],"settings":{"heading":"FAQ","open_first":false,"background":"sand","image":"shopify://shop_images/001-021-00631-image-1.jpg"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Sterling Silver Jewellery",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Discover the finest <strong>Sterling Silver Jewellery</strong> in Australia at <strong>Burrows Jewellers</strong>. Our curated collection features timeless earrings, necklaces, bracelets, rings, and pendants, perfect for any occasion. Crafted from high-quality <strong>925 Sterling Silver</strong>, our pieces offer unmatched elegance, durability, and affordability. Whether you're looking for a classic design or a modern statement, our <strong>Sterling Silver Collection</strong> caters to all styles. Enjoy <strong>free shipping across Australia</strong>, exceptional customer service, and the guarantee of superior craftsmanship. Shop now and elevate your style with our <strong>premium Sterling Silver jewellery</strong>.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What is Sterling Silver, and Why Choose It for Jewellery?",
+            "answer": "<p>Sterling silver, also known as <strong>925 Silver</strong>, contains 92.5% pure silver, offering the perfect blend of elegance and durability. It is the ideal material for crafting exquisite <strong>sterling silver jewellery</strong>, providing a lustrous finish while maintaining affordability.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Is Sterling Silver Jewellery Safe for Sensitive Skin?",
+            "answer": "<p>Yes, <strong>925 Sterling Silver jewellery</strong> is hypoallergenic and an excellent option for individuals with sensitive skin. At <strong>Burrows Jewellers</strong>, we ensure that our <strong>sterling silver jewellery in Australia</strong> is nickel-free and safe for daily wear.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "How Should I Care for My Sterling Silver Jewellery?",
+            "answer": "<p>To maintain the brilliance of your <strong>sterling silver jewellery</strong>, avoid exposure to moisture, perfumes, or harsh chemicals. Regularly polish your <strong>925 sterling silver</strong> pieces with a soft cloth to prevent tarnishing and keep them looking like new.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Is Sterling Silver Jewellery a Worthwhile Investment?",
+            "answer": "<p>Absolutely! <strong>Sterling silver jewellery</strong> offers a balance between beauty and affordability. Its lasting durability makes it a timeless addition to any jewellery collection, and with proper care, it will retain its value for years to come.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Does Burrows Jewellers Offer Custom Sterling Silver Jewellery?",
+            "answer": "<p>Yes, we provide bespoke <strong>sterling silver jewellery designs</strong> in Australia. Whether you're looking for personalized rings, necklaces, or pendants, our expert jewellers will bring your vision to life with premium-quality <strong>925 sterling silver</strong>.</p>"
+          }
+        },
+        "q6": {
+          "type": "question",
+          "settings": {
+            "question": "Can I Wear Sterling Silver Jewellery Every Day?",
+            "answer": "<p>Yes, <strong>sterling silver jewellery</strong> is durable enough for everyday wear. Ensure your pieces avoid prolonged exposure to water, harsh chemicals, or physical damage to keep them in top condition.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand",
+        "image": "shopify://shop_images/001-021-00631-image-1.jpg"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

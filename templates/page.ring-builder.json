@@ -1,1 +1,55 @@
-{"sections":{"main":{"type":"main-page","settings":{"show_title":false,"show_breadcrumbs":true}},"apps":{"type":"apps","blocks":{"nivoda_connect_ring_builder_Mpi4ah":{"type":"shopify://apps/nivoda-connect/blocks/ring_builder/1818f65a-9917-4ef2-bca9-2424a925fc76","settings":{"primary_color":"#201c52","ring_size_guide":"","ring_size_regions":"AUSTRALIA","diamond_type_natural":true,"diamond_type_lab":true,"diamond_type_gem_v2":true,"color_min":"J","color_max":"D","clarity_min":"VS2","clarity_max":"FL","cut_min":"VG","cut_max":"ID","certificate_lab":"GIA,IGI"}}},"block_order":["nivoda_connect_ring_builder_Mpi4ah"],"settings":{"width":"full","background":"cream","padding":false}}},"order":["main","apps"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "settings": {
+        "show_title": false,
+        "show_breadcrumbs": true
+      }
+    },
+    "apps": {
+      "type": "apps",
+      "blocks": {
+        "nivoda_connect_ring_builder_Mpi4ah": {
+          "type": "shopify://apps/nivoda-connect/blocks/ring_builder/1818f65a-9917-4ef2-bca9-2424a925fc76",
+          "settings": {
+            "primary_color": "#201c52",
+            "ring_size_guide": "",
+            "ring_size_regions": "AUSTRALIA",
+            "diamond_type_natural": true,
+            "diamond_type_lab": true,
+            "diamond_type_gem_v2": true,
+            "color_min": "J",
+            "color_max": "D",
+            "clarity_min": "VS2",
+            "clarity_max": "FL",
+            "cut_min": "VG",
+            "cut_max": "ID",
+            "certificate_lab": "GIA,IGI"
+          }
+        }
+      },
+      "block_order": [
+        "nivoda_connect_ring_builder_Mpi4ah"
+      ],
+      "settings": {
+        "width": "full",
+        "background": "cream",
+        "padding": false
+      }
+    }
+  },
+  "order": [
+    "main",
+    "apps"
+  ]
+}

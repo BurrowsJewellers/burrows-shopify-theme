@@ -1,1 +1,48 @@
-{"sections":{"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Kinship by Ecoya","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Introducing 'Kinship by Ecoya,' an exclusive range for Burrows Jewellers, made in New Zealand, that embodies the essence of connection and home. A perfect balance between the contemporary with the timeless, and the modern with heritage, to create future classics that feel right at home wherever you are. Elevate your living spaces with Kinship by Ecoya. Discover the exclusive range of natural soy wax candles, reed diffusers and bodycare with Burrows Jewellers.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"main":{"type":"main-collection","settings":{}}},"order":["text","main"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Kinship by Ecoya",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Introducing 'Kinship by Ecoya,' an exclusive range for Burrows Jewellers, made in New Zealand, that embodies the essence of connection and home. A perfect balance between the contemporary with the timeless, and the modern with heritage, to create future classics that feel right at home wherever you are. Elevate your living spaces with Kinship by Ecoya. Discover the exclusive range of natural soy wax candles, reed diffusers and bodycare with Burrows Jewellers.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    }
+  },
+  "order": [
+    "text",
+    "main"
+  ]
+}

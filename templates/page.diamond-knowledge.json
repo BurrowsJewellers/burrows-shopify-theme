@@ -1,1 +1,99 @@
-{"sections":{"main":{"type":"main-page","settings":{"show_title":false,"show_breadcrumbs":true}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Diamond Knowledge","level":"h1"}},"text":{"type":"text","settings":{"text":"<p>Every diamond is graded on the four Cs — cut, carat, colour and clarity. Together they describe how a stone looks, how rare it is and what it is worth. Here is what each one means.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"imgtext":{"type":"image-with-text","blocks":{},"block_order":[],"settings":{"image_position":"left","min_height":520,"background":"cream","heading":"Cut","text":"<p>The way a diamond is cut is the most important of the 4C's. Cut refers to the angles and proportions of a diamond, which determines the diamonds beauty, brightness, sparkle and scintillation.</p><p>A perfectly cut diamond can sparkle 3-4 times more than the average diamond, this is because every facet that is cut correctly will reflect light out the top of the diamond, creating maximum sparkle.</p>","image":"shopify://shop_images/diamond-cut-guide-at-burrows-jewellers-1.png"}},"imgtext_3":{"type":"image-with-text","blocks":{},"block_order":[],"settings":{"image_position":"right","min_height":520,"background":"sand","heading":"Carat","text":"<p>A Diamond's weight is measured in Carats and points. The larger the diamond, the more rare it is, so all other factors being equal, a single 1-carat stone is worth more than four quarter carat stones together.</p><p>100 points equals 1 carat (1.00ct). A diamond weighing one quarter of a carat, can also be referred to as 25 points or 0.25ct.</p>","image":"shopify://shop_images/diamond-carat-guide-at-burrows-jewellers-1.png"}},"imgtext_4":{"type":"image-with-text","blocks":{},"block_order":[],"settings":{"image_position":"left","min_height":520,"background":"cream","heading":"Colour","text":"<p>Diamonds come in a variety of colours, ranging from colourless, clear diamonds to those that have a yellow or brown tint. The less colour, the higher the grade and the more desirable & valuable they are.</p><p>A diamonds colour is determined on a scale from 'D' (colourless) to 'Z' (yellow/ brown). Most diamonds used in jewellery are nearly colourless with pale tints of yellow or brown.</p>","image":"shopify://shop_images/diamond-colour-guide-at-burrows-jewellers-1.png"}},"imgtext_5":{"type":"image-with-text","blocks":{},"block_order":[],"settings":{"image_position":"right","min_height":520,"background":"sand","heading":"Clarity","text":"<p>The clarity of a diamond, relates to the amount of inclusions found within the diamond. Inclusions are non-crystallised carbon marks found within a diamond when the the diamond was formed 3 billion years ago.</p><p>The fewer inclusions a gemstone has, the higher its clarity grade and the more valuable it is.</p>","image":"shopify://shop_images/diamond-clarity-guide-at-burrows-jewellers-1.png"}}},"order":["main","text","imgtext","imgtext_3","imgtext_4","imgtext_5"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "settings": {
+        "show_title": false,
+        "show_breadcrumbs": true
+      }
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Diamond Knowledge",
+            "level": "h1"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Every diamond is graded on the four Cs — cut, carat, colour and clarity. Together they describe how a stone looks, how rare it is and what it is worth. Here is what each one means.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "imgtext": {
+      "type": "image-with-text",
+      "settings": {
+        "image": "shopify://shop_images/diamond-cut-guide-at-burrows-jewellers-1.png",
+        "image_position": "left",
+        "min_height": 520,
+        "background": "cream",
+        "heading": "Cut",
+        "text": "<p>The way a diamond is cut is the most important of the 4C's. Cut refers to the angles and proportions of a diamond, which determines the diamonds beauty, brightness, sparkle and scintillation.</p><p>A perfectly cut diamond can sparkle 3-4 times more than the average diamond, this is because every facet that is cut correctly will reflect light out the top of the diamond, creating maximum sparkle.</p>"
+      }
+    },
+    "imgtext_3": {
+      "type": "image-with-text",
+      "settings": {
+        "image": "shopify://shop_images/diamond-carat-guide-at-burrows-jewellers-1.png",
+        "image_position": "right",
+        "min_height": 520,
+        "background": "sand",
+        "heading": "Carat",
+        "text": "<p>A Diamond's weight is measured in Carats and points. The larger the diamond, the more rare it is, so all other factors being equal, a single 1-carat stone is worth more than four quarter carat stones together.</p><p>100 points equals 1 carat (1.00ct). A diamond weighing one quarter of a carat, can also be referred to as 25 points or 0.25ct.</p>"
+      }
+    },
+    "imgtext_4": {
+      "type": "image-with-text",
+      "settings": {
+        "image": "shopify://shop_images/diamond-colour-guide-at-burrows-jewellers-1.png",
+        "image_position": "left",
+        "min_height": 520,
+        "background": "cream",
+        "heading": "Colour",
+        "text": "<p>Diamonds come in a variety of colours, ranging from colourless, clear diamonds to those that have a yellow or brown tint. The less colour, the higher the grade and the more desirable & valuable they are.</p><p>A diamonds colour is determined on a scale from 'D' (colourless) to 'Z' (yellow/ brown). Most diamonds used in jewellery are nearly colourless with pale tints of yellow or brown.</p>"
+      }
+    },
+    "imgtext_5": {
+      "type": "image-with-text",
+      "settings": {
+        "image": "shopify://shop_images/diamond-clarity-guide-at-burrows-jewellers-1.png",
+        "image_position": "right",
+        "min_height": 520,
+        "background": "sand",
+        "heading": "Clarity",
+        "text": "<p>The clarity of a diamond, relates to the amount of inclusions found within the diamond. Inclusions are non-crystallised carbon marks found within a diamond when the the diamond was formed 3 billion years ago.</p><p>The fewer inclusions a gemstone has, the higher its clarity grade and the more valuable it is.</p>"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "imgtext",
+    "imgtext_3",
+    "imgtext_4",
+    "imgtext_5"
+  ]
+}

@@ -1,1 +1,101 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Stylish Hoop Earrings Collection","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Explore our curated collection of hoop earrings, where elegance meets versatility. From classic gold hoops to bold, statement designs, our selection offers a wide variety of styles to suit any occasion. Whether you're looking for small, everyday hoops or large, dramatic pieces, each pair is crafted with attention to detail and high-quality materials. Perfect for adding a touch of sophistication to casual and formal looks alike, our hoop earrings are timeless and chic. Discover the ideal pair to express your unique style with our collection of beautifully designed hoop earrings.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What types of hoop earrings are available in your collection?","answer":"<p>Our collection features a variety of hoop earrings, including classic gold hoops, silver hoops, diamond-studded hoops, and unique statement designs for a range of styles and occasions.</p>"}},"q2":{"type":"question","settings":{"question":"Are hoop earrings comfortable for everyday wear?","answer":"<p>Yes, many of our hoop earrings are designed for everyday comfort. We offer a range of sizes, from small to large hoops, to suit your preference and lifestyle.</p>"}},"q3":{"type":"question","settings":{"question":"How do I care for my hoop earrings?","answer":"<p>To maintain their shine, store your hoop earrings in a dry place, avoid exposure to chemicals, and gently clean them with a soft cloth after each wear.</p>"}},"q4":{"type":"question","settings":{"question":"What materials are used in your hoop earrings?","answer":"<p>Our hoop earrings are crafted from high-quality materials, including gold, silver, stainless steel, and sometimes adorned with diamonds or gemstones for a luxurious touch.</p>"}},"q5":{"type":"question","settings":{"question":"Are large hoop earrings heavy?","answer":"<p>While large hoop earrings can vary in weight, we offer lightweight options crafted for comfort, ensuring you can wear them throughout the day without discomfort.</p>"}}},"block_order":["q1","q2","q3","q4","q5"],"settings":{"heading":"FAQ","open_first":false,"background":"sand"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Stylish Hoop Earrings Collection",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Explore our curated collection of hoop earrings, where elegance meets versatility. From classic gold hoops to bold, statement designs, our selection offers a wide variety of styles to suit any occasion. Whether you're looking for small, everyday hoops or large, dramatic pieces, each pair is crafted with attention to detail and high-quality materials. Perfect for adding a touch of sophistication to casual and formal looks alike, our hoop earrings are timeless and chic. Discover the ideal pair to express your unique style with our collection of beautifully designed hoop earrings.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What types of hoop earrings are available in your collection?",
+            "answer": "<p>Our collection features a variety of hoop earrings, including classic gold hoops, silver hoops, diamond-studded hoops, and unique statement designs for a range of styles and occasions.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Are hoop earrings comfortable for everyday wear?",
+            "answer": "<p>Yes, many of our hoop earrings are designed for everyday comfort. We offer a range of sizes, from small to large hoops, to suit your preference and lifestyle.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "How do I care for my hoop earrings?",
+            "answer": "<p>To maintain their shine, store your hoop earrings in a dry place, avoid exposure to chemicals, and gently clean them with a soft cloth after each wear.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "What materials are used in your hoop earrings?",
+            "answer": "<p>Our hoop earrings are crafted from high-quality materials, including gold, silver, stainless steel, and sometimes adorned with diamonds or gemstones for a luxurious touch.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Are large hoop earrings heavy?",
+            "answer": "<p>While large hoop earrings can vary in weight, we offer lightweight options crafted for comfort, ensuring you can wear them throughout the day without discomfort.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

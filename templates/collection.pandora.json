@@ -1,1 +1,102 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Pandora Jewellery","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Pandora jewellery has captivated the world with its exquisite craftsmanship, unique designs, and timeless appeal. Whether you're searching for the perfect charm bracelet, rings, or earrings, Pandora offers a stunning array of options to elevate your style. Each piece is meticulously crafted to tell your personal story and create lasting memories.</p><p>Our Pandora collection features an exclusive selection of signature pieces, from classic sterling silver charms to intricate gold designs, ensuring there's something for everyone. Discover the essence of self-expression through Pandora's unparalleled attention to detail and craftsmanship. Perfect as a gift or a treat for yourself, Pandora jewelry lets you embrace elegance and individuality.</p><p>Explore our full range of Pandora rings, necklaces, bracelets, and charms today and find the piece that speaks to you. Unleash your creativity with Pandora, and make every moment unforgettable.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What makes Pandora jewelry unique?","answer":"<p>Pandora jewelry stands out due to its customizable charm bracelets and a wide range of jewelry pieces designed to reflect personal style. Each piece is made with high-quality materials, such as sterling silver, gold, and gemstones, ensuring both beauty and durability.</p>"}},"q2":{"type":"question","settings":{"question":"Are Pandora charms compatible with other bracelets?","answer":"<p>Pandora charms are specifically designed for Pandora bracelets to ensure a perfect fit. While they may fit on some other bracelets, we recommend using authentic Pandora bracelets for the best results.</p>"}},"q3":{"type":"question","settings":{"question":"How do I clean and care for Pandora jewelry?","answer":"<p>To maintain the shine and quality of your Pandora jewelry, clean it regularly with a soft cloth and mild soap. Avoid exposing your jewelry to harsh chemicals, lotions, and perfumes. Proper storage in a jewelry box can also prevent scratches and tarnish.</p>"}},"q4":{"type":"question","settings":{"question":"Can Pandora rings be resized?","answer":"<p>Most Pandora rings cannot be resized due to their intricate designs. We recommend selecting the correct size when purchasing. If you're unsure of your size, visit a Pandora store for assistance.</p>"}},"q5":{"type":"question","settings":{"question":"Is Pandora jewelry suitable for gifting?","answer":"<p>Absolutely! Pandora jewelry makes for an unforgettable gift, whether it’s for a birthday, anniversary, or any special occasion. With so many customizable options, you can create a meaningful piece for your loved one.</p>"}}},"block_order":["q1","q2","q3","q4","q5"],"settings":{"heading":"FAQ","open_first":false,"background":"sand","image":"shopify://shop_images/Q324_Disney_Villains_Product_Image_01_RGB.jpg"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Pandora Jewellery",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Pandora jewellery has captivated the world with its exquisite craftsmanship, unique designs, and timeless appeal. Whether you're searching for the perfect charm bracelet, rings, or earrings, Pandora offers a stunning array of options to elevate your style. Each piece is meticulously crafted to tell your personal story and create lasting memories.</p><p>Our Pandora collection features an exclusive selection of signature pieces, from classic sterling silver charms to intricate gold designs, ensuring there's something for everyone. Discover the essence of self-expression through Pandora's unparalleled attention to detail and craftsmanship. Perfect as a gift or a treat for yourself, Pandora jewelry lets you embrace elegance and individuality.</p><p>Explore our full range of Pandora rings, necklaces, bracelets, and charms today and find the piece that speaks to you. Unleash your creativity with Pandora, and make every moment unforgettable.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What makes Pandora jewelry unique?",
+            "answer": "<p>Pandora jewelry stands out due to its customizable charm bracelets and a wide range of jewelry pieces designed to reflect personal style. Each piece is made with high-quality materials, such as sterling silver, gold, and gemstones, ensuring both beauty and durability.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Are Pandora charms compatible with other bracelets?",
+            "answer": "<p>Pandora charms are specifically designed for Pandora bracelets to ensure a perfect fit. While they may fit on some other bracelets, we recommend using authentic Pandora bracelets for the best results.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "How do I clean and care for Pandora jewelry?",
+            "answer": "<p>To maintain the shine and quality of your Pandora jewelry, clean it regularly with a soft cloth and mild soap. Avoid exposing your jewelry to harsh chemicals, lotions, and perfumes. Proper storage in a jewelry box can also prevent scratches and tarnish.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Can Pandora rings be resized?",
+            "answer": "<p>Most Pandora rings cannot be resized due to their intricate designs. We recommend selecting the correct size when purchasing. If you're unsure of your size, visit a Pandora store for assistance.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Is Pandora jewelry suitable for gifting?",
+            "answer": "<p>Absolutely! Pandora jewelry makes for an unforgettable gift, whether it’s for a birthday, anniversary, or any special occasion. With so many customizable options, you can create a meaningful piece for your loved one.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand",
+        "image": "shopify://shop_images/Q324_Disney_Villains_Product_Image_01_RGB.jpg"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

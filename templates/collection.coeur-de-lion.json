@@ -1,1 +1,101 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Coeur De Lion Jewellery | Modern Elegance at Burrows Jewellers","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Coeur De Lion is renowned for its distinctive jewellery that brings together color, form, and craftsmanship. Known for its iconic GeoCUBE® designs, the brand creates unique pieces that blend natural stones with contemporary elements. This collection includes necklaces, earrings, and bracelets that capture the essence of modern luxury. With timeless appeal and enduring quality, Coeur De Lion jewellery is a perfect addition to any collection, adding elegance to both casual and formal attire.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What materials are used in Coeur De Lion jewellery?","answer":"<p>Coeur De Lion uses high-quality materials, including natural stones, stainless steel, Swarovski crystals, and other premium elements. Each piece is carefully crafted to ensure durability and elegance.</p>"}},"q2":{"type":"question","settings":{"question":"Are Coeur De Lion jewellery pieces handmade?","answer":"<p>Yes, each Coeur De Lion piece is handcrafted in Germany. This brand is dedicated to exceptional craftsmanship and high-quality design in every item.</p>"}},"q3":{"type":"question","settings":{"question":"How do I care for my Coeur De Lion jewellery?","answer":"<p>To keep your Coeur De Lion jewellery looking its best, store it in a dry place and clean it with a soft cloth. Avoid exposing it to chemicals or direct sunlight for prolonged periods.</p>"}},"q4":{"type":"question","settings":{"question":"Where can I buy authentic Coeur De Lion jewellery in Australia?","answer":"<p>You can purchase genuine Coeur De Lion jewellery at Burrows Jewellers, an authorized retailer in Australia. We offer a curated selection of the brand's most popular pieces.</p>"}},"q5":{"type":"question","settings":{"question":"Does Coeur De Lion jewellery come with a warranty?","answer":"<p>Yes, Coeur De Lion offers a warranty against manufacturing defects. For warranty claims or questions, please refer to Burrows Jewellers’ warranty policy or contact our support team.</p>"}}},"block_order":["q1","q2","q3","q4","q5"],"settings":{"heading":"FAQ","open_first":false,"background":"sand"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Coeur De Lion Jewellery | Modern Elegance at Burrows Jewellers",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Coeur De Lion is renowned for its distinctive jewellery that brings together color, form, and craftsmanship. Known for its iconic GeoCUBE® designs, the brand creates unique pieces that blend natural stones with contemporary elements. This collection includes necklaces, earrings, and bracelets that capture the essence of modern luxury. With timeless appeal and enduring quality, Coeur De Lion jewellery is a perfect addition to any collection, adding elegance to both casual and formal attire.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What materials are used in Coeur De Lion jewellery?",
+            "answer": "<p>Coeur De Lion uses high-quality materials, including natural stones, stainless steel, Swarovski crystals, and other premium elements. Each piece is carefully crafted to ensure durability and elegance.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Are Coeur De Lion jewellery pieces handmade?",
+            "answer": "<p>Yes, each Coeur De Lion piece is handcrafted in Germany. This brand is dedicated to exceptional craftsmanship and high-quality design in every item.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "How do I care for my Coeur De Lion jewellery?",
+            "answer": "<p>To keep your Coeur De Lion jewellery looking its best, store it in a dry place and clean it with a soft cloth. Avoid exposing it to chemicals or direct sunlight for prolonged periods.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Where can I buy authentic Coeur De Lion jewellery in Australia?",
+            "answer": "<p>You can purchase genuine Coeur De Lion jewellery at Burrows Jewellers, an authorized retailer in Australia. We offer a curated selection of the brand's most popular pieces.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Does Coeur De Lion jewellery come with a warranty?",
+            "answer": "<p>Yes, Coeur De Lion offers a warranty against manufacturing defects. For warranty claims or questions, please refer to Burrows Jewellers’ warranty policy or contact our support team.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

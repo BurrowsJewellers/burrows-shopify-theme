@@ -1,1 +1,101 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Elegant Stud Earrings Collection","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Discover our exquisite collection of stud earrings, designed to suit every style and occasion. From classic diamond studs to contemporary gemstone designs, each pair is crafted with precision and attention to detail. Whether you're looking for timeless gold studs, sparkling silver earrings, or bold statement pieces, our collection offers something for everyone. Perfect as a gift or a special treat, our stud earrings add a touch of elegance and sophistication to any look. Browse our collection and find the perfect pair of stud earrings to elevate your style.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What types of stud earrings are available in your collection?","answer":"<p>Our collection includes a variety of stud earrings, including classic diamond studs, gold and silver options, and unique gemstone designs to match any style and occasion.</p>"}},"q2":{"type":"question","settings":{"question":"Are stud earrings suitable for daily wear?","answer":"<p>Yes, stud earrings are versatile and ideal for daily wear. They offer a comfortable fit while adding a subtle touch of elegance to your everyday look.</p>"}},"q3":{"type":"question","settings":{"question":"How do I care for my stud earrings?","answer":"<p>To keep your stud earrings in pristine condition, store them in a dry place, avoid exposure to harsh chemicals, and clean them gently with a soft cloth.</p>"}},"q4":{"type":"question","settings":{"question":"What materials are used in your stud earrings?","answer":"<p>Our stud earrings are crafted from high-quality materials, including gold, silver, diamonds, and gemstones, ensuring durability and lasting beauty.</p>"}},"q5":{"type":"question","settings":{"question":"Are your stud earrings suitable for sensitive ears?","answer":"<p>Yes, many of our stud earrings are designed with hypoallergenic materials like sterling silver and gold, making them suitable for sensitive ears.</p>"}}},"block_order":["q1","q2","q3","q4","q5"],"settings":{"heading":"FAQ","open_first":false,"background":"sand"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Elegant Stud Earrings Collection",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Discover our exquisite collection of stud earrings, designed to suit every style and occasion. From classic diamond studs to contemporary gemstone designs, each pair is crafted with precision and attention to detail. Whether you're looking for timeless gold studs, sparkling silver earrings, or bold statement pieces, our collection offers something for everyone. Perfect as a gift or a special treat, our stud earrings add a touch of elegance and sophistication to any look. Browse our collection and find the perfect pair of stud earrings to elevate your style.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What types of stud earrings are available in your collection?",
+            "answer": "<p>Our collection includes a variety of stud earrings, including classic diamond studs, gold and silver options, and unique gemstone designs to match any style and occasion.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Are stud earrings suitable for daily wear?",
+            "answer": "<p>Yes, stud earrings are versatile and ideal for daily wear. They offer a comfortable fit while adding a subtle touch of elegance to your everyday look.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "How do I care for my stud earrings?",
+            "answer": "<p>To keep your stud earrings in pristine condition, store them in a dry place, avoid exposure to harsh chemicals, and clean them gently with a soft cloth.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "What materials are used in your stud earrings?",
+            "answer": "<p>Our stud earrings are crafted from high-quality materials, including gold, silver, diamonds, and gemstones, ensuring durability and lasting beauty.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Are your stud earrings suitable for sensitive ears?",
+            "answer": "<p>Yes, many of our stud earrings are designed with hypoallergenic materials like sterling silver and gold, making them suitable for sensitive ears.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

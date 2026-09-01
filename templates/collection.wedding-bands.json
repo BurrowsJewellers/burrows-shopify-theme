@@ -1,1 +1,155 @@
-{"sections":{"imgtext":{"type":"image-with-text","blocks":{},"block_order":[],"settings":{"image_position":"left","min_height":520,"background":"cream","heading":"Wedding Bands","text":"<p>Discover Your Forever: Exquisite Wedding Rings Crafted for Timeless Love. Find the Perfect Sparkle to Celebrate Your Unique Journey Together.</p>","image":"shopify://shop_images/denny-muller-AKbE5xlIZXA-unsplash.jpg"}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Your Guide to Diamonds","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Learn about the Four Cs, diamond shapes, and jewellery styles to inspire your journey in choosing the perfect forever piece.</p>"}},"button":{"type":"button","settings":{"label":"Learn More","url":"shopify://pages/diamond-knowledge","style":"gold"}}},"block_order":["heading","text","button"],"settings":{"background":"cream","align":"center","width":"narrow"}},"imgtext_3":{"type":"image-with-text","blocks":{},"block_order":[],"settings":{"image_position":"left","min_height":520,"background":"cream","heading":"PLANNING A PROPOSAL","text":"<p>We’ve put together our top tips to help you choose the perfect engagement ring ahead of the big moment. </p>","image":"shopify://shop_images/pexels-nick-greaux-429160477-15231247.jpg"}},"main":{"type":"main-collection","settings":{}},"text_5":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Find the perfect wedding ring","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Discover timeless wedding bands at <a href=\"https://burrowsjewellers.com.au/\" title=\"https://burrowsjewellers.com.au/\">Burrows Jewellers</a>. Our stunning collection of <a href=\"/collections/wedding-bands\" title=\"Wedding Bands\">wedding bands</a> is designed to symbolize your eternal love. Crafted with precision from high-quality metals, our wedding bands offer elegance and durability to last a lifetime. Whether you prefer classic gold bands or modern designs, we provide exceptional craftsmanship and personalized service to help you find the perfect ring. Visit our store or browse our website to explore exclusive wedding bands for couples.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What types of wedding bands are most popular?","answer":"<p>The most popular wedding bands include classic gold and platinum bands, often chosen for their timeless look and durability. Couples are also increasingly opting for custom designs to add a personal touch, with options such as engraved bands or those featuring <a href=\"/collections/diamond-rings\" title=\"Diamond Rings\">diamonds </a>or gemstones.</p>"}},"q2":{"type":"question","settings":{"question":"How do I determine the right size for a wedding band?","answer":"<p>It’s important to get sized professionally, as wedding bands are worn daily and must fit comfortably. Visit a jeweller for precise measurements or use an at-home sizing guide. Ensure the ring fits snugly but slides easily over your knuckle.</p>"}},"q3":{"type":"question","settings":{"question":"How far in advance should we buy our wedding bands?","answer":"<p>It’s recommended to purchase wedding bands at least 2-3 months before your wedding. This allows time for custom orders, engraving, and any necessary resizing to ensure your rings are perfect for your special day.</p>"}},"q4":{"type":"question","settings":{"question":"Can we customize our wedding bands?","answer":"<p>Yes, Burrows Jewellers, offer customization options for wedding bands. You can personalize your bands with engravings, unique designs, or by incorporating special materials or stones that hold sentimental value.</p>"}}},"block_order":["q1","q2","q3","q4"],"settings":{"heading":"Frequently Asked Questions","open_first":false,"background":"sand","image":"shopify://shop_images/001-004-00794-image-1.jpg"}}},"order":["imgtext","text","imgtext_3","main","text_5","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "imgtext": {
+      "type": "image-with-text",
+      "settings": {
+        "image": "shopify://shop_images/denny-muller-AKbE5xlIZXA-unsplash.jpg",
+        "image_position": "left",
+        "min_height": 520,
+        "background": "cream",
+        "heading": "Wedding Bands",
+        "text": "<p>Discover Your Forever: Exquisite Wedding Rings Crafted for Timeless Love. Find the Perfect Sparkle to Celebrate Your Unique Journey Together.</p>"
+      }
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Your Guide to Diamonds",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Learn about the Four Cs, diamond shapes, and jewellery styles to inspire your journey in choosing the perfect forever piece.</p>"
+          }
+        },
+        "button": {
+          "type": "button",
+          "settings": {
+            "label": "Learn More",
+            "url": "shopify://pages/diamond-knowledge",
+            "style": "gold"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text",
+        "button"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "imgtext_3": {
+      "type": "image-with-text",
+      "settings": {
+        "image": "shopify://shop_images/pexels-nick-greaux-429160477-15231247.jpg",
+        "image_position": "left",
+        "min_height": 520,
+        "background": "cream",
+        "heading": "PLANNING A PROPOSAL",
+        "text": "<p>We’ve put together our top tips to help you choose the perfect engagement ring ahead of the big moment. </p>"
+      }
+    },
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text_5": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Find the perfect wedding ring",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Discover timeless wedding bands at <a href=\"https://burrowsjewellers.com.au/\" title=\"https://burrowsjewellers.com.au/\">Burrows Jewellers</a>. Our stunning collection of <a href=\"/collections/wedding-bands\" title=\"Wedding Bands\">wedding bands</a> is designed to symbolize your eternal love. Crafted with precision from high-quality metals, our wedding bands offer elegance and durability to last a lifetime. Whether you prefer classic gold bands or modern designs, we provide exceptional craftsmanship and personalized service to help you find the perfect ring. Visit our store or browse our website to explore exclusive wedding bands for couples.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What types of wedding bands are most popular?",
+            "answer": "<p>The most popular wedding bands include classic gold and platinum bands, often chosen for their timeless look and durability. Couples are also increasingly opting for custom designs to add a personal touch, with options such as engraved bands or those featuring <a href=\"/collections/diamond-rings\" title=\"Diamond Rings\">diamonds </a>or gemstones.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "How do I determine the right size for a wedding band?",
+            "answer": "<p>It’s important to get sized professionally, as wedding bands are worn daily and must fit comfortably. Visit a jeweller for precise measurements or use an at-home sizing guide. Ensure the ring fits snugly but slides easily over your knuckle.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "How far in advance should we buy our wedding bands?",
+            "answer": "<p>It’s recommended to purchase wedding bands at least 2-3 months before your wedding. This allows time for custom orders, engraving, and any necessary resizing to ensure your rings are perfect for your special day.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Can we customize our wedding bands?",
+            "answer": "<p>Yes, Burrows Jewellers, offer customization options for wedding bands. You can personalize your bands with engravings, unique designs, or by incorporating special materials or stones that hold sentimental value.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4"
+      ],
+      "settings": {
+        "heading": "Frequently Asked Questions",
+        "open_first": false,
+        "background": "sand",
+        "image": "shopify://shop_images/001-004-00794-image-1.jpg"
+      }
+    }
+  },
+  "order": [
+    "imgtext",
+    "text",
+    "imgtext_3",
+    "main",
+    "text_5",
+    "faq"
+  ]
+}

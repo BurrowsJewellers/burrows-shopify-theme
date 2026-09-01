@@ -1,1 +1,147 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"imgtext":{"type":"image-with-text","blocks":{"b1":{"type":"button","settings":{"label":"Read More","style":"ink"}}},"block_order":["b1"],"settings":{"image_position":"left","min_height":520,"background":"cream","heading":"PLANNING A PROPOSAL","text":"<p>We’ve put together our top tips to help you choose the perfect engagement ring ahead of the big moment. </p>","image":"shopify://shop_images/pexels-nick-greaux-429160477-15231247.jpg"}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Find the perfect engagement ring","level":"h2"}},"text":{"type":"text","settings":{"text":"<h4>Selecting an <a href=\"/collections/engagement-rings\" target=\"_blank\" title=\"Engagement Rings\">engagement ring</a> is a significant decision, as it should epitomize enduring love and timelessness. It's essential to find the ideal engagement ring that perfectly complements your future fiancé. A key step is to consider their existing jewelry preferences. Assess whether they lean towards gold or platinum, and observe whether they favor statement jewelry or minimalist pieces. By aligning your engagement ring choice with their style, you'll ensure that they'll cherish and wear this meaningful piece every day for a lifetime.</h4>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"text_4":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Your Guide to Diamonds","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Learn about the Four Cs, diamond shapes, and jewellery styles to inspire your journey in choosing the perfect forever piece.</p>"}},"button":{"type":"button","settings":{"label":"Learn More","url":"shopify://pages/diamond-knowledge","style":"gold"}}},"block_order":["heading","text","button"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What are the different types of engagement rings designs?","answer":"<p>Engagement rings encompass a diverse range of designs, catering to various tastes and preferences. <a href=\"/collections/solitaire\" title=\"Solitaire\">Solitaire </a>engagement rings shine with a single, captivating diamond as their centerpiece, conveying timeless elegance. <a href=\"/collections/halo\" title=\"Halo\">Halo </a>engagement rings, on the other hand, surround the central stone with a dazzling \"halo\" of smaller diamonds, imparting brilliance and an illusion of greater size. Three-stone rings symbolize past, present, and future relationships with three prominent diamonds or gemstones. Vintage styles offer intricate, antique-inspired details, while modern designs embrace clean, minimalist lines. Unique shapes, such as princess-cut, emerald-cut, oval, pear-shaped, and cushion-cut diamonds, provide distinct character to engagement rings. Some opt for <a href=\"/collections/sapphire-dreams-australia\" title=\"Sapphire Dreams Australia\">sapphire </a>or colored gemstone center stones for a personalized touch. Custom rings enable the creation of one-of-a-kind pieces, while cluster and split shank designs introduce visual intrigue. The choice of metal, be it rose gold, yellow gold, white gold, or platinum, further complements the overall style. The ideal engagement ring design is a deeply personal selection, reflecting the recipient's preferences and creating a cherished symbol of love and commitment.</p>"}},"q2":{"type":"question","settings":{"question":"How do I choose the right diamond cut?","answer":"<p>Selecting the right diamond cut for your engagement ring is crucial. The cut significantly impacts the diamond's brilliance and overall appearance. Prioritize a high-quality cut, aiming for an \"Excellent\" or \"Very Good\" grade. Additionally, choose a diamond shape that aligns with your personal style and preferences. Ultimately, the right cut ensures your engagement ring sparkles with timeless beauty, symbolizing your enduring love and commitment.</p>"}},"q3":{"type":"question","settings":{"question":"What finger is an engagement ring usually worn on?","answer":"<p>An engagement ring is traditionally worn on the fourth finger of the left hand, known as the \"ring finger.\" This practice has deep-rooted cultural and historical significance, dating back to ancient times. The ancient Romans believed that the \"vena amoris\" or \"vein of love\" ran directly from this finger to the heart, symbolizing the connection between love and commitment. Today, in many Western cultures, this tradition continues, and the engagement ring is typically worn on the left ring finger. However, it's essential to note that customs may vary across different cultures and regions, and some people choose to wear their engagement rings on the right hand or choose different fingers as per their individual preferences. The symbolism and sentiment behind the placement of the engagement ring remain a powerful symbol of love and commitment, regardless of the specific finger it adorns.</p>"}}},"block_order":["q1","q2","q3"],"settings":{"heading":"Frequently Asked Questions","open_first":false,"background":"sand","image":"shopify://shop_images/1705632376959-256bcf1d06d73ef717fc-8ab44785f9131ebd6a76450adc748df5medium.jpg"}}},"order":["main","imgtext","text","text_4","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "imgtext": {
+      "type": "image-with-text",
+      "blocks": {
+        "b1": {
+          "type": "button",
+          "settings": {
+            "label": "Read More",
+            "style": "ink"
+          }
+        }
+      },
+      "block_order": [
+        "b1"
+      ],
+      "settings": {
+        "image_position": "left",
+        "min_height": 520,
+        "background": "cream",
+        "heading": "PLANNING A PROPOSAL",
+        "text": "<p>We’ve put together our top tips to help you choose the perfect engagement ring ahead of the big moment. </p>",
+        "image": "shopify://shop_images/pexels-nick-greaux-429160477-15231247.jpg"
+      }
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Find the perfect engagement ring",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<h4>Selecting an <a href=\"/collections/engagement-rings\" target=\"_blank\" title=\"Engagement Rings\">engagement ring</a> is a significant decision, as it should epitomize enduring love and timelessness. It's essential to find the ideal engagement ring that perfectly complements your future fiancé. A key step is to consider their existing jewelry preferences. Assess whether they lean towards gold or platinum, and observe whether they favor statement jewelry or minimalist pieces. By aligning your engagement ring choice with their style, you'll ensure that they'll cherish and wear this meaningful piece every day for a lifetime.</h4>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "text_4": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Your Guide to Diamonds",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Learn about the Four Cs, diamond shapes, and jewellery styles to inspire your journey in choosing the perfect forever piece.</p>"
+          }
+        },
+        "button": {
+          "type": "button",
+          "settings": {
+            "label": "Learn More",
+            "url": "shopify://pages/diamond-knowledge",
+            "style": "gold"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text",
+        "button"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What are the different types of engagement rings designs?",
+            "answer": "<p>Engagement rings encompass a diverse range of designs, catering to various tastes and preferences. <a href=\"/collections/solitaire\" title=\"Solitaire\">Solitaire </a>engagement rings shine with a single, captivating diamond as their centerpiece, conveying timeless elegance. <a href=\"/collections/halo\" title=\"Halo\">Halo </a>engagement rings, on the other hand, surround the central stone with a dazzling \"halo\" of smaller diamonds, imparting brilliance and an illusion of greater size. Three-stone rings symbolize past, present, and future relationships with three prominent diamonds or gemstones. Vintage styles offer intricate, antique-inspired details, while modern designs embrace clean, minimalist lines. Unique shapes, such as princess-cut, emerald-cut, oval, pear-shaped, and cushion-cut diamonds, provide distinct character to engagement rings. Some opt for <a href=\"/collections/sapphire-dreams-australia\" title=\"Sapphire Dreams Australia\">sapphire </a>or colored gemstone center stones for a personalized touch. Custom rings enable the creation of one-of-a-kind pieces, while cluster and split shank designs introduce visual intrigue. The choice of metal, be it rose gold, yellow gold, white gold, or platinum, further complements the overall style. The ideal engagement ring design is a deeply personal selection, reflecting the recipient's preferences and creating a cherished symbol of love and commitment.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "How do I choose the right diamond cut?",
+            "answer": "<p>Selecting the right diamond cut for your engagement ring is crucial. The cut significantly impacts the diamond's brilliance and overall appearance. Prioritize a high-quality cut, aiming for an \"Excellent\" or \"Very Good\" grade. Additionally, choose a diamond shape that aligns with your personal style and preferences. Ultimately, the right cut ensures your engagement ring sparkles with timeless beauty, symbolizing your enduring love and commitment.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "What finger is an engagement ring usually worn on?",
+            "answer": "<p>An engagement ring is traditionally worn on the fourth finger of the left hand, known as the \"ring finger.\" This practice has deep-rooted cultural and historical significance, dating back to ancient times. The ancient Romans believed that the \"vena amoris\" or \"vein of love\" ran directly from this finger to the heart, symbolizing the connection between love and commitment. Today, in many Western cultures, this tradition continues, and the engagement ring is typically worn on the left ring finger. However, it's essential to note that customs may vary across different cultures and regions, and some people choose to wear their engagement rings on the right hand or choose different fingers as per their individual preferences. The symbolism and sentiment behind the placement of the engagement ring remain a powerful symbol of love and commitment, regardless of the specific finger it adorns.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3"
+      ],
+      "settings": {
+        "heading": "Frequently Asked Questions",
+        "open_first": false,
+        "background": "sand",
+        "image": "shopify://shop_images/1705632376959-256bcf1d06d73ef717fc-8ab44785f9131ebd6a76450adc748df5medium.jpg"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "imgtext",
+    "text",
+    "text_4",
+    "faq"
+  ]
+}

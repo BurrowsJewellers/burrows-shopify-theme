@@ -1,1 +1,101 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Tommy Hilfiger Watches: Timeless Elegance with Modern Sophistication","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Tommy Hilfiger watches represent the epitome of sophisticated fashion, seamlessly merging classic American aesthetics with contemporary design. Our <strong>Tommy Hilfiger Watches</strong> collection embodies the brand's signature elegance, offering a wide range of styles for both men and women. With luxurious leather straps, stainless steel cases, and striking dials, these watches are perfect for those who appreciate fine craftsmanship and subtle, yet distinctive, detailing.</p><p>Designed to reflect the confident and refined spirit of the modern individual, Tommy Hilfiger watches are more than just a timepiece—they are an expression of your personal style. Whether you’re looking for a minimalist design for everyday wear or a bold statement piece for special occasions, Tommy Hilfiger offers a versatile collection that ensures you make a lasting impression.</p><p>Explore our <strong>Tommy Hilfiger Watches</strong> today and find the perfect timepiece that complements your lifestyle. With a reputation for quality and timeless appeal, Tommy Hilfiger watches are the ideal choice for those who seek both fashion and functionality.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What makes Tommy Hilfiger watches unique?","answer":"<p>Tommy Hilfiger watches are known for their sophisticated designs, combining classic American style with modern detailing. Each watch features high-quality materials and impeccable craftsmanship.</p>"}},"q2":{"type":"question","settings":{"question":"Are Tommy Hilfiger watches water-resistant?","answer":"<p>Many Tommy Hilfiger watches offer water resistance ranging from 30 meters to 50 meters, making them suitable for daily wear and light water exposure, such as hand washing or rain.</p>"}},"q3":{"type":"question","settings":{"question":"Do Tommy Hilfiger watches come with interchangeable straps?","answer":"<p>Some Tommy Hilfiger watch models offer interchangeable straps, allowing you to customize your look. Check the specific model for compatibility with different strap styles.</p>"}},"q4":{"type":"question","settings":{"question":"What type of movements do Tommy Hilfiger watches use?","answer":"<p>Tommy Hilfiger watches are powered by precise quartz movements, ensuring accurate timekeeping and low maintenance. This makes them both reliable and stylish for daily use.</p>"}},"q5":{"type":"question","settings":{"question":"How do I maintain the quality of my Tommy Hilfiger watch?","answer":"<p>To keep your Tommy Hilfiger watch in top condition, avoid exposing it to extreme temperatures, chemicals, and prolonged water exposure. Clean the watch regularly with a soft cloth to maintain its shine.</p>"}}},"block_order":["q1","q2","q3","q4","q5"],"settings":{"heading":"FAQ","open_first":false,"background":"sand"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Tommy Hilfiger Watches: Timeless Elegance with Modern Sophistication",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Tommy Hilfiger watches represent the epitome of sophisticated fashion, seamlessly merging classic American aesthetics with contemporary design. Our <strong>Tommy Hilfiger Watches</strong> collection embodies the brand's signature elegance, offering a wide range of styles for both men and women. With luxurious leather straps, stainless steel cases, and striking dials, these watches are perfect for those who appreciate fine craftsmanship and subtle, yet distinctive, detailing.</p><p>Designed to reflect the confident and refined spirit of the modern individual, Tommy Hilfiger watches are more than just a timepiece—they are an expression of your personal style. Whether you’re looking for a minimalist design for everyday wear or a bold statement piece for special occasions, Tommy Hilfiger offers a versatile collection that ensures you make a lasting impression.</p><p>Explore our <strong>Tommy Hilfiger Watches</strong> today and find the perfect timepiece that complements your lifestyle. With a reputation for quality and timeless appeal, Tommy Hilfiger watches are the ideal choice for those who seek both fashion and functionality.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What makes Tommy Hilfiger watches unique?",
+            "answer": "<p>Tommy Hilfiger watches are known for their sophisticated designs, combining classic American style with modern detailing. Each watch features high-quality materials and impeccable craftsmanship.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Are Tommy Hilfiger watches water-resistant?",
+            "answer": "<p>Many Tommy Hilfiger watches offer water resistance ranging from 30 meters to 50 meters, making them suitable for daily wear and light water exposure, such as hand washing or rain.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "Do Tommy Hilfiger watches come with interchangeable straps?",
+            "answer": "<p>Some Tommy Hilfiger watch models offer interchangeable straps, allowing you to customize your look. Check the specific model for compatibility with different strap styles.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "What type of movements do Tommy Hilfiger watches use?",
+            "answer": "<p>Tommy Hilfiger watches are powered by precise quartz movements, ensuring accurate timekeeping and low maintenance. This makes them both reliable and stylish for daily use.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "How do I maintain the quality of my Tommy Hilfiger watch?",
+            "answer": "<p>To keep your Tommy Hilfiger watch in top condition, avoid exposing it to extreme temperatures, chemicals, and prolonged water exposure. Clean the watch regularly with a soft cloth to maintain its shine.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

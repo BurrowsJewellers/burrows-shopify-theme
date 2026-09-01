@@ -1,1 +1,85 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Pearl Earrings at Burrows Jewellers","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>At Burrows Jewellers, we believe in the enduring allure of pearls. Our collection features:</p><p><strong>Variety of Styles:</strong> Choose from studs, hoops, drops, and more to suit any occasion.</p><p><strong>Quality Materials:</strong> Crafted with premium metals like sterling silver, yellow gold, and rose gold.</p><p><strong>Authentic Pearls:</strong> Sourced responsibly, our pearls exhibit exceptional luster and quality.</p><p>Whether you're seeking a timeless piece for daily wear or a standout accessory for special events, our pearl earrings are designed to elevate your style.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"Are your pearls natural or cultured?","answer":"<p>We offer both natural and cultured pearls, each selected for their exceptional quality and beauty.</p>"}},"q2":{"type":"question","settings":{"question":"How should I care for my pearl earrings?","answer":"<p>To maintain their luster, gently wipe pearls with a soft cloth after wear and store them separately from other jewelry to prevent scratches.</p>"}},"q3":{"type":"question","settings":{"question":"Do you offer customization options?","answer":"<p>Yes, we provide customization services to create bespoke pearl earrings tailored to your preferences.</p>"}}},"block_order":["q1","q2","q3"],"settings":{"heading":"FAQ","open_first":false,"background":"sand"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Pearl Earrings at Burrows Jewellers",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>At Burrows Jewellers, we believe in the enduring allure of pearls. Our collection features:</p><p><strong>Variety of Styles:</strong> Choose from studs, hoops, drops, and more to suit any occasion.</p><p><strong>Quality Materials:</strong> Crafted with premium metals like sterling silver, yellow gold, and rose gold.</p><p><strong>Authentic Pearls:</strong> Sourced responsibly, our pearls exhibit exceptional luster and quality.</p><p>Whether you're seeking a timeless piece for daily wear or a standout accessory for special events, our pearl earrings are designed to elevate your style.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "Are your pearls natural or cultured?",
+            "answer": "<p>We offer both natural and cultured pearls, each selected for their exceptional quality and beauty.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "How should I care for my pearl earrings?",
+            "answer": "<p>To maintain their luster, gently wipe pearls with a soft cloth after wear and store them separately from other jewelry to prevent scratches.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "Do you offer customization options?",
+            "answer": "<p>Yes, we provide customization services to create bespoke pearl earrings tailored to your preferences.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

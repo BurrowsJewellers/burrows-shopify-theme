@@ -1,1 +1,101 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Pig & Hen Bracelets | Authentic Dutch Craftsmanship at Burrows Jewellers","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>The Pig & Hen collection is known for its tough, stylish designs that appeal to adventurers and style enthusiasts alike. With each bracelet handmade in Amsterdam, Pig & Hen uses materials such as ship rope and stainless steel to create accessories that are both fashionable and functional. Available in various styles, colors, and sizes, these bracelets make an ideal gift or addition to any wardrobe, blending maritime tradition with a contemporary edge.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What materials are Pig & Hen bracelets made of?","answer":"<p>Pig & Hen bracelets are crafted from authentic ship rope and high-quality stainless steel. These materials are selected for their durability and rugged look, giving each piece a unique feel.</p>"}},"q2":{"type":"question","settings":{"question":"Are Pig & Hen bracelets suitable for water activities?","answer":"<p>Yes, Pig & Hen bracelets are designed to be durable and water-resistant, making them ideal for active lifestyles. However, it’s recommended to rinse them with fresh water after exposure to saltwater to maintain their condition.</p>"}},"q3":{"type":"question","settings":{"question":"How do I find the right size for my Pig & Hen bracelet?","answer":"<p>To find the perfect size, measure your wrist with a flexible tape measure or string and refer to the sizing chart on our website. Our team at Burrows Jewellers is also available to help you find the right fit.</p>"}},"q4":{"type":"question","settings":{"question":"Can I buy authentic Pig & Hen bracelets in Australia?","answer":"<p>Absolutely! Burrows Jewellers is an authorized retailer of Pig & Hen bracelets in Australia, ensuring you get authentic pieces straight from Amsterdam.</p>"}},"q5":{"type":"question","settings":{"question":"Do Pig & Hen bracelets come with a warranty?","answer":"<p>Yes, Pig & Hen offers a warranty against manufacturing defects. For more details on warranty coverage, please consult Burrows Jewellers’ policies or contact our customer support.</p>"}}},"block_order":["q1","q2","q3","q4","q5"],"settings":{"heading":"FAQ","open_first":false,"background":"sand"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Pig & Hen Bracelets | Authentic Dutch Craftsmanship at Burrows Jewellers",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>The Pig & Hen collection is known for its tough, stylish designs that appeal to adventurers and style enthusiasts alike. With each bracelet handmade in Amsterdam, Pig & Hen uses materials such as ship rope and stainless steel to create accessories that are both fashionable and functional. Available in various styles, colors, and sizes, these bracelets make an ideal gift or addition to any wardrobe, blending maritime tradition with a contemporary edge.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What materials are Pig & Hen bracelets made of?",
+            "answer": "<p>Pig & Hen bracelets are crafted from authentic ship rope and high-quality stainless steel. These materials are selected for their durability and rugged look, giving each piece a unique feel.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Are Pig & Hen bracelets suitable for water activities?",
+            "answer": "<p>Yes, Pig & Hen bracelets are designed to be durable and water-resistant, making them ideal for active lifestyles. However, it’s recommended to rinse them with fresh water after exposure to saltwater to maintain their condition.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "How do I find the right size for my Pig & Hen bracelet?",
+            "answer": "<p>To find the perfect size, measure your wrist with a flexible tape measure or string and refer to the sizing chart on our website. Our team at Burrows Jewellers is also available to help you find the right fit.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Can I buy authentic Pig & Hen bracelets in Australia?",
+            "answer": "<p>Absolutely! Burrows Jewellers is an authorized retailer of Pig & Hen bracelets in Australia, ensuring you get authentic pieces straight from Amsterdam.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Do Pig & Hen bracelets come with a warranty?",
+            "answer": "<p>Yes, Pig & Hen offers a warranty against manufacturing defects. For more details on warranty coverage, please consult Burrows Jewellers’ policies or contact our customer support.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

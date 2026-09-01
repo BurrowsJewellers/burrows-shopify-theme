@@ -1,1 +1,93 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Watches for Women | Stylish Timepieces by Thomas Sabo, Baby G, Citizen & More","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Our collection of women’s watches brings together timeless elegance and contemporary style from renowned brands. Thomas Sabo offers chic, sophisticated designs, while Baby G is perfect for active women seeking durability and functionality. Citizen’s eco-friendly technology, Casio’s classic appeal, and Oozoo’s trendy styles round out a selection with something for every taste and occasion. Whether you’re looking for a watch that makes a bold statement or one that adds subtle elegance, our Watches for Women collection has it all.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What are the most popular brands in the Watches for Women collection?","answer":"<p>Our collection features popular brands such as Thomas Sabo, Baby G, Citizen, Casio, and Oozoo, each known for its unique style and quality. These brands offer a variety of styles to suit every preference.</p>"}},"q2":{"type":"question","settings":{"question":"Are these watches suitable for everyday wear?","answer":"<p>Yes, each brand offers durable designs that are perfect for everyday wear. Baby G and Casio, for example, are known for their sturdy construction, while Citizen’s eco-friendly technology ensures long-lasting performance.</p>"}},"q3":{"type":"question","settings":{"question":"How do I care for my watch to maintain its quality?","answer":"<p>To keep your watch in great condition, store it in a dry, cool place when not in use. Avoid exposing it to extreme temperatures or moisture and wipe it gently with a soft cloth to keep it clean.</p>"}},"q4":{"type":"question","settings":{"question":"Do these watches come with a warranty?","answer":"<p>Yes, all watches in our collection come with a warranty. The duration and terms may vary by brand, so please check each brand's warranty policy or contact us for details.</p>"}}},"block_order":["q1","q2","q3","q4"],"settings":{"heading":"FAQ","open_first":false,"background":"sand"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Watches for Women | Stylish Timepieces by Thomas Sabo, Baby G, Citizen & More",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Our collection of women’s watches brings together timeless elegance and contemporary style from renowned brands. Thomas Sabo offers chic, sophisticated designs, while Baby G is perfect for active women seeking durability and functionality. Citizen’s eco-friendly technology, Casio’s classic appeal, and Oozoo’s trendy styles round out a selection with something for every taste and occasion. Whether you’re looking for a watch that makes a bold statement or one that adds subtle elegance, our Watches for Women collection has it all.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What are the most popular brands in the Watches for Women collection?",
+            "answer": "<p>Our collection features popular brands such as Thomas Sabo, Baby G, Citizen, Casio, and Oozoo, each known for its unique style and quality. These brands offer a variety of styles to suit every preference.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Are these watches suitable for everyday wear?",
+            "answer": "<p>Yes, each brand offers durable designs that are perfect for everyday wear. Baby G and Casio, for example, are known for their sturdy construction, while Citizen’s eco-friendly technology ensures long-lasting performance.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "How do I care for my watch to maintain its quality?",
+            "answer": "<p>To keep your watch in great condition, store it in a dry, cool place when not in use. Avoid exposing it to extreme temperatures or moisture and wipe it gently with a soft cloth to keep it clean.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Do these watches come with a warranty?",
+            "answer": "<p>Yes, all watches in our collection come with a warranty. The duration and terms may vary by brand, so please check each brand's warranty policy or contact us for details.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

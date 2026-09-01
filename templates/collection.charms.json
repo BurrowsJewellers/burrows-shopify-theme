@@ -1,1 +1,110 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Charms: The Ultimate Guide to Timeless Elegance","level":"h2"}},"text":{"type":"text","settings":{"text":"<h4>Charm bracelets have held a special place in the world of jewelry for generations. These exquisite adornments serve as both a fashion statement and a personal keepsake, making them a beloved choice for many. In this comprehensive guide, we dive into the enchanting world of charm bracelets, exploring their rich history, the variety of charms available, and how to create your own unique, meaningful piece.</h4>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"A Tale of Charm Bracelets","answer":"<p>The origins of charm bracelets date back centuries, with each era leaving its mark on the evolution of this iconic jewelry piece. From medieval amulets to modern-day charms that reflect our individual stories, learn about the captivating history behind these bracelets.</p>"}},"q2":{"type":"question","settings":{"question":"The Art of Personalization","answer":"<p>Charm bracelets are, at their core, a reflection of the wearer's personality and experiences. Discover the diverse range of charms available, from classic symbols like hearts and stars to personalized options like initials and birthstones. Find inspiration for creating a charm bracelet that truly represents you.</p>"}},"q3":{"type":"question","settings":{"question":"Choosing Your Bracelet","answer":"<p>Not all charm bracelets are created equal. Explore the various bracelet styles, including traditional link bracelets, bangles, and even modern leather straps. Learn how to select the perfect foundation for your charm collection.</p>"}},"q4":{"type":"question","settings":{"question":"Building Your Story","answer":"<p>The beauty of charm bracelets lies in their ability to tell a unique story. We provide tips and ideas for curating a charm collection that reflects your life's most significant moments, passions, and dreams.</p>"}},"q5":{"type":"question","settings":{"question":"Caring for Your Treasure","answer":"<p>To ensure your charm bracelet remains a timeless keepsake, we offer guidance on how to care for and maintain it. From cleaning tips to storage recommendations, we cover everything you need to know.</p>"}},"q6":{"type":"question","settings":{"question":"Conclusion","answer":"<p>Charm bracelets are more than just jewelry; they're a cherished connection to our memories and aspirations. As you embark on your journey to create or expand your charm bracelet, remember that each charm carries a piece of your personal narrative. Find the perfect charms to express your unique story, passions, and dreams with a charm bracelet that's as unique as you are.</p>"}}},"block_order":["q1","q2","q3","q4","q5","q6"],"settings":{"heading":"Frequently Asked Questions","open_first":false,"background":"sand","image":"shopify://shop_images/001-026-09822-image-1.jpg"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Charms: The Ultimate Guide to Timeless Elegance",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<h4>Charm bracelets have held a special place in the world of jewelry for generations. These exquisite adornments serve as both a fashion statement and a personal keepsake, making them a beloved choice for many. In this comprehensive guide, we dive into the enchanting world of charm bracelets, exploring their rich history, the variety of charms available, and how to create your own unique, meaningful piece.</h4>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "A Tale of Charm Bracelets",
+            "answer": "<p>The origins of charm bracelets date back centuries, with each era leaving its mark on the evolution of this iconic jewelry piece. From medieval amulets to modern-day charms that reflect our individual stories, learn about the captivating history behind these bracelets.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "The Art of Personalization",
+            "answer": "<p>Charm bracelets are, at their core, a reflection of the wearer's personality and experiences. Discover the diverse range of charms available, from classic symbols like hearts and stars to personalized options like initials and birthstones. Find inspiration for creating a charm bracelet that truly represents you.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "Choosing Your Bracelet",
+            "answer": "<p>Not all charm bracelets are created equal. Explore the various bracelet styles, including traditional link bracelets, bangles, and even modern leather straps. Learn how to select the perfect foundation for your charm collection.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Building Your Story",
+            "answer": "<p>The beauty of charm bracelets lies in their ability to tell a unique story. We provide tips and ideas for curating a charm collection that reflects your life's most significant moments, passions, and dreams.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Caring for Your Treasure",
+            "answer": "<p>To ensure your charm bracelet remains a timeless keepsake, we offer guidance on how to care for and maintain it. From cleaning tips to storage recommendations, we cover everything you need to know.</p>"
+          }
+        },
+        "q6": {
+          "type": "question",
+          "settings": {
+            "question": "Conclusion",
+            "answer": "<p>Charm bracelets are more than just jewelry; they're a cherished connection to our memories and aspirations. As you embark on your journey to create or expand your charm bracelet, remember that each charm carries a piece of your personal narrative. Find the perfect charms to express your unique story, passions, and dreams with a charm bracelet that's as unique as you are.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6"
+      ],
+      "settings": {
+        "heading": "Frequently Asked Questions",
+        "open_first": false,
+        "background": "sand",
+        "image": "shopify://shop_images/001-026-09822-image-1.jpg"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

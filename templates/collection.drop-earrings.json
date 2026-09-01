@@ -1,1 +1,101 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Elegant Drop Earrings Collection","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Discover our stunning collection of drop earrings, perfect for adding elegance and sophistication to any look. From delicate, minimalist designs to bold, eye-catching pieces, our drop earrings are crafted with precision and style. Choose from classic gold, shimmering silver, and vibrant gemstone drops to find the ideal match for any occasion. Whether you’re dressing up for a special event or looking to add flair to your everyday style, our drop earrings collection has something for everyone. Shop our selection to find the perfect pair of drop earrings that will turn heads and elevate your style.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What types of drop earrings are available in your collection?","answer":"<p>Our collection includes a variety of drop earrings, from delicate gold and silver designs to luxurious gemstone and diamond drops, perfect for adding a touch of elegance to any outfit.</p>"}},"q2":{"type":"question","settings":{"question":"Are drop earrings suitable for formal occasions?","answer":"<p>Yes, drop earrings are an excellent choice for formal occasions. Their elegant design adds sophistication and complements a wide range of formal attire, from evening gowns to cocktail dresses.</p>"}},"q3":{"type":"question","settings":{"question":"How should I care for my drop earrings?","answer":"<p>To keep your drop earrings looking their best, store them in a dry, safe place, avoid exposure to harsh chemicals, and gently clean them with a soft cloth after each use.</p>"}},"q4":{"type":"question","settings":{"question":"What materials are used in your drop earrings?","answer":"<p>Our drop earrings are crafted from high-quality materials, including gold, silver, and sometimes enhanced with diamonds, gemstones, or pearls for added elegance and durability.</p>"}},"q5":{"type":"question","settings":{"question":"Are drop earrings comfortable for long wear?","answer":"<p>Yes, we offer lightweight drop earrings designed for comfortable wear, even for extended periods. Each piece is crafted to balance beauty with comfort, making them perfect for any occasion.</p>"}}},"block_order":["q1","q2","q3","q4","q5"],"settings":{"heading":"FAQ","open_first":false,"background":"sand"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Elegant Drop Earrings Collection",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Discover our stunning collection of drop earrings, perfect for adding elegance and sophistication to any look. From delicate, minimalist designs to bold, eye-catching pieces, our drop earrings are crafted with precision and style. Choose from classic gold, shimmering silver, and vibrant gemstone drops to find the ideal match for any occasion. Whether you’re dressing up for a special event or looking to add flair to your everyday style, our drop earrings collection has something for everyone. Shop our selection to find the perfect pair of drop earrings that will turn heads and elevate your style.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What types of drop earrings are available in your collection?",
+            "answer": "<p>Our collection includes a variety of drop earrings, from delicate gold and silver designs to luxurious gemstone and diamond drops, perfect for adding a touch of elegance to any outfit.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Are drop earrings suitable for formal occasions?",
+            "answer": "<p>Yes, drop earrings are an excellent choice for formal occasions. Their elegant design adds sophistication and complements a wide range of formal attire, from evening gowns to cocktail dresses.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "How should I care for my drop earrings?",
+            "answer": "<p>To keep your drop earrings looking their best, store them in a dry, safe place, avoid exposure to harsh chemicals, and gently clean them with a soft cloth after each use.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "What materials are used in your drop earrings?",
+            "answer": "<p>Our drop earrings are crafted from high-quality materials, including gold, silver, and sometimes enhanced with diamonds, gemstones, or pearls for added elegance and durability.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Are drop earrings comfortable for long wear?",
+            "answer": "<p>Yes, we offer lightweight drop earrings designed for comfortable wear, even for extended periods. Each piece is crafted to balance beauty with comfort, making them perfect for any occasion.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

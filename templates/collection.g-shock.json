@@ -1,1 +1,118 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"The Ultimate Guide to G-Shock Watches: Unrivaled Toughness and Style","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>When it comes to rugged, durable timepieces, G-Shock watches reign supreme. Renowned for their unparalleled toughness and iconic style, G-Shock has become a name synonymous with resilience and innovation. In this comprehensive guide, we explore the world of G-Shock watches, delving into their history, design philosophy, and the most sought-after models that have taken the world by storm.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"Shop Our G-Shock Collection:","answer":"<p>Explore our extensive collection of G-Shock watches and find the perfect timepiece to accompany you on your adventures, workouts, and everyday life. As an authorized G-Shock retailer, we offer the latest models and ensure authenticity and quality.</p>"}},"q2":{"type":"question","settings":{"question":"A Legacy of Resilience:","answer":"<p>G-Shock, short for \"Gravitational Shock,\" was born from the vision of Kikuo Ibe, a Casio engineer who aimed to create a watch that could withstand the harshest conditions. Dive into the legacy of G-Shock's durability, from the inception of the very first shock-resistant watch to its continued evolution.</p>"}},"q3":{"type":"question","settings":{"question":"The G-Shock Design Aesthetic:","answer":"<p>G-Shock watches are not just about durability; they're also style icons. Learn about the distinctive design elements that make G-Shock watches stand out, from their bold, rugged exteriors to the innovative use of materials.</p>"}},"q4":{"type":"question","settings":{"question":"G-Shock for Every Lifestyle:","answer":"<p>Whether you're an adventure enthusiast, a sports fanatic, or a fashion-forward trendsetter, G-Shock offers a watch for every lifestyle. Explore the diverse range of G-Shock collections, from the iconic DW-5600 series to the premium MR-G line.</p>"}},"q5":{"type":"question","settings":{"question":"Cutting-Edge Features:","answer":"<p>G-Shock watches don't just tell time; they offer a plethora of advanced features, from solar power and atomic timekeeping to Bluetooth connectivity and GPS tracking. Uncover the cutting-edge technology that makes G-Shock a frontrunner in the watch industry.</p>"}},"q6":{"type":"question","settings":{"question":"Choosing Your G-Shock:","answer":"<p>With so many options available, it can be challenging to pick the perfect G-Shock watch. We provide tips and recommendations to help you select the ideal timepiece that matches your needs and style.</p>"}},"q7":{"type":"question","settings":{"question":"Conclusion:","answer":"<p>G-Shock watches have transcended their functional purpose to become a symbol of resilience and style. By blending durability, innovation, and a dash of trendsetting design, G-Shock has secured its place in the world of horology. As you embark on your G-Shock journey, you're not just buying a watch; you're acquiring a piece of history, a statement of toughness, and a reflection of your unique personality.</p>"}}},"block_order":["q1","q2","q3","q4","q5","q6","q7"],"settings":{"heading":"Frequently asked questions","open_first":false,"background":"sand","image":"shopify://shop_images/look-img11.jpg"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "The Ultimate Guide to G-Shock Watches: Unrivaled Toughness and Style",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>When it comes to rugged, durable timepieces, G-Shock watches reign supreme. Renowned for their unparalleled toughness and iconic style, G-Shock has become a name synonymous with resilience and innovation. In this comprehensive guide, we explore the world of G-Shock watches, delving into their history, design philosophy, and the most sought-after models that have taken the world by storm.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "Shop Our G-Shock Collection:",
+            "answer": "<p>Explore our extensive collection of G-Shock watches and find the perfect timepiece to accompany you on your adventures, workouts, and everyday life. As an authorized G-Shock retailer, we offer the latest models and ensure authenticity and quality.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "A Legacy of Resilience:",
+            "answer": "<p>G-Shock, short for \"Gravitational Shock,\" was born from the vision of Kikuo Ibe, a Casio engineer who aimed to create a watch that could withstand the harshest conditions. Dive into the legacy of G-Shock's durability, from the inception of the very first shock-resistant watch to its continued evolution.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "The G-Shock Design Aesthetic:",
+            "answer": "<p>G-Shock watches are not just about durability; they're also style icons. Learn about the distinctive design elements that make G-Shock watches stand out, from their bold, rugged exteriors to the innovative use of materials.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "G-Shock for Every Lifestyle:",
+            "answer": "<p>Whether you're an adventure enthusiast, a sports fanatic, or a fashion-forward trendsetter, G-Shock offers a watch for every lifestyle. Explore the diverse range of G-Shock collections, from the iconic DW-5600 series to the premium MR-G line.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Cutting-Edge Features:",
+            "answer": "<p>G-Shock watches don't just tell time; they offer a plethora of advanced features, from solar power and atomic timekeeping to Bluetooth connectivity and GPS tracking. Uncover the cutting-edge technology that makes G-Shock a frontrunner in the watch industry.</p>"
+          }
+        },
+        "q6": {
+          "type": "question",
+          "settings": {
+            "question": "Choosing Your G-Shock:",
+            "answer": "<p>With so many options available, it can be challenging to pick the perfect G-Shock watch. We provide tips and recommendations to help you select the ideal timepiece that matches your needs and style.</p>"
+          }
+        },
+        "q7": {
+          "type": "question",
+          "settings": {
+            "question": "Conclusion:",
+            "answer": "<p>G-Shock watches have transcended their functional purpose to become a symbol of resilience and style. By blending durability, innovation, and a dash of trendsetting design, G-Shock has secured its place in the world of horology. As you embark on your G-Shock journey, you're not just buying a watch; you're acquiring a piece of history, a statement of toughness, and a reflection of your unique personality.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6",
+        "q7"
+      ],
+      "settings": {
+        "heading": "Frequently asked questions",
+        "open_first": false,
+        "background": "sand",
+        "image": "shopify://shop_images/look-img11.jpg"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

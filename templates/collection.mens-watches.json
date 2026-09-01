@@ -1,1 +1,102 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Men's Watches","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Discover the epitome of timeless style and precision with our curated collection of men's watches. From the rugged durability of <a href=\"/collections/g-shock-watches-for-men\" target=\"_blank\" title=\"G Shock Watches\">G-Shock</a> to the sophisticated elegance of <a href=\"/collections/citizen\" target=\"_blank\" title=\"Citizen\">Citizen</a>, and the iconic designs of <a href=\"/collections/tommy-hilfiger\" title=\"Tommy Hilfiger Watches\">Tommy Hilfiger</a>, our collection showcases an array of renowned brands that redefine what it means to keep time with style. Whether you're seeking a sleek timepiece for the boardroom or a durable companion for your outdoor adventures, our selection offers something for every discerning gentleman. Explore the fusion of craftsmanship, innovation, and design excellence that makes each watch a statement of individuality and sophistication.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What are the best mens watches for every day use?","answer":"<p>Our collection offers a range of mens watches ideal for daily wear, including durable G-Shock models, stylish Citizen watches, and versatile designs from Tommy Hilfiger. Each is crafted to withstand daily wear while maintaining a sophisticated look.</p>"}},"q2":{"type":"question","settings":{"question":"Which mens watches are best for outdoor activities?","answer":"<p>For outdoor adventures, rugged options like G-Shock are built to withstand extreme conditions, combining durability with functionality. These mens watches are perfect for active lifestyles and offer features like water resistance and shock absorption.</p>"}},"q3":{"type":"question","settings":{"question":"What materials are mens watches made from?","answer":"<p>Our mens watches feature a variety of high-quality materials, including stainless steel, leather, titanium, and durable silicone. Each material offers a unique style and level of durability to match your lifestyle needs.</p>"}},"q4":{"type":"question","settings":{"question":"How do I choose the right mens watch for formal events?","answer":"<p>For formal settings, consider classic, minimalist styles from brands like Citizen and Tommy Hilfiger. These mens watches provide a refined look with elegant details, perfect for the office, meetings, or special occasions.</p>"}},"q5":{"type":"question","settings":{"question":"Are there affordable mens watches that still offer quality?","answer":"<p>Yes! Our collection includes mens watches across a range of price points, ensuring you find high-quality options within your budget. Brands like Casio and Seiko offer stylish, affordable watches that don't compromise on quality.</p>"}}},"block_order":["q1","q2","q3","q4","q5"],"settings":{"heading":"FAQ","open_first":false,"background":"sand","image":"shopify://shop_images/clay-banks-kAOL6GOJDPE-unsplash.jpg"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Men's Watches",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Discover the epitome of timeless style and precision with our curated collection of men's watches. From the rugged durability of <a href=\"/collections/g-shock-watches-for-men\" target=\"_blank\" title=\"G Shock Watches\">G-Shock</a> to the sophisticated elegance of <a href=\"/collections/citizen\" target=\"_blank\" title=\"Citizen\">Citizen</a>, and the iconic designs of <a href=\"/collections/tommy-hilfiger\" title=\"Tommy Hilfiger Watches\">Tommy Hilfiger</a>, our collection showcases an array of renowned brands that redefine what it means to keep time with style. Whether you're seeking a sleek timepiece for the boardroom or a durable companion for your outdoor adventures, our selection offers something for every discerning gentleman. Explore the fusion of craftsmanship, innovation, and design excellence that makes each watch a statement of individuality and sophistication.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What are the best mens watches for every day use?",
+            "answer": "<p>Our collection offers a range of mens watches ideal for daily wear, including durable G-Shock models, stylish Citizen watches, and versatile designs from Tommy Hilfiger. Each is crafted to withstand daily wear while maintaining a sophisticated look.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Which mens watches are best for outdoor activities?",
+            "answer": "<p>For outdoor adventures, rugged options like G-Shock are built to withstand extreme conditions, combining durability with functionality. These mens watches are perfect for active lifestyles and offer features like water resistance and shock absorption.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "What materials are mens watches made from?",
+            "answer": "<p>Our mens watches feature a variety of high-quality materials, including stainless steel, leather, titanium, and durable silicone. Each material offers a unique style and level of durability to match your lifestyle needs.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "How do I choose the right mens watch for formal events?",
+            "answer": "<p>For formal settings, consider classic, minimalist styles from brands like Citizen and Tommy Hilfiger. These mens watches provide a refined look with elegant details, perfect for the office, meetings, or special occasions.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Are there affordable mens watches that still offer quality?",
+            "answer": "<p>Yes! Our collection includes mens watches across a range of price points, ensuring you find high-quality options within your budget. Brands like Casio and Seiko offer stylish, affordable watches that don't compromise on quality.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand",
+        "image": "shopify://shop_images/clay-banks-kAOL6GOJDPE-unsplash.jpg"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}

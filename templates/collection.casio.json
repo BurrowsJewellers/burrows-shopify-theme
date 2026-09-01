@@ -1,1 +1,101 @@
-{"sections":{"main":{"type":"main-collection","settings":{}},"text":{"type":"rich-text","blocks":{"heading":{"type":"heading","settings":{"text":"Casio Watches: Precision, Innovation, and Timeless Style","level":"h2"}},"text":{"type":"text","settings":{"text":"<p>Casio watches are renowned for their durability, precision, and advanced technological features. From the tough, rugged Casio G-Shock designed for extreme sports enthusiasts to the elegant Casio Edifice that complements your formal attire, Casio offers a diverse range of watches to suit any lifestyle.</p><p>Our <strong>Casio Watches</strong> collection features various models, including solar-powered options, multi-functional designs, and water-resistant models that can handle any adventure. Casio's commitment to innovation ensures that every watch provides the highest level of functionality and reliability. With features like Bluetooth connectivity, stopwatch functionality, and world time zones, Casio watches are built for individuals who value performance and style.</p><p>Browse our Casio Watches collection today and find the perfect timepiece that reflects your unique personality. Whether you need a watch for daily wear or a high-performance model for outdoor activities, Casio watches are the ultimate choice for quality and affordability.</p>"}}},"block_order":["heading","text"],"settings":{"background":"cream","align":"center","width":"narrow"}},"faq":{"type":"faq","blocks":{"q1":{"type":"question","settings":{"question":"What makes Casio watches stand out?","answer":"<p>Casio watches are known for their durability, innovative features, and wide range of styles. With models like the G-Shock and Edifice, Casio offers timepieces for both casual and formal wear.</p>"}},"q2":{"type":"question","settings":{"question":"Are Casio G-Shock watches really shock-resistant?","answer":"<p>Yes, Casio G-Shock watches are designed to be shock-resistant and are ideal for outdoor and rugged activities. They are built to withstand tough environments, making them highly durable.</p>"}},"q3":{"type":"question","settings":{"question":"What are the key features of Casio Edifice watches?","answer":"<p>Casio Edifice watches feature advanced timekeeping technology, including Bluetooth connectivity, multi-function dials, and solar-powered batteries. They are perfect for individuals looking for both style and high functionality.</p>"}},"q4":{"type":"question","settings":{"question":"Are Casio watches water-resistant?","answer":"<p>Many Casio models, including G-Shock and Edifice, offer water resistance, ranging from 50 meters to 200 meters, depending on the model. This makes them suitable for swimming and other water activities.</p>"}},"q5":{"type":"question","settings":{"question":"How do I care for my Casio watch?","answer":"<p>To maintain the quality of your Casio watch, clean it regularly with a soft cloth and avoid exposing it to harsh chemicals. For water-resistant models, ensure the crown is pushed in before submersion.</p>"}}},"block_order":["q1","q2","q3","q4","q5"],"settings":{"heading":"FAQ","open_first":false,"background":"sand"}}},"order":["main","text","faq"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "text": {
+      "type": "rich-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "Casio Watches: Precision, Innovation, and Timeless Style",
+            "level": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Casio watches are renowned for their durability, precision, and advanced technological features. From the tough, rugged Casio G-Shock designed for extreme sports enthusiasts to the elegant Casio Edifice that complements your formal attire, Casio offers a diverse range of watches to suit any lifestyle.</p><p>Our <strong>Casio Watches</strong> collection features various models, including solar-powered options, multi-functional designs, and water-resistant models that can handle any adventure. Casio's commitment to innovation ensures that every watch provides the highest level of functionality and reliability. With features like Bluetooth connectivity, stopwatch functionality, and world time zones, Casio watches are built for individuals who value performance and style.</p><p>Browse our Casio Watches collection today and find the perfect timepiece that reflects your unique personality. Whether you need a watch for daily wear or a high-performance model for outdoor activities, Casio watches are the ultimate choice for quality and affordability.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text"
+      ],
+      "settings": {
+        "background": "cream",
+        "align": "center",
+        "width": "narrow"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What makes Casio watches stand out?",
+            "answer": "<p>Casio watches are known for their durability, innovative features, and wide range of styles. With models like the G-Shock and Edifice, Casio offers timepieces for both casual and formal wear.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Are Casio G-Shock watches really shock-resistant?",
+            "answer": "<p>Yes, Casio G-Shock watches are designed to be shock-resistant and are ideal for outdoor and rugged activities. They are built to withstand tough environments, making them highly durable.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "What are the key features of Casio Edifice watches?",
+            "answer": "<p>Casio Edifice watches feature advanced timekeeping technology, including Bluetooth connectivity, multi-function dials, and solar-powered batteries. They are perfect for individuals looking for both style and high functionality.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Are Casio watches water-resistant?",
+            "answer": "<p>Many Casio models, including G-Shock and Edifice, offer water resistance, ranging from 50 meters to 200 meters, depending on the model. This makes them suitable for swimming and other water activities.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "How do I care for my Casio watch?",
+            "answer": "<p>To maintain the quality of your Casio watch, clean it regularly with a soft cloth and avoid exposing it to harsh chemicals. For water-resistant models, ensure the crown is pushed in before submersion.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ],
+      "settings": {
+        "heading": "FAQ",
+        "open_first": false,
+        "background": "sand"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "text",
+    "faq"
+  ]
+}
