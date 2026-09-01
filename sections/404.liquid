@@ -1,0 +1,16 @@
+{% comment %}
+  404 page. Placeholder — restyled in Phase 3.
+{% endcomment %}
+
+<div class="page-width">
+  <h1 class="h2">{{ '404.title' | t }}</h1>
+  <p>{{ '404.not_found' | t }}</p>
+  <p><a class="link-gold" href="{{ routes.all_products_collection_url }}">{{ '404.back_to_shopping' | t }}</a></p>
+</div>
+
+{% schema %}
+{
+  "name": "t:general.404",
+  "settings": []
+}
+{% endschema %}

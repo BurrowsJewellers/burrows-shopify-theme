@@ -1,0 +1,47 @@
+{% comment %}
+  Collection page. Placeholder — replaced by the redesigned collection page in Phase 2.
+{% endcomment %}
+
+<div class="page-width">
+<h1 class="h2">{{ collection.title }}</h1>
+
+<div class="collection-products">
+  {% paginate collection.products by 24 %}
+    {% for product in collection.products %}
+      <div class="collection-product">
+        {% if product.featured_image %}
+          {% render 'image',
+            class: 'collection-product__image',
+            image: product.featured_image,
+            url: product.url,
+            width: 400,
+            height: 400,
+            crop: 'center'
+          %}
+        {% endif %}
+        <div class="collection-product__content">
+          <p>{{ product.title | escape | link_to: product.url }}</p>
+          <p>{{ product.price | money }}</p>
+        </div>
+      </div>
+    {% endfor %}
+
+    {{ paginate | default_pagination }}
+  {% endpaginate %}
+</div>
+</div>
+
+{% stylesheet %}
+  .collection-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.collection",
+  "settings": []
+}
+{% endschema %}

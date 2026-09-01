@@ -1,0 +1,51 @@
+{% comment %}
+  Product page. Placeholder — replaced by the redesigned product page in Phase 2.
+{% endcomment %}
+
+<div class="page-width">
+<div class="product-images">
+  {% for image in product.images limit: 4 %}
+    {% render 'image', class: 'product-image', image: image, width: 800 %}
+  {% endfor %}
+</div>
+
+<div class="product-info">
+  <h1 class="h2">{{ product.title }}</h1>
+  <p>{{ product.price | money }}</p>
+  <div class="rte">{{ product.description }}</div>
+</div>
+
+<div class="product-form">
+  {% form 'product', product %}
+    {% assign current_variant = product.selected_or_first_available_variant %}
+
+    <select name="id">
+      {% for variant in product.variants %}
+        <option
+          value="{{ variant.id }}"
+          {% if variant == current_variant %}
+            selected="selected"
+          {% endif %}
+        >
+          {{ variant.title }} - {{ variant.price | money }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <input type="text" name="quantity" min="1" value="1">
+
+    <input type="submit" value="Add to cart">
+    {{ form | payment_button }}
+  {% endform %}
+</div>
+</div>
+
+{% schema %}
+{
+  "name": "t:general.product",
+  "settings": [],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}
