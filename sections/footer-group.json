@@ -1,0 +1,21 @@
+{
+  "type": "footer",
+  "name": "Footer",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "shop": { "type": "menu", "settings": { "heading": "Shop", "menu": "footer-shop" } },
+        "services": { "type": "menu", "settings": { "heading": "Services", "menu": "footer-services" } },
+        "information": { "type": "menu", "settings": { "heading": "Information", "menu": "footer-information" } }
+      },
+      "block_order": ["shop", "services", "information"],
+      "settings": {
+        "blurb": "Independent jewellers with an on-site workshop at 68 Langtree Ave, Mildura — custom design, remodelling and repairs done in-house.",
+        "show_payment": true,
+        "payment_badges": "Visa, Mastercard, PayPal, Afterpay"
+      }
+    }
+  },
+  "order": ["footer"]
+}

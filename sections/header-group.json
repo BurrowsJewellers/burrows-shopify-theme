@@ -1,0 +1,113 @@
+{
+  "type": "header",
+  "name": "Header",
+  "sections": {
+    "header": {
+      "type": "header",
+      "blocks": {
+        "engagement": {
+          "type": "mega",
+          "settings": {
+            "title": "Engagement & Wedding",
+            "url": "shopify://collections/engagement-rings",
+            "width": "small",
+            "col1_heading": "Engagement & Wedding",
+            "col1_menu": "engagement-wedding-mega",
+            "col1_highlight": "Ring Builder",
+            "feature_image_url": "https://images.unsplash.com/photo-1719924998065-0c60e329ef58?fm=jpg&q=75&w=900&auto=format&fit=crop",
+            "feature_title": "Build your ring",
+            "feature_link_label": "Diamonds direct from supplier",
+            "feature_url": "/apps/ring-creator/rb-get-started"
+          }
+        },
+        "jewellery": {
+          "type": "mega",
+          "settings": {
+            "title": "Jewellery",
+            "url": "shopify://collections/all-products",
+            "width": "full",
+            "col1_heading": "Shop by Category",
+            "col1_menu": "shop-by-category",
+            "col1_two_col": true,
+            "col1_highlight": "New Arrivals",
+            "col1_more_label": "Shop all jewellery",
+            "col1_more_url": "shopify://collections/all-products",
+            "col2_heading": "Shop by Metal",
+            "col2_menu": "shop-by-metal",
+            "col2_sub_heading": "Shop by Price",
+            "col2_pills_menu": "jewellery-price",
+            "col3_heading": "Shop by Gemstone",
+            "col3_menu": "shop-by-gemstones",
+            "feature_image_url": "https://images.unsplash.com/photo-1724937721130-c9a9a4ee477e?fm=jpg&q=75&w=900&auto=format&fit=crop",
+            "feature_eyebrow": "Featured",
+            "feature_title": "The Burrows Collection",
+            "feature_link_label": "Discover",
+            "feature_url": "shopify://collections/burrows-collection"
+          }
+        },
+        "watches": {
+          "type": "mega",
+          "settings": {
+            "title": "Watches",
+            "url": "shopify://collections/watches",
+            "width": "narrow",
+            "col1_heading": "Shop Watches",
+            "col1_menu": "explore-watches",
+            "col2_heading": "By Brand",
+            "col2_menu": "watch-brands",
+            "col2_two_col": true,
+            "service_heading": "Watch Services",
+            "service_text": "Batteries, straps, resizing and repairs — done in our Mildura workshop, never sent away.",
+            "service_link_label": "Book a service",
+            "service_url": "shopify://pages/services"
+          }
+        },
+        "brands": {
+          "type": "mega",
+          "settings": {
+            "title": "Brands",
+            "url": "shopify://pages/brands",
+            "width": "compact",
+            "col1_heading": "Jewellery",
+            "col1_menu": "jewellery-brands",
+            "col2_heading": "Watches",
+            "col2_menu": "watch-brands",
+            "col3_heading": "Giftware",
+            "col3_menu": "other-brands",
+            "col3_more_label": "All brands",
+            "col3_more_url": "shopify://pages/brands"
+          }
+        },
+        "giftwares": {
+          "type": "link",
+          "settings": {
+            "title": "Giftwares",
+            "url": "shopify://collections/giftware",
+            "highlight": false
+          }
+        },
+        "sale": {
+          "type": "link",
+          "settings": {
+            "title": "Sale",
+            "url": "shopify://collections/sale",
+            "highlight": true
+          }
+        }
+      },
+      "block_order": ["engagement", "jewellery", "watches", "brands", "giftwares", "sale"],
+      "settings": {
+        "transparent_on_home": true,
+        "show_announcement": true,
+        "announcement_1": "Free shipping Australia-wide · Afterpay available",
+        "announcement_2": "On-site workshop — repairs never sent away",
+        "announcement_3": "68 Langtree Ave, Mildura · Book an appointment",
+        "show_phone": true,
+        "book_label": "Book an Appointment",
+        "search_placeholder": "Search rings, brands, watches…",
+        "drawer_open_index": 2
+      }
+    }
+  },
+  "order": ["header"]
+}

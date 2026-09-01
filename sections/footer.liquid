@@ -1,0 +1,90 @@
+{%- liquid
+  assign logo_url = settings.logo_light_url
+  if settings.logo_light != blank
+    assign logo_url = settings.logo_light | image_url: width: 400
+  endif
+-%}
+<footer class="full-width ft bg-navy on-dark">
+  <div class="container">
+    <div class="ft__grid">
+      <div class="ft__brand">
+        <img src="{{ logo_url }}" alt="{{ shop.name | escape }}" width="220" height="76" loading="lazy">
+        {%- if section.settings.blurb != blank -%}<p>{{ section.settings.blurb }}</p>{%- endif -%}
+        <div class="ft__social">
+          {%- if settings.social_instagram != blank -%}
+            <a href="{{ settings.social_instagram }}" title="Instagram" aria-label="Instagram" target="_blank" rel="noopener">{% render 'icon', name: 'instagram', size: 16 %}</a>
+          {%- endif -%}
+          {%- if settings.social_facebook != blank -%}
+            <a href="{{ settings.social_facebook }}" title="Facebook" aria-label="Facebook" target="_blank" rel="noopener">{% render 'icon', name: 'facebook', size: 16 %}</a>
+          {%- endif -%}
+        </div>
+      </div>
+      {%- for block in section.blocks -%}
+        <div class="ft__col" {{ block.shopify_attributes }}>
+          {%- if block.settings.heading != blank -%}<div class="ft__h">{{ block.settings.heading }}</div>{%- endif -%}
+          {%- if block.settings.menu != blank -%}
+            {%- for link in block.settings.menu.links -%}
+              <a href="{{ link.url }}">{{ link.title }}</a>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+    <div class="ft__bottom">
+      <div class="ft__copy">&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}{% if settings.store_address_short != blank %} &middot; {{ settings.store_address_short }}{% endif %}{% if settings.store_phone_display != blank %} &middot; <a href="tel:{{ settings.store_phone_tel }}">{{ settings.store_phone_display }}</a>{% endif %}</div>
+      {%- if section.settings.show_payment -%}
+        <div class="ft__pay">
+          {%- assign badges = section.settings.payment_badges | split: ',' -%}
+          {%- for b in badges -%}<span>{{ b | strip }}</span>{%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</footer>
+
+{% stylesheet %}
+  .ft { padding: 72px var(--gutter) 0; color: rgba(var(--cream-rgb), .7); }
+  .ft__grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 48px; padding-bottom: 56px; }
+  .ft__brand { display: flex; flex-direction: column; gap: 14px; }
+  .ft__brand img { height: 76px; width: auto; align-self: flex-start; }
+  .ft__brand p { font-size: 14px; line-height: 1.7; margin: 8px 0 0; font-weight: 300; max-width: 300px; }
+  .ft__social { display: flex; gap: 14px; margin-top: 8px; }
+  .ft__social a { width: 36px; height: 36px; border: 1px solid rgba(var(--cream-rgb), .25); display: flex; align-items: center; justify-content: center; color: rgba(var(--cream-rgb), .7); transition: .2s; }
+  .ft__social a:hover { border-color: var(--gold); color: var(--gold-3); }
+  .ft__col { display: flex; flex-direction: column; gap: 12px; }
+  .ft__h { font-size: 12px; letter-spacing: .24em; text-transform: uppercase; color: var(--cream); font-weight: 500; margin-bottom: 6px; }
+  .ft__col a { color: rgba(var(--cream-rgb), .65); font-size: 14px; font-weight: 300; transition: color .2s; }
+  .ft__col a:hover { color: var(--gold-3); }
+  .ft__bottom { border-top: 1px solid rgba(var(--cream-rgb), .12); display: flex; align-items: center; justify-content: space-between; padding: 24px 0 28px; gap: 24px; flex-wrap: wrap; }
+  .ft__copy { font-size: 12.5px; color: rgba(var(--cream-rgb), .45); letter-spacing: .04em; }
+  .ft__copy a:hover { color: var(--gold-3); }
+  .ft__pay { display: flex; gap: 10px; flex-wrap: wrap; }
+  .ft__pay span { border: 1px solid rgba(var(--cream-rgb), .2); color: rgba(var(--cream-rgb), .55); font-size: 10.5px; letter-spacing: .08em; padding: 5px 10px; text-transform: uppercase; }
+  @media (max-width: 1023px) {
+    .ft { padding-top: 56px; }
+    .ft__grid { grid-template-columns: 1fr 1fr; gap: 36px 24px; }
+    .ft__brand { grid-column: 1 / -1; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    { "type": "textarea", "id": "blurb", "label": "About text", "default": "Independent jewellers with an on-site workshop at 68 Langtree Ave, Mildura — custom design, remodelling and repairs done in-house." },
+    { "type": "checkbox", "id": "show_payment", "label": "Show payment badges", "default": true },
+    { "type": "text", "id": "payment_badges", "label": "Payment badges (comma separated)", "default": "Visa, Mastercard, PayPal, Afterpay" }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Link column",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Shop" },
+        { "type": "link_list", "id": "menu", "label": "Menu" }
+      ]
+    }
+  ],
+  "max_blocks": 4
+}
+{% endschema %}
