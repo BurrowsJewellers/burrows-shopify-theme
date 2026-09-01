@@ -200,3 +200,139 @@
   /* ---------------- Theme editor: re-run header sizing when sections re-render ---------------- */
   document.addEventListener('shopify:section:load', function () { setHeaderHeight(); });
 })();
+
+/* ---------------- Product page ---------------- */
+(function () {
+  'use strict';
+  var root = document.querySelector('[data-product-section]');
+  if (!root) return;
+
+  var product, designMap = {};
+  try { product = JSON.parse(root.querySelector('[data-product-json]').textContent); } catch (e) { return; }
+  try { designMap = JSON.parse(root.querySelector('[data-design-map]').textContent) || {}; } catch (e) { designMap = {}; }
+
+  var money = function (cents) {
+    var v = (cents / 100).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return '$' + v;
+  };
+  var q = function (sel) { return root.querySelector(sel); };
+  var qa = function (sel) { return Array.prototype.slice.call(root.querySelectorAll(sel)); };
+
+  var picker = q('[data-variant-picker]');
+  var idInput = q('[data-variant-id]');
+  var priceEl = q('[data-price]');
+  var compareEl = q('[data-compare-price]');
+  var afterEl = q('[data-afterpay]');
+  var addBtn = q('[data-add-button]');
+  var addLabel = q('[data-add-label]');
+  var stickyPrice = q('[data-sticky-price]');
+  var stickyAdd = q('[data-sticky-add]');
+  var badge = q('[data-sale-badge]');
+  var mainImg = q('[data-main-image]');
+  var thumbs = qa('[data-thumb]');
+  var designWrap = q('[data-design-number-wrap]');
+  var designEls = qa('[data-design-number]');
+  var designRow = q('[data-design-row]');
+  var skuEl = q('[data-sku]');
+  var skuRow = q('[data-sku-row]');
+  var addDiamond = q('[data-add-diamond]');
+
+  function currentOptions() {
+    if (!picker) return null;
+    var opts = [];
+    qa('[data-option-index]').forEach(function (fs) {
+      var checked = fs.querySelector('input:checked');
+      opts[parseInt(fs.getAttribute('data-option-index'), 10)] = checked ? checked.value : null;
+    });
+    return opts;
+  }
+  function findVariant(opts) {
+    if (!opts) return product.variants[0];
+    return product.variants.find(function (v) {
+      return v.options.every(function (o, i) { return o === opts[i]; });
+    });
+  }
+  function setThumb(mediaId) {
+    thumbs.forEach(function (t) {
+      var on = String(t.getAttribute('data-media-id')) === String(mediaId);
+      t.classList.toggle('on', on);
+      if (on && mainImg) { mainImg.src = t.getAttribute('data-full'); mainImg.removeAttribute('srcset'); }
+    });
+  }
+  function update(pushUrl) {
+    var v = findVariant(currentOptions());
+    qa('[data-option-index]').forEach(function (fs) {
+      var checked = fs.querySelector('input:checked');
+      var sel = fs.querySelector('[data-option-selected]');
+      if (sel && checked) sel.textContent = checked.value;
+    });
+    if (!v) {
+      if (addBtn) { addBtn.disabled = true; if (addLabel) addLabel.textContent = 'Unavailable'; }
+      if (stickyAdd) { stickyAdd.disabled = true; stickyAdd.textContent = 'Unavailable'; }
+      return;
+    }
+    if (idInput) idInput.value = v.id;
+    if (priceEl) { priceEl.textContent = money(v.price); priceEl.classList.toggle('on', v.compare_at_price > v.price); }
+    if (compareEl) { compareEl.hidden = !(v.compare_at_price > v.price); compareEl.textContent = v.compare_at_price ? money(v.compare_at_price) : ''; }
+    if (badge) badge.hidden = !(v.compare_at_price > v.price);
+    if (afterEl) afterEl.textContent = money(Math.round(v.price / 4));
+    if (stickyPrice) stickyPrice.textContent = money(v.price);
+    var label = v.available ? (addBtn && addBtn.getAttribute('data-label')) || 'Add to Cart' : 'Sold out';
+    if (addBtn) { addBtn.disabled = !v.available; if (addLabel) addLabel.textContent = label; }
+    if (stickyAdd) { stickyAdd.disabled = !v.available; stickyAdd.textContent = v.available ? 'Add to cart' : 'Sold out'; }
+    if (v.featured_media && v.featured_media.id) setThumb(v.featured_media.id);
+    var dn = designMap[String(v.id)] || '';
+    designEls.forEach(function (el) { el.textContent = dn; });
+    if (designWrap) designWrap.hidden = !dn;
+    if (designRow) designRow.hidden = !dn;
+    if (skuEl) skuEl.textContent = v.sku || '';
+    if (skuRow) skuRow.hidden = !v.sku;
+    if (addDiamond) {
+      var base = addDiamond.getAttribute('data-base');
+      addDiamond.href = base + '?stage=Add+Diamond&settingId=' + product.id + '&settingVariantId=' + v.id;
+    }
+    if (pushUrl && window.history && window.history.replaceState) {
+      var url = new URL(window.location.href);
+      url.searchParams.set('variant', v.id);
+      window.history.replaceState({}, '', url.toString());
+    }
+  }
+
+  if (addBtn && addLabel) addBtn.setAttribute('data-label', addLabel.textContent.trim());
+  if (picker) picker.addEventListener('change', function () { update(true); });
+
+  var qty = q('[data-qty]');
+  var minus = q('[data-qty-minus]'), plus = q('[data-qty-plus]');
+  if (qty && minus) minus.addEventListener('click', function () { qty.value = Math.max(1, (parseInt(qty.value, 10) || 1) - 1); });
+  if (qty && plus) plus.addEventListener('click', function () { qty.value = (parseInt(qty.value, 10) || 1) + 1; });
+
+  thumbs.forEach(function (t) {
+    t.addEventListener('click', function () { setThumb(t.getAttribute('data-media-id')); });
+  });
+
+  if (stickyAdd && addBtn) stickyAdd.addEventListener('click', function () { addBtn.click(); });
+
+  update(false);
+})();
+
+/* ---------------- Product recommendations (Section Rendering API) ---------------- */
+(function () {
+  var el = document.querySelector('[data-recommendations]');
+  if (!el || !el.getAttribute('data-url')) return;
+  var load = function () {
+    fetch(el.getAttribute('data-url'))
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var inner = doc.querySelector('[data-recommendations]');
+        if (inner && inner.innerHTML.trim().length) el.innerHTML = inner.innerHTML;
+      })
+      .catch(function () {});
+  };
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      if (entries.some(function (e) { return e.isIntersecting; })) { load(); io.disconnect(); }
+    }, { rootMargin: '400px 0px' });
+    io.observe(el);
+  } else { load(); }
+})();
