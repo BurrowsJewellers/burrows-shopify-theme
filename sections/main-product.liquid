@@ -33,7 +33,7 @@
       {%- endif -%}
       <div class="pd__mainimg">
         {%- if product.featured_media -%}
-          {{ product.featured_media | image_url: width: 1400 | image_tag: id: 'MainImage', loading: 'eager', alt: product.title, widths: '600, 900, 1200, 1400', sizes: '(max-width: 900px) 100vw, 55vw', 'data-main-image': '' }}
+          {{ product.featured_media | image_url: width: 1400 | image_tag: id: 'MainImage', loading: 'eager', alt: product.title, widths: '600, 900, 1200, 1400', sizes: '(max-width: 900px) 100vw, 55vw' }}
         {%- else -%}
           {{ 'product-1' | placeholder_svg_tag: 'placeholder' }}
         {%- endif -%}
@@ -294,7 +294,7 @@
     { "type": "title", "name": "Title", "limit": 1, "settings": [ { "type": "checkbox", "id": "show_vendor", "label": "Show brand above title", "default": true } ] },
     { "type": "price", "name": "Price", "limit": 1, "settings": [
       { "type": "text", "id": "gst_note", "label": "Note beside price", "default": "AUD · incl. GST" },
-      { "type": "checkbox", "id": "show_afterpay", "label": "Show \"4 payments with Afterpay\" line", "default": true, "info": "Turn off if you add the Afterpay app block instead." },
+      { "type": "checkbox", "id": "show_afterpay", "label": "Show 4 payments with Afterpay line", "default": true, "info": "Turn off if you add the Afterpay app block instead." },
       { "type": "checkbox", "id": "show_design_number", "label": "Show design number (variant metafield custom.design_number_variant)", "default": true }
     ] },
     { "type": "text", "name": "Text", "settings": [ { "type": "richtext", "id": "text", "label": "Text", "default": "<p>This product will be shipped directly from our warehouse.</p>" } ] },
@@ -310,7 +310,7 @@
       { "type": "text", "id": "contact_label", "label": "Contact button label", "default": "Contact us" },
       { "type": "url", "id": "contact_url", "label": "Contact link" }
     ] },
-    { "type": "add_diamond", "name": "Add diamond (ring builder)", "limit": 1, "settings": [
+    { "type": "add_diamond", "name": "Add diamond button", "limit": 1, "settings": [
       { "type": "text", "id": "label", "label": "Label", "default": "Add a diamond to this setting" },
       { "type": "url", "id": "builder_url", "label": "Ring builder page" }
     ] },
