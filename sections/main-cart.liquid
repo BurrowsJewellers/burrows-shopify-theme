@@ -21,6 +21,22 @@
               if li_size == blank
                 assign li_size = item.product.metafields.custom.ring_size_product | metafield_text
               endif
+              if li_size == blank
+                assign li_sidx = -1
+                for popt in item.product.options_with_values
+                  assign poname = popt.name | downcase
+                  if poname contains 'size'
+                    assign li_sidx = forloop.index0
+                  endif
+                endfor
+                if li_sidx == 0
+                  assign li_size = item.variant.option1
+                elsif li_sidx == 1
+                  assign li_size = item.variant.option2
+                elsif li_sidx == 2
+                  assign li_size = item.variant.option3
+                endif
+              endif
               assign li_metal = item.variant.metafields.custom.metal_type | metafield_text
               if li_metal == blank
                 assign li_metal = item.product.metafields.custom.metal_type_product | metafield_text
