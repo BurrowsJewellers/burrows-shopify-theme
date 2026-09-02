@@ -75,9 +75,18 @@
             <div class="pd__text rte" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
 
           {%- when 'variant_picker' -%}
-            {%- unless product.has_only_default_variant -%}
+            {%- liquid
+              assign has_choice = false
+              for option in product.options_with_values
+                if option.values.size > 1
+                  assign has_choice = true
+                endif
+              endfor
+            -%}
+            {%- if has_choice -%}
               <div class="pd__options" {{ block.shopify_attributes }} data-variant-picker>
                 {%- for option in product.options_with_values -%}
+                  {%- if option.values.size > 1 -%}
                   <fieldset class="pd__opt" data-option-index="{{ forloop.index0 }}">
                     <legend class="pd__opt-label">{{ option.name }} &mdash; <b data-option-selected>{{ option.selected_value }}</b></legend>
                     <div class="pd__vals">
@@ -92,9 +101,10 @@
                       {%- if oname contains 'size' -%}<div class="pd__note">{{ block.settings.size_note }}</div>{%- endif -%}
                     {%- endif -%}
                   </fieldset>
+                  {%- endif -%}
                 {%- endfor -%}
               </div>
-            {%- endunless -%}
+            {%- endif -%}
 
           {%- when 'ring_sizing' -%}
             {%- liquid

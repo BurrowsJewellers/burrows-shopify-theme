@@ -177,6 +177,14 @@
             el.style.opacity = t.toFixed(3);
             el.style.transform = 'translateY(' + lerp(28, 0, ease(t)) + 'px)';
           });
+        } else if (track) {
+          /* Mobile: the ring assembles as the section scrolls through the viewport */
+          var mrect = track.getBoundingClientRect();
+          var mp = clamp((vh - mrect.top) / Math.min(mrect.height, vh * 1.2));
+          var me = ease(seg(mp, 0.1, 0.9));
+          if (partD) partD.style.transform = 'translateY(' + lerp(90, 0, me) + 'px)';
+          if (partC) partC.style.transform = 'translateY(' + lerp(44, 0, me * 0.9) + 'px)';
+          if (partS) partS.style.transform = 'translateY(' + lerp(-18, 12, me * 1.1) + 'px)';
         }
 
         var pls = document.querySelectorAll('[data-parallax]');
@@ -249,7 +257,7 @@
   function findVariant(opts) {
     if (!opts) return product.variants[0];
     return product.variants.find(function (v) {
-      return v.options.every(function (o, i) { return o === opts[i]; });
+      return v.options.every(function (o, i) { return opts[i] == null || o === opts[i]; });
     });
   }
   function setThumb(mediaId) {

@@ -274,3 +274,23 @@ body.shop-white { background: #fff; }
   .bn-wrap .bn-nav { justify-self: center; }
   .bn-wrap .bn-utils { justify-self: end; }
 }
+
+/* Mobile polish ------------------------------------------- */
+@media (max-width: 1023px) {
+  /* centre the hero copy and trust bar */
+  .full-width.hero .hero__copy { text-align: center; align-items: center; }
+  .full-width.trust { justify-content: center; }
+  .full-width.ft .ft__bottom { justify-content: center; text-align: center; }
+  .full-width.ft .ft__pay { justify-content: center; }
+}
+@media (max-width: 900px) {
+  /* stop the thumbnail strip stretching the page (min-content propagation) */
+  .full-width.pd .pd__main { overflow-x: clip; }
+  .full-width.pd .pd__main > * { min-width: 0; max-width: 100%; }
+  .full-width.pd .pd__thumbs { max-width: 100%; }
+  /* centre the product header cluster */
+  .full-width.pd .pd__eyebrow, .full-width.pd .pd__title, .full-width.pd .pd__afterpay,
+  .full-width.pd .pd__design, .full-width.pd .pd__app { text-align: center; }
+  .full-width.pd .pd__priceline { justify-content: center; }
+  .full-width.pd .pd__loc { display: table; margin: 0 auto 14px; }
+}
