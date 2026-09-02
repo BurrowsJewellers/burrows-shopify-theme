@@ -16,7 +16,17 @@
       <form action="{{ routes.cart_url }}" method="post" class="cart__form" id="CartForm">
         <div class="cart__items">
           {%- for item in cart.items -%}
-            <div class="cart__item" data-cart-item data-line="{{ forloop.index }}" data-variant-id="{{ item.variant_id }}"{% if item.properties._ring_variant %} data-for-variant="{{ item.properties._ring_variant }}"{% endif %}>
+            {%- liquid
+              assign li_size = item.variant.metafields.custom.ring_size_variant | metafield_text
+              if li_size == blank
+                assign li_size = item.product.metafields.custom.ring_size_product | metafield_text
+              endif
+              assign li_metal = item.variant.metafields.custom.metal_type | metafield_text
+              if li_metal == blank
+                assign li_metal = item.product.metafields.custom.metal_type_product | metafield_text
+              endif
+            -%}
+            <div class="cart__item" data-cart-item data-line="{{ forloop.index }}" data-key="{{ item.key }}" data-qty="{{ item.quantity }}" data-variant-id="{{ item.variant_id }}" data-title="{{ item.product.title | escape }}" data-sku="{{ item.sku | escape }}"{% if li_size != blank %} data-ring-size="{{ li_size | escape }}"{% endif %}{% if li_metal != blank %} data-metal="{{ li_metal | escape }}"{% endif %}{% if item.properties['Ring size'] %} data-prop-size="{{ item.properties['Ring size'] | escape }}"{% endif %}{% if item.properties._ring_variant %} data-for-variant="{{ item.properties._ring_variant }}"{% endif %}>
               <a class="cart__img" href="{{ item.url }}">
                 {%- if item.image -%}
                   {{ item.image | image_url: width: 300 | image_tag: loading: 'lazy', alt: item.title }}
@@ -48,6 +58,18 @@
             </div>
           {%- endfor -%}
         </div>
+
+        {%- liquid
+          assign rsp = section.settings.resize_product
+        -%}
+        {%- if rsp != blank -%}
+          <script type="application/json" data-resize-config>{
+            "resize": [ {%- for rv in rsp.variants -%}{ "id": {{ rv.id }}, "title": {{ rv.title | json }}, "price": {{ rv.price }} }{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%} ],
+            "prefixes": {{ section.settings.sizing_prefixes | default: '001,002,004' | split: ',' | json }},
+            "steps": {{ section.settings.sizing_steps | default: 2 }},
+            "note": {{ section.settings.sizing_note | json }}
+          }</script>
+        {%- endif -%}
 
         <aside class="cart__summary">
           {%- if s.show_note -%}
@@ -88,6 +110,10 @@
   .cart__props:empty { display: none; }
   .cart__unit { font-size: 14px; color: var(--body); margin-top: 4px; }
   .cart__unit s { color: var(--muted); margin-left: 8px; }
+  .cartrs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-top: 8px; }
+  .cartrs__label { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-dark); font-weight: 500; }
+  .cartrs__select { font-family: var(--font-body); font-size: 13px; color: var(--ink); background: #fff; border: 1px solid rgba(var(--gold-dark-rgb), .35); padding: 7px 10px; border-radius: 0; }
+  .cartrs__note { flex-basis: 100%; font-size: 12px; color: var(--muted); }
   .cart__remove { font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-dark); border-bottom: 1px solid var(--gold-2); align-self: flex-start; margin-top: 8px; }
   .cart__qty .input { padding: 12px 10px; text-align: center; }
   .cart__line { text-align: right; font-weight: 500; color: var(--ink); }
@@ -124,7 +150,12 @@
     { "type": "text", "id": "shipping_note", "label": "Shipping note", "default": "Shipping and taxes calculated at checkout. Free shipping Australia-wide on orders over $99." },
     { "type": "text", "id": "empty_text", "label": "Empty cart text", "default": "Your cart is empty." },
     { "type": "text", "id": "empty_label", "label": "Empty cart button", "default": "Continue shopping" },
-    { "type": "url", "id": "empty_url", "label": "Empty cart button link" }
+    { "type": "url", "id": "empty_url", "label": "Empty cart button link" },
+    { "type": "header", "content": "Ring resizing" },
+    { "type": "product", "id": "resize_product", "label": "Resizing product", "info": "Eligible ring lines get a size dropdown; a different size adds this product's matching carat variant (e.g. 9ct gold / 18ct gold)." },
+    { "type": "text", "id": "sizing_prefixes", "label": "SKU prefixes (comma separated)", "default": "001,002,004" },
+    { "type": "range", "id": "sizing_steps", "label": "Half-sizes offered each way", "min": 1, "max": 6, "step": 1, "default": 2 },
+    { "type": "text", "id": "sizing_note", "label": "Note when a different size is chosen", "default": "Resized in our Mildura workshop before dispatch — allow 3–5 extra working days." }
   ]
 }
 {% endschema %}
