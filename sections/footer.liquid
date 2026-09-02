@@ -1,7 +1,9 @@
 {%- liquid
-  assign logo_url = settings.logo_light_url
+  assign logo_url = 'logo-white.png' | asset_url
   if settings.logo_light != blank
-    assign logo_url = settings.logo_light | image_url: width: 400
+    assign logo_url = settings.logo_light | image_url: width: 600
+  elsif settings.logo_light_url != blank
+    assign logo_url = settings.logo_light_url
   endif
 -%}
 <footer class="full-width ft bg-navy on-dark">
