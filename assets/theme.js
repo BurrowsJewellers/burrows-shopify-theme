@@ -381,6 +381,26 @@
     return { setVariant: setVariant };
   })();
 
+  /* Pickup availability: refetch for the selected variant via the Section Rendering API */
+  var pickupEl = q('[data-pickup]');
+  var pickupSeq = 0;
+  function refreshPickup(vid) {
+    if (!pickupEl || !window.fetch) return;
+    var mySeq = ++pickupSeq;
+    var url = product.url.split('?')[0] + '?variant=' + vid + '&section_id=pickup-availability';
+    var preview = new URLSearchParams(window.location.search).get('preview_theme_id');
+    if (preview) url += '&preview_theme_id=' + encodeURIComponent(preview);
+    fetch(url)
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        if (mySeq !== pickupSeq) return;
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var inner = doc.querySelector('[data-pickup-inner]');
+        if (inner) pickupEl.innerHTML = inner.innerHTML;
+      })
+      .catch(function () {});
+  }
+
   function update(pushUrl) {
     var v = findVariant(currentOptions());
     qa('[data-option-index]').forEach(function (fs) {
@@ -414,6 +434,7 @@
       var base = addDiamond.getAttribute('data-base');
       addDiamond.href = base + '?stage=Add+Diamond&settingId=' + product.id + '&settingVariantId=' + v.id;
     }
+    if (pushUrl) refreshPickup(v.id);
     if (pushUrl && window.history && window.history.replaceState) {
       var url = new URL(window.location.href);
       url.searchParams.set('variant', v.id);

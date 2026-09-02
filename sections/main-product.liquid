@@ -156,6 +156,11 @@
           {%- when 'add_diamond' -%}
             <a class="btn btn--ink pd__adddiamond" data-add-diamond data-base="{{ block.settings.builder_url | default: '/pages/ring-builder' }}" href="{{ block.settings.builder_url | default: '/pages/ring-builder' }}?stage=Add+Diamond&settingId={{ product.id }}&settingVariantId={{ cv.id }}" {{ block.shopify_attributes }}>{{ block.settings.label }}</a>
 
+          {%- when 'pickup' -%}
+            <div class="pd__pickup" data-pickup {{ block.shopify_attributes }}>
+              {%- render 'pickup-status', variant: cv -%}
+            </div>
+
           {%- when 'booking' -%}
             {%- if settings.booking_url != blank -%}
               <a class="pd__viewing" href="{{ settings.booking_url }}" target="_blank" rel="noopener" {{ block.shopify_attributes }}>{{ block.settings.label }}</a>
@@ -294,6 +299,19 @@
   .pd__phoneorder { margin-bottom: 20px; }
   .pd__phoneorder p { font-size: 14px; color: var(--body); margin: 0 0 14px; }
   .pd__adddiamond { display: block; text-align: center; margin-bottom: 14px; }
+  .pd__pickup { margin: -8px 0 24px; }
+  .pd__pickup:empty { display: none; }
+  .pu__row { display: flex; gap: 10px; align-items: flex-start; }
+  .pu__ok { color: #2f7d32; font-weight: 700; }
+  .pu__no { color: #8f2020; font-weight: 700; }
+  .pu__line { font-size: 14px; color: var(--body); }
+  .pu__line b { color: var(--ink); font-weight: 500; }
+  .pu__time { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .pu__more { margin: 8px 0 0 24px; }
+  .pu__more summary { list-style: none; cursor: pointer; font-size: 12.5px; color: var(--gold-dark); border-bottom: 1px solid var(--gold-2); display: inline; }
+  .pu__more summary::-webkit-details-marker { display: none; }
+  .pu__more ul { list-style: none; margin: 10px 0 0; padding: 12px 14px; border: 1px solid rgba(var(--gold-dark-rgb), .2); display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--body); }
+  .pu__more b { color: var(--ink); font-weight: 500; }
   .pd__viewing { border: 1px solid var(--ink); color: var(--ink); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; padding: 15px; text-align: center; margin-bottom: 26px; display: block; }
   .pd__viewing:hover { background: var(--ink); color: var(--cream); }
   .pd__strip { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; padding: 20px 0; border-top: 1px solid rgba(var(--gold-dark-rgb), .18); border-bottom: 1px solid rgba(var(--gold-dark-rgb), .18); margin-bottom: 26px; }
@@ -371,6 +389,7 @@
       { "type": "text", "id": "label", "label": "Label", "default": "Add a diamond to this setting" },
       { "type": "url", "id": "builder_url", "label": "Ring builder page" }
     ] },
+    { "type": "pickup", "name": "Pickup availability", "limit": 1, "settings": [ { "type": "paragraph", "content": "Shows Shopify's local pickup availability for the selected variant (locations with Local Pickup enabled — Burrows Jewellers and Jewellery65)." } ] },
     { "type": "booking", "name": "Book a viewing link", "limit": 1, "settings": [ { "type": "text", "id": "label", "label": "Label", "default": "Book a viewing in store" } ] },
     { "type": "trust_strip", "name": "Trust strip", "limit": 1, "settings": [
       { "type": "text", "id": "item_1", "label": "Item 1", "default": "Free AU shipping over $99" },
