@@ -1,0 +1,43 @@
+{% doc %}
+  Local pickup availability for a variant, from Shopify's store availabilities
+  (locations with Local Pickup enabled). Refetched on variant change via the
+  pickup-availability section.
+  @param {variant} variant
+{% enddoc %}
+{%- assign stores = variant.store_availabilities -%}
+{%- if stores.size > 0 -%}
+  {%- assign first_ok_name = '' -%}
+  {%- assign first_ok_time = '' -%}
+  {%- for a in stores -%}
+    {%- if a.available and first_ok_name == '' -%}
+      {%- assign first_ok_name = a.location.name -%}
+      {%- assign first_ok_time = a.pick_up_time -%}
+    {%- endif -%}
+  {%- endfor -%}
+  <div class="pu">
+    {%- if first_ok_name != '' -%}
+      <div class="pu__row">
+        <span class="pu__ok" aria-hidden="true">&#10003;</span>
+        <div>
+          <div class="pu__line">Pickup available at <b>{{ first_ok_name }}</b></div>
+          {%- if first_ok_time != blank -%}<div class="pu__time">{{ first_ok_time }}</div>{%- endif -%}
+        </div>
+      </div>
+    {%- else -%}
+      <div class="pu__row">
+        <span class="pu__no" aria-hidden="true">&#10005;</span>
+        <div><div class="pu__line">Pickup currently unavailable at <b>{{ stores.first.location.name }}</b></div></div>
+      </div>
+    {%- endif -%}
+    {%- if stores.size > 1 -%}
+      <details class="pu__more">
+        <summary>Check availability at other stores</summary>
+        <ul>
+          {%- for a in stores -%}
+            <li><b>{{ a.location.name }}</b> &mdash; {% if a.available %}pickup available, {{ a.pick_up_time | downcase }}{% else %}currently unavailable{% endif %}</li>
+          {%- endfor -%}
+        </ul>
+      </details>
+    {%- endif -%}
+  </div>
+{%- endif -%}

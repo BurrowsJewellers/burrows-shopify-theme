@@ -1,0 +1,11 @@
+{%- comment -%}
+  Fetched by theme.js via the Section Rendering API when the variant changes:
+  /products/<handle>?variant=<id>&section_id=pickup-availability
+{%- endcomment -%}
+{%- if product -%}
+  <div data-pickup-inner>{% render 'pickup-status', variant: product.selected_or_first_available_variant %}</div>
+{%- endif -%}
+
+{% schema %}
+{ "name": "Pickup availability", "settings": [] }
+{% endschema %}
