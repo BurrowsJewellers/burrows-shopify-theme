@@ -391,34 +391,11 @@
 })();
 
 
-/* ---------------- Cart: ring resizing + housekeeping ---------------- */
+/* ---------------- Cart: keep resizing service lines consistent (legacy) ---------------- */
 (function () {
   var items = Array.prototype.slice.call(document.querySelectorAll('[data-cart-item]'));
   if (!items.length || !window.fetch) return;
   var root = (window.Shopify && window.Shopify.routes) ? window.Shopify.routes.root : '/';
-  var money = function (cents) {
-    return '$' + (cents / 100).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  };
-  function parseSize(str) {
-    if (!str) return null;
-    var m = String(str).trim().toUpperCase().replace(/\s+/g, '').match(/^([A-Z])(½|1\/2|\.5|HALF)?$/);
-    if (!m) return null;
-    return (m[1].charCodeAt(0) - 65) * 2 + (m[2] ? 1 : 0);
-  }
-  function fmtSize(idx) { return String.fromCharCode(65 + Math.floor(idx / 2)) + (idx % 2 ? '½' : ''); }
-  function carat(str) { var m = String(str || '').match(/(\d+)/); return m ? m[1] : null; }
-
-  var cfg = null;
-  var cfgEl = document.querySelector('[data-resize-config]');
-  if (cfgEl) { try { cfg = JSON.parse(cfgEl.textContent); } catch (e) { cfg = null; } }
-
-  function change(body) {
-    return fetch(root + 'cart/change.js', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
-    });
-  }
-
-  /* Housekeeping: resizing lines must match their ring line (exist + same qty) */
   var byVariant = {};
   items.forEach(function (el) { if (!el.getAttribute('data-for-variant')) byVariant[el.getAttribute('data-variant-id')] = el; });
   var fixes = [];
@@ -433,88 +410,12 @@
       if (rq !== sq) fixes.push({ id: el.getAttribute('data-key'), quantity: rq });
     }
   });
-  if (fixes.length) {
-    fixes.reduce(function (chain, fx) { return chain.then(function () { return change(fx); }); }, Promise.resolve())
-      .then(function () { window.location.reload(); }).catch(function () {});
-    return;
-  }
-
-  /* Resize selector per eligible ring line */
-  if (!cfg || !cfg.resize || !cfg.resize.length) return;
-  function resizeFor(metal) {
-    var c = carat(metal);
-    if (!c) return null;
-    return cfg.resize.find(function (r) { return carat(r.title) === c; }) || null;
-  }
-  items.forEach(function (el) {
-    if (el.getAttribute('data-for-variant')) return;
-    var sku = el.getAttribute('data-sku') || '';
-    if (!(cfg.prefixes || []).some(function (p) { return sku.indexOf(p) === 0; })) return;
-    var base = parseSize(el.getAttribute('data-ring-size'));
-    var rs = resizeFor(el.getAttribute('data-metal'));
-    if (base === null || !rs) return;
-    var chosen = parseSize(el.getAttribute('data-prop-size'));
-    if (chosen === null || chosen < base - cfg.steps || chosen > base + cfg.steps) chosen = base;
-
-    var wrap = document.createElement('div');
-    wrap.className = 'cartrs';
-    var label = document.createElement('label');
-    label.className = 'cartrs__label';
-    label.textContent = 'Ring size';
-    var sel = document.createElement('select');
-    sel.className = 'cartrs__select';
-    label.setAttribute('for', 'cartrs-' + el.getAttribute('data-key'));
-    sel.id = 'cartrs-' + el.getAttribute('data-key');
-    var lo = Math.max(0, base - cfg.steps), hi = Math.min(51, base + cfg.steps);
-    for (var i = lo; i <= hi; i++) {
-      var opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = i === base ? fmtSize(i) + ' — as made' : fmtSize(i) + '  (resize +' + money(rs.price) + ')';
-      if (i === chosen) opt.selected = true;
-      sel.appendChild(opt);
-    }
-    wrap.appendChild(label);
-    wrap.appendChild(sel);
-    if (cfg.note && chosen !== base) {
-      var noteEl = document.createElement('div');
-      noteEl.className = 'cartrs__note';
-      noteEl.textContent = cfg.note;
-      wrap.appendChild(noteEl);
-    }
-    el.querySelector('.cart__details').appendChild(wrap);
-
-    sel.addEventListener('change', function () {
-      var to = parseInt(sel.value, 10);
-      sel.disabled = true;
-      var qty = parseInt(el.getAttribute('data-qty'), 10) || 1;
-      var props = { 'Ring size': fmtSize(to) };
-      if (to !== base) props['Resizing'] = fmtSize(base) + ' → ' + fmtSize(to) + ' (+' + money(rs.price) + ')';
-      var ops = [ { id: el.getAttribute('data-key'), quantity: qty, properties: props } ];
-      var svc = null;
-      items.forEach(function (o) { if (o.getAttribute('data-for-variant') === el.getAttribute('data-variant-id')) svc = o; });
-      var chain = change(ops[0]);
-      if (svc) {
-        chain = chain.then(function () {
-          return change({ id: svc.getAttribute('data-key'), quantity: to === base ? 0 : qty, properties: {
-            'For': el.getAttribute('data-title') + (sku ? ' · ' + sku : ''),
-            'From': fmtSize(base), 'To': fmtSize(to), '_ring_variant': el.getAttribute('data-variant-id')
-          } });
-        });
-      } else if (to !== base) {
-        chain = chain.then(function () {
-          return fetch(root + 'cart/add.js', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: [{ id: rs.id, quantity: qty, properties: {
-              'For': el.getAttribute('data-title') + (sku ? ' · ' + sku : ''),
-              'From': fmtSize(base), 'To': fmtSize(to), '_ring_variant': el.getAttribute('data-variant-id')
-            } }] })
-          });
-        });
-      }
-      chain.then(function () { window.location.reload(); })
-        .catch(function () { sel.disabled = false; });
+  if (!fixes.length) return;
+  fixes.reduce(function (chain, fx) {
+    return chain.then(function () {
+      return fetch(root + 'cart/change.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fx) });
     });
-  });
+  }, Promise.resolve()).then(function () { window.location.reload(); }).catch(function () {});
 })();
 
 /* ---------------- Predictive search suggestions ---------------- */
