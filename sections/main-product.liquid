@@ -47,6 +47,11 @@
 
           {%- when 'title' -%}
             <div {{ block.shopify_attributes }}>
+              {%- if block.settings.show_location -%}
+                {%- if product.tags contains 'Burrows Jewellers' -%}<span class="pd__loc pd__loc--bj">Burrows Jewellers</span>
+                {%- elsif product.tags contains 'Jewellery65' -%}<span class="pd__loc pd__loc--j65">Jewellery65</span>
+                {%- elsif product.tags contains 'Warehouse' -%}<span class="pd__loc pd__loc--wh">Warehouse</span>{%- endif -%}
+              {%- endif -%}
               {%- if block.settings.show_vendor and product.vendor != blank -%}<div class="pd__eyebrow">{{ product.vendor }}</div>{%- endif -%}
               <h1 class="pd__title">{{ product.title }}</h1>
             </div>
@@ -237,6 +242,10 @@
   .pd__badge { position: absolute; top: 14px; left: 14px; background: var(--gold); color: var(--navy); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; font-weight: 600; padding: 5px 10px; }
   .pd__badge[hidden] { display: none; }
   .pd__buy { display: flex; flex-direction: column; max-width: 540px; }
+  .pd__loc { display: inline-block; font-size: 9.5px; letter-spacing: .22em; text-transform: uppercase; font-weight: 600; padding: 5px 10px; margin-bottom: 14px; }
+  .pd__loc--bj { background: var(--navy); color: var(--gold-2); }
+  .pd__loc--j65 { background: #f6d3dd; color: #96324f; }
+  .pd__loc--wh { background: #e5d8f2; color: #6b3fa0; }
   .pd__eyebrow { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--gold-dark); font-weight: 500; margin-bottom: 12px; }
   .pd__title { font-size: clamp(30px, 3.2vw, 38px); margin: 0 0 14px; line-height: 1.12; }
   .pd__pricewrap { margin-bottom: 24px; }
@@ -326,7 +335,10 @@
     { "type": "checkbox", "id": "show_sticky", "label": "Sticky add-to-cart bar on mobile", "default": true }
   ],
   "blocks": [
-    { "type": "title", "name": "Title", "limit": 1, "settings": [ { "type": "checkbox", "id": "show_vendor", "label": "Show brand above title", "default": true } ] },
+    { "type": "title", "name": "Title", "limit": 1, "settings": [
+      { "type": "checkbox", "id": "show_vendor", "label": "Show brand above title", "default": true },
+      { "type": "checkbox", "id": "show_location", "label": "Show stock location badge", "default": true, "info": "Reads the Burrows Jewellers / Jewellery65 / Warehouse tag kept up to date nightly from inventory." }
+    ] },
     { "type": "price", "name": "Price", "limit": 1, "settings": [
       { "type": "text", "id": "gst_note", "label": "Note beside price", "default": "AUD · incl. GST" },
       { "type": "checkbox", "id": "show_afterpay", "label": "Show 4 payments with Afterpay line", "default": true, "info": "Turn off if you add the Afterpay app block instead." },
