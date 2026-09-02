@@ -276,7 +276,7 @@
     var data;
     try { data = JSON.parse(mapEl.textContent); } catch (e) { return null; }
     var prefixes = (box.getAttribute('data-prefixes') || '').split(',').map(function (p) { return p.trim(); }).filter(Boolean);
-    var current = box.querySelector('[data-sizing-current]');
+    var current = Array.prototype.slice.call(box.querySelectorAll('[data-sizing-current]'));
     var note = box.querySelector('[data-sizing-note]');
     var contact = q('[data-sizing-contact]');
     var form = q('.pd__form');
@@ -297,7 +297,7 @@
       var hasSize = info.size && String(info.size).trim().length;
       var eligible = inDepartment(info.sku);
       if (hasSize) {
-        if (current) current.textContent = info.size;
+        current.forEach(function (el) { el.textContent = info.size; });
         box.hidden = false;
         var c = carat(info.metal);
         if (note) note.hidden = !(eligible && (c === '9' || c === '18'));

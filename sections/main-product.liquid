@@ -120,7 +120,8 @@
               endfor
             -%}
             <div class="pd__sizing" data-sizing data-prefixes="{{ rs.prefixes | escape }}" hidden {{ block.shopify_attributes }}>
-              <div class="pd__sizeline">{{ rs.label }} &mdash; <b data-sizing-current></b></div>
+              <div class="pd__opt-label pd__sizeline">{{ rs.label }} &mdash; <b data-sizing-current></b></div>
+              <span class="pd__sizepill" data-sizing-current></span>
               {%- if rs.note != blank -%}<div class="pd__note" data-sizing-note hidden>{{ rs.note }}</div>{%- endif -%}
             </div>
             {%- if rs.contact_text != blank -%}
@@ -305,11 +306,12 @@
   .pd__radio:focus-visible + label { outline: 2px solid var(--gold); outline-offset: 2px; }
   .pd__vals label.soldout { opacity: .45; text-decoration: line-through; }
   .pd__note { font-size: 12.5px; color: var(--muted); font-weight: 300; }
-  .pd__sizing { margin: -6px 0 22px; }
+  .pd__sizing { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin: -6px 0 22px; }
   .pd__sizing[hidden], .pd__sizing-contact[hidden] { display: none; }
   .pd__sizeline { font-size: 11.5px; letter-spacing: .24em; text-transform: uppercase; color: var(--gold-dark); font-weight: 500; }
   .pd__sizeline b { color: var(--ink); letter-spacing: .05em; text-transform: none; font-size: 13px; font-weight: 400; }
-  .pd__sizing .pd__note { margin-top: 6px; }
+  .pd__sizepill { min-width: 44px; height: 44px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; background: var(--ink); color: var(--cream); font-size: 13.5px; font-weight: 500; }
+  .pd__sizing .pd__note { margin: 0; }
   .pd__sizing-contact { margin: -8px 0 22px; font-size: 13px; }
   .pd__sizing-contact a { color: var(--gold-dark); border-bottom: 1px solid var(--gold-2); }
   .pd__cartrow { display: flex; gap: 12px; margin-bottom: 14px; }
