@@ -22,11 +22,9 @@ A from-scratch Shopify Online Store 2.0 theme for burrowsjewellers.com.au, built
 | `page.*` | `about`, `brands`, `contact`, `custom-design`, `diamond-knowledge`, `ring-builder` (Nivoda app block), `services`, `wedding-ring-builder` (iframe builder + FAQ). Plain pages use the prose layout. |
 | `cart`, `search`, `404`, `blog`, `article`, `list-collections`, `password`, `gift_card` | Restyled. |
 
-## Ring resizing
+## Ring sizing
 
-The product page shows the ring's size as a static line ("Ring size — N½", from `custom.ring_size_variant` falling back to `custom.ring_size_product`) and records it as a `Ring size` line property on add to cart; rings with no size on file show a "Contact us about sizing" link. **Resizing is chosen in the cart**: eligible lines (SKU prefix `001`/`002`/`004`, metal 9ct/18ct via `custom.metal_type`) get a size dropdown — the ring's size plus two half-sizes each way, other sizes labelled with the resize charge. Choosing one updates the line's properties and adds/updates/removes the matching carat variant of the hidden **Ring resizing** product (handle `ring-resizing`, 9ct $50 / 18ct $100) via the cart API; resizing lines track their ring's quantity and are removed if the ring is removed. Configured on the Cart page section (resizing product, prefixes, steps, note). Service products are tagged `hidden-service` (hidden from grids, search, robots).
-
-⚠ The Retail Edge product sync has twice archived the Ring resizing product (unknown SKUs get archived). Until it is excluded from the sync, an archived resizing product silently disables the cart dropdown — reactivate it and republish to Online Store to restore.
+The product page shows the ring's size as a label plus a navy pill ("Ring size — O½", from `custom.ring_size_variant`, falling back to `custom.ring_size_product`, then to the variant's Size option) with a note pointing customers to contact the store for a different size; rings with no size on file show a "Contact us about sizing" link instead. The size is recorded as a `Ring size` line property on add to cart, so cart lines and orders show it. There is **no online resizing purchase** (Mark removed it, 3 Sep): the hidden Ring resizing product (handle `ring-resizing`) is unused, and the cart only runs legacy housekeeping that removes or quantity-matches any stray resizing service lines from older carts.
 
 ## Integrations
 
