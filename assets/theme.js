@@ -219,6 +219,7 @@
   try { product = JSON.parse(root.querySelector('[data-product-json]').textContent); } catch (e) { return; }
   try { designMap = JSON.parse(root.querySelector('[data-design-map]').textContent) || {}; } catch (e) { designMap = {}; }
 
+  var productPath = ((window.Shopify && window.Shopify.routes) ? window.Shopify.routes.root : '/') + 'products/' + product.handle;
   var money = function (cents) {
     var v = (cents / 100).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return '$' + v;
@@ -289,7 +290,7 @@
       if (dn) lines.push('Design number: ' + dn);
       if (v.sku) lines.push('SKU: ' + v.sku);
       if (info.size) lines.push('Current size: ' + info.size);
-      lines.push('Link: ' + window.location.origin + product.url.split('?')[0] + '?variant=' + v.id, '', 'Size I need: ');
+      lines.push('Link: ' + window.location.origin + productPath + '?variant=' + v.id, '', 'Size I need: ');
       var qs = 'message=' + encodeURIComponent(lines.join('\n'));
       contactLinks.forEach(function (a) {
         var base = a.getAttribute('data-base') || a.getAttribute('href');
@@ -316,8 +317,7 @@
       if (hasSize) {
         current.forEach(function (el) { el.textContent = info.size; });
         box.hidden = false;
-        var c = carat(info.metal);
-        if (note) note.hidden = !(eligible && (c === '9' || c === '18'));
+        if (note) note.hidden = false;
         if (contact) contact.hidden = true;
         if (propInput) { propInput.disabled = false; propInput.value = info.size; }
       } else {
@@ -335,7 +335,7 @@
   function refreshPickup(vid) {
     if (!pickupEl || !window.fetch) return;
     var mySeq = ++pickupSeq;
-    var url = product.url.split('?')[0] + '?variant=' + vid + '&section_id=pickup-availability';
+    var url = productPath + '?variant=' + vid + '&section_id=pickup-availability';
     var preview = new URLSearchParams(window.location.search).get('preview_theme_id');
     if (preview) url += '&preview_theme_id=' + encodeURIComponent(preview);
     fetch(url)
