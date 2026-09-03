@@ -196,6 +196,9 @@
               <a class="pd__viewing" href="{{ settings.booking_url }}" target="_blank" rel="noopener" {{ block.shopify_attributes }}>{{ block.settings.label }}</a>
             {%- endif -%}
 
+          {%- when 'contact_link' -%}
+            <a class="pd__viewing pd__contactbtn" data-contact-link data-base="{{ block.settings.url | default: '/pages/contact' }}" href="{{ block.settings.url | default: '/pages/contact' }}" {{ block.shopify_attributes }}>{{ block.settings.label }}</a>
+
           {%- when 'trust_strip' -%}
             <div class="pd__strip" {{ block.shopify_attributes }}>
               {%- if block.settings.item_1 != blank -%}<div><span></span>{{ block.settings.item_1 }}</div>{%- endif -%}
@@ -345,6 +348,7 @@
   .pu__more b { color: var(--ink); font-weight: 500; }
   .pd__viewing { border: 1px solid var(--ink); color: var(--ink); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; padding: 15px; text-align: center; margin-bottom: 26px; display: block; }
   .pd__viewing:hover { background: var(--ink); color: var(--cream); }
+  .pd__viewing:has(+ .pd__contactbtn) { margin-bottom: 10px; }
   .pd__strip { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; padding: 20px 0; border-top: 1px solid rgba(var(--gold-dark-rgb), .18); border-bottom: 1px solid rgba(var(--gold-dark-rgb), .18); margin-bottom: 26px; }
   .pd__strip div { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: var(--body); font-weight: 300; }
   .pd__strip span { width: 5px; height: 5px; background: var(--gold); transform: rotate(45deg); flex: none; }
@@ -422,6 +426,11 @@
     ] },
     { "type": "pickup", "name": "Pickup availability", "limit": 1, "settings": [ { "type": "paragraph", "content": "Shows Shopify's local pickup availability for the selected variant (locations with Local Pickup enabled — Burrows Jewellers and Jewellery65)." } ] },
     { "type": "booking", "name": "Book a viewing link", "limit": 1, "settings": [ { "type": "text", "id": "label", "label": "Label", "default": "Book a viewing in store" } ] },
+    { "type": "contact_link", "name": "Contact us link", "limit": 1, "settings": [
+      { "type": "paragraph", "content": "Opens the contact page with the selected variant's SKU and design number filled in." },
+      { "type": "text", "id": "label", "label": "Label", "default": "Contact us about this piece" },
+      { "type": "url", "id": "url", "label": "Link", "info": "Defaults to the contact page." }
+    ] },
     { "type": "trust_strip", "name": "Trust strip", "limit": 1, "settings": [
       { "type": "text", "id": "item_1", "label": "Item 1", "default": "Free AU shipping over $99" },
       { "type": "text", "id": "item_2", "label": "Item 2", "default": "Custom design & remodelling" },
