@@ -50,7 +50,7 @@
                 assign tlabel = v.label
                 if v.label == 'Watch'
                   assign tlabel = 'Watches'
-                elsif v.label == 'Giftware' or v.label == 'Jewellery' or last_char == 's'
+                elsif v.label == 'Giftware' or v.label contains 'Jewellery' or v.label contains ' ' or last_char == 's'
                   assign tlabel = v.label
                 else
                   assign tlabel = v.label | append: 's'
