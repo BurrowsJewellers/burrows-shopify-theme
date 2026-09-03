@@ -442,6 +442,8 @@
   var msg = new URLSearchParams(window.location.search).get('message');
   if (!msg || body.value.trim()) return;
   body.value = msg;
+  body.style.height = 'auto';
+  body.style.height = (body.scrollHeight + 4) + 'px';
   var formEl = body.closest('form');
   if (formEl) formEl.scrollIntoView({ block: 'start' });
   var name = document.getElementById('ContactName');
