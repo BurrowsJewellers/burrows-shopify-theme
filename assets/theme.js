@@ -279,7 +279,23 @@
     var current = Array.prototype.slice.call(box.querySelectorAll('[data-sizing-current]'));
     var note = box.querySelector('[data-sizing-note]');
     var contact = q('[data-sizing-contact]');
+    var contactLinks = qa('[data-sizing-contact-link]');
     var form = q('.pd__form');
+    function setContactLinks(v, info) {
+      if (!contactLinks.length) return;
+      var lines = ['Hi Burrows, I\'m interested in this ring in a different size.', '',
+        'Ring: ' + product.title];
+      var dn = designMap[String(v.id)];
+      if (dn) lines.push('Design number: ' + dn);
+      if (v.sku) lines.push('SKU: ' + v.sku);
+      if (info.size) lines.push('Current size: ' + info.size);
+      lines.push('Link: ' + window.location.origin + product.url.split('?')[0] + '?variant=' + v.id, '', 'Size I need: ');
+      var qs = 'message=' + encodeURIComponent(lines.join('\n'));
+      contactLinks.forEach(function (a) {
+        var base = a.getAttribute('data-base') || a.getAttribute('href');
+        a.href = base + (base.indexOf('?') > -1 ? '&' : '?') + qs + '#contact';
+      });
+    }
     var propInput = null;
     if (form) {
       propInput = document.createElement('input');
@@ -294,6 +310,7 @@
     }
     function setVariant(v) {
       var info = (data || {})[String(v.id)] || {};
+      setContactLinks(v, info);
       var hasSize = info.size && String(info.size).trim().length;
       var eligible = inDepartment(info.sku);
       if (hasSize) {
@@ -416,6 +433,19 @@
       return fetch(root + 'cart/change.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fx) });
     });
   }, Promise.resolve()).then(function () { window.location.reload(); }).catch(function () {});
+})();
+
+/* ---------------- Contact page: prefill from ?message= (e.g. sizing enquiries) ---------------- */
+(function () {
+  var body = document.getElementById('ContactBody');
+  if (!body) return;
+  var msg = new URLSearchParams(window.location.search).get('message');
+  if (!msg || body.value.trim()) return;
+  body.value = msg;
+  var formEl = body.closest('form');
+  if (formEl) formEl.scrollIntoView({ block: 'start' });
+  var name = document.getElementById('ContactName');
+  if (name && !name.value) name.focus();
 })();
 
 /* ---------------- Predictive search suggestions ---------------- */

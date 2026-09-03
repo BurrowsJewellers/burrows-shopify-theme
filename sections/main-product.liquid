@@ -122,11 +122,11 @@
             <div class="pd__sizing" data-sizing data-prefixes="{{ rs.prefixes | escape }}" hidden {{ block.shopify_attributes }}>
               <div class="pd__opt-label pd__sizeline">{{ rs.label }} &mdash; <b data-sizing-current></b></div>
               <span class="pd__sizepill" data-sizing-current></span>
-              {%- if rs.note != blank -%}<div class="pd__note" data-sizing-note hidden>{{ rs.note }}</div>{%- endif -%}
+              {%- if rs.note != blank -%}<a class="pd__note pd__note--link" data-sizing-note data-sizing-contact-link data-base="{{ rs.contact_url | default: '/pages/contact' }}" href="{{ rs.contact_url | default: '/pages/contact' }}" hidden>{{ rs.note }}</a>{%- endif -%}
             </div>
             {%- if rs.contact_text != blank -%}
               <div class="pd__sizing-contact" data-sizing-contact hidden>
-                <a href="{{ rs.contact_url | default: '/pages/contact' }}">{{ rs.contact_text }}</a>
+                <a data-sizing-contact-link data-base="{{ rs.contact_url | default: '/pages/contact' }}" href="{{ rs.contact_url | default: '/pages/contact' }}">{{ rs.contact_text }}</a>
               </div>
             {%- endif -%}
             <script type="application/json" data-sizing-map>{
@@ -312,6 +312,8 @@
   .pd__sizeline b { color: var(--ink); letter-spacing: .05em; text-transform: none; font-size: 13px; font-weight: 400; }
   .pd__sizepill { min-width: 44px; height: 44px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; background: var(--ink); color: var(--cream); font-size: 13.5px; font-weight: 500; }
   .pd__sizing .pd__note { margin: 0; }
+  .pd__note--link { color: var(--gold-dark); border-bottom: 1px solid var(--gold-2); align-self: flex-start; }
+  .pd__note--link:hover { color: var(--ink); }
   .pd__sizing-contact { margin: -8px 0 22px; font-size: 13px; }
   .pd__sizing-contact a { color: var(--gold-dark); border-bottom: 1px solid var(--gold-2); }
   .pd__cartrow { display: flex; gap: 12px; margin-bottom: 14px; }
