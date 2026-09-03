@@ -296,6 +296,7 @@
     var current = Array.prototype.slice.call(box.querySelectorAll('[data-sizing-current]'));
     var note = box.querySelector('[data-sizing-note]');
     var contact = q('[data-sizing-contact]');
+    var form = q('.pd__form');
     var propInput = null;
     if (form) {
       propInput = document.createElement('input');
