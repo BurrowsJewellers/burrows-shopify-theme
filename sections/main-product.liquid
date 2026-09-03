@@ -112,14 +112,19 @@
               assign product_size = product.metafields.custom.ring_size_product | metafield_text
               assign product_metal = product.metafields.custom.metal_type_product | metafield_text
               assign size_opt = -1
+              assign size_choice = false
               for option in product.options_with_values
                 assign oname = option.name | downcase
                 if oname contains 'size'
                   assign size_opt = forloop.index0
+                  if option.values.size > 1
+                    assign size_choice = true
+                  endif
                 endif
               endfor
             -%}
-            <div class="pd__sizing" data-sizing data-prefixes="{{ rs.prefixes | escape }}" hidden {{ block.shopify_attributes }}>
+            {%- comment -%} When size is a real choice the variant picker already shows it, so the pill stays hidden. {%- endcomment -%}
+            <div class="pd__sizing" data-sizing data-prefixes="{{ rs.prefixes | escape }}"{% if size_choice %} data-size-choice{% endif %} hidden {{ block.shopify_attributes }}>
               <div class="pd__opt-label pd__sizeline">{{ rs.label }} &mdash; <b data-sizing-current></b></div>
               <span class="pd__sizepill" data-sizing-current></span>
               {%- if rs.note != blank -%}<a class="pd__note pd__note--link" data-sizing-note data-sizing-contact-link data-base="{{ rs.contact_url | default: '/pages/contact' }}" href="{{ rs.contact_url | default: '/pages/contact' }}" hidden>{{ rs.note }}</a>{%- endif -%}

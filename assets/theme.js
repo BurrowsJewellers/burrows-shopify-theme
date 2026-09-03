@@ -309,8 +309,16 @@
     function inDepartment(sku) {
       return prefixes.some(function (p) { return String(sku || '').indexOf(p) === 0; });
     }
+    var sizeChoice = box.hasAttribute('data-size-choice');
     function setVariant(v) {
       var info = (data || {})[String(v.id)] || {};
+      if (sizeChoice) {
+        // The picker shows the size; the variant title carries it into the cart.
+        box.hidden = true;
+        if (contact) contact.hidden = true;
+        if (propInput) { propInput.disabled = true; propInput.value = ''; }
+        return;
+      }
       var hasSize = info.size && String(info.size).trim().length;
       var eligible = inDepartment(info.sku);
       if (hasSize) {
