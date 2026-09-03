@@ -34,6 +34,36 @@
     {%- endif -%}
   </div>
 
+  {%- if s.show_type_nav -%}
+    {%- for f in collection.filters -%}
+      {%- assign flabel = f.label | downcase -%}
+      {%- if flabel contains 'product type' and f.values.size > 1 -%}
+        {%- assign any_type_active = false -%}
+        {%- for v in f.values -%}{%- if v.active -%}{%- assign any_type_active = true -%}{%- endif -%}{%- endfor -%}
+        <nav class="col__types" aria-label="Shop by type">
+          {%- if s.type_nav_label != blank -%}<span class="col__types-label">{{ s.type_nav_label }}</span>{%- endif -%}
+          <a class="col__type{% unless any_type_active %} on{% endunless %}" href="{{ collection.url }}">All <small>{{ collection.products_count }}</small></a>
+          {%- for v in f.values -%}
+            {%- if v.count > 0 -%}
+              {%- assign last_char = v.label | slice: -1 -%}
+              {%- liquid
+                assign tlabel = v.label
+                if v.label == 'Watch'
+                  assign tlabel = 'Watches'
+                elsif v.label == 'Giftware' or v.label == 'Jewellery' or last_char == 's'
+                  assign tlabel = v.label
+                else
+                  assign tlabel = v.label | append: 's'
+                endif
+              -%}
+              <a class="col__type{% if v.active %} on{% endif %}" href="{{ collection.url }}?{{ v.param_name }}={{ v.value | url_encode }}">{{ tlabel }} <small>{{ v.count }}</small></a>
+            {%- endif -%}
+          {%- endfor -%}
+        </nav>
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+
   <div class="col__bar">
     <div class="col__filters">
       {%- for filter in collection.filters -%}
@@ -132,6 +162,13 @@
 
 {% stylesheet %}
   .col { background: var(--cream); }
+  .col__types { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 0 var(--gutter) 28px; }
+  .col__types-label { flex-basis: 100%; text-align: center; font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: var(--gold-dark); font-weight: 500; margin-bottom: 4px; }
+  .col__type { display: inline-flex; align-items: baseline; gap: 6px; border: 1px solid rgba(var(--gold-dark-rgb), .35); color: var(--ink); font-size: 13px; padding: 9px 16px; transition: .2s; }
+  .col__type small { font-size: 11px; color: var(--muted); }
+  .col__type:hover { border-color: var(--gold); }
+  .col__type.on { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+  .col__type.on small { color: var(--gold-2); }
   .col__bar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px var(--gutter); border-top: 1px solid rgba(var(--gold-dark-rgb), .14); border-bottom: 1px solid rgba(var(--gold-dark-rgb), .14); flex-wrap: wrap; }
   .col__filters { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .col__pill { position: relative; }
@@ -195,6 +232,9 @@
     { "type": "url", "id": "parent_url", "label": "Breadcrumb parent link" },
     { "type": "checkbox", "id": "show_description", "label": "Show collection description", "default": true },
     { "type": "range", "id": "description_words", "label": "Description length (words)", "min": 20, "max": 120, "step": 10, "default": 40 },
+    { "type": "header", "content": "Shop by type" },
+    { "type": "checkbox", "id": "show_type_nav", "label": "Show product-type pills under the heading", "default": false, "info": "Built from the collection's Product type filter, with counts. Good for Sale." },
+    { "type": "text", "id": "type_nav_label", "label": "Pills label", "default": "Shop by type" },
     { "type": "header", "content": "Editorial tile" },
     { "type": "checkbox", "id": "show_editorial", "label": "Show editorial tile in the grid", "default": true },
     { "type": "range", "id": "editorial_position", "label": "Position (after product #)", "min": 2, "max": 12, "step": 1, "default": 5 },
