@@ -269,6 +269,22 @@
     });
   }
 
+  /* Links to the contact page carry the selected variant's SKU and design number,
+     which the contact form copies into its optional fields. */
+  var contactLinks = qa('[data-contact-link], [data-sizing-contact-link]');
+  function setContactLinks(v) {
+    if (!contactLinks.length) return;
+    var params = [];
+    if (v.sku) params.push('sku=' + encodeURIComponent(v.sku));
+    var dn = designMap[String(v.id)];
+    if (dn) params.push('design=' + encodeURIComponent(dn));
+    var qs = params.join('&');
+    contactLinks.forEach(function (a) {
+      var base = a.getAttribute('data-base') || a.getAttribute('href');
+      a.href = base + (qs ? (base.indexOf('?') > -1 ? '&' : '?') + qs : '') + '#contact';
+    });
+  }
+
   /* ---- Ring size display (block "ring_sizing"); resizing itself lives in the cart ---- */
   var sizing = (function () {
     var box = q('[data-sizing]');
@@ -280,20 +296,6 @@
     var current = Array.prototype.slice.call(box.querySelectorAll('[data-sizing-current]'));
     var note = box.querySelector('[data-sizing-note]');
     var contact = q('[data-sizing-contact]');
-    var contactLinks = qa('[data-sizing-contact-link]');
-    var form = q('.pd__form');
-    function setContactLinks(v, info) {
-      if (!contactLinks.length) return;
-      var params = [];
-      if (v.sku) params.push('sku=' + encodeURIComponent(v.sku));
-      var dn = designMap[String(v.id)];
-      if (dn) params.push('design=' + encodeURIComponent(dn));
-      var qs = params.join('&');
-      contactLinks.forEach(function (a) {
-        var base = a.getAttribute('data-base') || a.getAttribute('href');
-        a.href = base + (qs ? (base.indexOf('?') > -1 ? '&' : '?') + qs : '') + '#contact';
-      });
-    }
     var propInput = null;
     if (form) {
       propInput = document.createElement('input');
@@ -308,7 +310,6 @@
     }
     function setVariant(v) {
       var info = (data || {})[String(v.id)] || {};
-      setContactLinks(v, info);
       var hasSize = info.size && String(info.size).trim().length;
       var eligible = inDepartment(info.sku);
       if (hasSize) {
@@ -373,6 +374,7 @@
     if (designWrap) designWrap.hidden = !dn;
     if (designRow) designRow.hidden = !dn;
     if (sizing) sizing.setVariant(v);
+    setContactLinks(v);
     if (skuEl) skuEl.textContent = v.sku || '';
     if (skuRow) skuRow.hidden = !v.sku;
     if (addDiamond) {

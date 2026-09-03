@@ -179,7 +179,7 @@
               {%- if block.settings.text != blank -%}<p>{{ block.settings.text }}</p>{%- endif -%}
               <div class="actions actions--tight">
                 <a class="btn btn--gold" href="tel:{{ settings.store_phone_tel }}">{{ block.settings.phone_label }} {{ settings.store_phone_display }}</a>
-                <a class="btn btn--outline-dark" href="{{ block.settings.contact_url | default: '/pages/contact' }}">{{ block.settings.contact_label }}</a>
+                <a class="btn btn--outline-dark" data-contact-link data-base="{{ block.settings.contact_url | default: '/pages/contact' }}" href="{{ block.settings.contact_url | default: '/pages/contact' }}">{{ block.settings.contact_label }}</a>
               </div>
             </div>
 
