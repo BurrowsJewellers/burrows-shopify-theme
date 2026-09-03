@@ -47,6 +47,7 @@
         "disabled": false,
         "settings": {}
       }
-    }
+    },
+    "favicon": "shopify://shop_images/Logo.png"
   }
 }
