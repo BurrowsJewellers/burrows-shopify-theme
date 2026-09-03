@@ -42,7 +42,7 @@
         {%- for v in f.values -%}{%- if v.active -%}{%- assign any_type_active = true -%}{%- endif -%}{%- endfor -%}
         <nav class="col__types" aria-label="Shop by type">
           {%- if s.type_nav_label != blank -%}<span class="col__types-label">{{ s.type_nav_label }}</span>{%- endif -%}
-          <a class="col__type{% unless any_type_active %} on{% endunless %}" href="{{ collection.url }}">All <small>{{ collection.products_count }}</small></a>
+          <a class="col__type{% unless any_type_active %} on{% endunless %}" href="{{ collection.url }}">All <small>{{ collection.all_products_count }}</small></a>
           {%- for v in f.values -%}
             {%- if v.count > 0 -%}
               {%- assign last_char = v.label | slice: -1 -%}
