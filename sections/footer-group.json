@@ -11,7 +11,7 @@
       },
       "block_order": ["shop", "services", "information"],
       "settings": {
-        "blurb": "Independent jewellers with an on-site workshop at 68 Langtree Ave, Mildura — custom design, remodelling and repairs done in-house.",
+        "blurb": "Mildura's family-owned jewellery store since 1975 — engagement rings, fine jewellery, watches and gifts, with custom design, remodelling and repairs arranged through us.",
         "show_payment": true,
         "payment_badges": "Visa, Mastercard, PayPal, Afterpay"
       }

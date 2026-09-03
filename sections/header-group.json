@@ -57,7 +57,7 @@
             "col2_menu": "watch-brands",
             "col2_two_col": true,
             "service_heading": "Watch Services",
-            "service_text": "Batteries, straps, resizing and repairs — done in our Mildura workshop, never sent away.",
+            "service_text": "Batteries, straps, resizing and repairs — bring your watch in and we'll take care of it.",
             "service_link_label": "Book a service",
             "service_url": "shopify://pages/services"
           }
@@ -100,7 +100,7 @@
         "transparent_on_home": true,
         "show_announcement": true,
         "announcement_1": "Free shipping Australia-wide · Afterpay available",
-        "announcement_2": "On-site workshop — repairs never sent away",
+        "announcement_2": "Custom design, remodelling & repairs — just ask",
         "announcement_3": "68 Langtree Ave, Mildura · Book an appointment",
         "show_phone": true,
         "book_label": "Book an Appointment",
