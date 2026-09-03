@@ -284,17 +284,14 @@
     var form = q('.pd__form');
     function setContactLinks(v, info) {
       if (!contactLinks.length) return;
-      var lines = ['Hi Burrows, I\'m interested in this ring in a different size.', '',
-        'Ring: ' + product.title];
+      var params = [];
+      if (v.sku) params.push('sku=' + encodeURIComponent(v.sku));
       var dn = designMap[String(v.id)];
-      if (dn) lines.push('Design number: ' + dn);
-      if (v.sku) lines.push('SKU: ' + v.sku);
-      if (info.size) lines.push('Current size: ' + info.size);
-      lines.push('Link: ' + window.location.origin + productPath + '?variant=' + v.id, '', 'Size I need: ');
-      var qs = 'message=' + encodeURIComponent(lines.join('\n'));
+      if (dn) params.push('design=' + encodeURIComponent(dn));
+      var qs = params.join('&');
       contactLinks.forEach(function (a) {
         var base = a.getAttribute('data-base') || a.getAttribute('href');
-        a.href = base + (base.indexOf('?') > -1 ? '&' : '?') + qs + '#contact';
+        a.href = base + (qs ? (base.indexOf('?') > -1 ? '&' : '?') + qs : '') + '#contact';
       });
     }
     var propInput = null;
@@ -435,16 +432,19 @@
   }, Promise.resolve()).then(function () { window.location.reload(); }).catch(function () {});
 })();
 
-/* ---------------- Contact page: prefill from ?message= (e.g. sizing enquiries) ---------------- */
+/* ---------------- Contact page: prefill SKU / design number from ?sku=&design= (ring sizing links) ---------------- */
 (function () {
-  var body = document.getElementById('ContactBody');
-  if (!body) return;
-  var msg = new URLSearchParams(window.location.search).get('message');
-  if (!msg || body.value.trim()) return;
-  body.value = msg;
-  body.style.height = 'auto';
-  body.style.height = (body.scrollHeight + 4) + 'px';
-  var formEl = body.closest('form');
+  var sku = document.getElementById('ContactSku');
+  var design = document.getElementById('ContactDesign');
+  if (!sku && !design) return;
+  var params = new URLSearchParams(window.location.search);
+  var filled = false;
+  [[sku, 'sku'], [design, 'design']].forEach(function (pair) {
+    var el = pair[0], val = params.get(pair[1]);
+    if (el && val && !el.value) { el.value = val; filled = true; }
+  });
+  if (!filled) return;
+  var formEl = (sku || design).closest('form');
   if (formEl) formEl.scrollIntoView({ block: 'start' });
   var name = document.getElementById('ContactName');
   if (name && !name.value) name.focus();
