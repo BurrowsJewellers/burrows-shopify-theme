@@ -285,13 +285,20 @@
   .bn-dbook { background: var(--gold); color: var(--navy); font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; padding: 14px; text-align: center; }
   .bn-dphone { display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(23, 29, 80, .3); color: var(--ink); font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; padding: 13px; }
 
-  /* 1200-1279px: compact the desktop bar so the icons and the booking button always fit */
+  /* The full bar (phone number, 88px logo) needs ~1600px. Below that, tighten in two steps so the
+     search / account / cart icons and the booking button always fit. */
+  @media (max-width: 1599px) {
+    .bn-bar, .bn-wrap.bn-scrolled .bn-bar, .bn-wrap.bn-solid .bn-bar { padding-left: 32px; padding-right: 32px; gap: 24px; }
+    .bn-nav { gap: 20px; }
+    .bn-top, .bn-item > a { font-size: 13px; }
+    .bn-utils { gap: 18px; }
+    .bn-utils .bn-phone, .bn-utils .bn-div { display: none; }
+  }
   @media (max-width: 1279px) {
     .bn-bar, .bn-wrap.bn-scrolled .bn-bar, .bn-wrap.bn-solid .bn-bar { padding-left: 24px; padding-right: 24px; gap: 20px; }
     .bn-nav { gap: 14px; }
     .bn-top, .bn-item > a { font-size: 12px; letter-spacing: .08em; }
     .bn-utils { gap: 14px; }
-    .bn-utils .bn-phone, .bn-utils .bn-div { display: none; }
     .bn-book { font-size: 11px; padding: 9px 12px; letter-spacing: .1em; }
   }
   /* Below 1200px the full menu can't fit beside the logo, icons and booking button: burger menu */

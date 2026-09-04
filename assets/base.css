@@ -263,6 +263,10 @@ body.shop-white { background: #fff; }
 /* Header: logo size (overrides the section's 76/56/50px) --- */
 #bnWrap .bn-logo img { height: 88px; }
 #bnWrap.bn-scrolled .bn-logo img, #bnWrap.bn-solid .bn-logo img { height: 64px; }
+@media (max-width: 1599px) {
+  #bnWrap .bn-logo img { height: 76px; }
+  #bnWrap.bn-scrolled .bn-logo img, #bnWrap.bn-solid .bn-logo img { height: 56px; }
+}
 @media (max-width: 1279px) {
   #bnWrap .bn-logo img { height: 64px; }
   #bnWrap.bn-scrolled .bn-logo img, #bnWrap.bn-solid .bn-logo img { height: 52px; }
