@@ -264,8 +264,8 @@ body.shop-white { background: #fff; }
 #bnWrap .bn-logo img { height: 88px; }
 #bnWrap.bn-scrolled .bn-logo img, #bnWrap.bn-solid .bn-logo img { height: 64px; }
 @media (max-width: 1279px) {
-  #bnWrap .bn-logo img { height: 72px; }
-  #bnWrap.bn-scrolled .bn-logo img, #bnWrap.bn-solid .bn-logo img { height: 56px; }
+  #bnWrap .bn-logo img { height: 64px; }
+  #bnWrap.bn-scrolled .bn-logo img, #bnWrap.bn-solid .bn-logo img { height: 52px; }
 }
 @media (max-width: 1023px) { #bnWrap .bn-logo img { height: 56px !important; } }
 
@@ -277,9 +277,6 @@ body.shop-white { background: #fff; }
   .bn-wrap .bn-logo img { transform: translateY(-5.4%); }
   .bn-wrap .bn-nav { justify-self: center; }
   .bn-wrap .bn-utils { justify-self: end; }
-  /* Never let the grid squeeze the icons or push the CTA off-screen */
-  .bn-wrap .bn-bar { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
-  .bn-wrap .bn-utils, .bn-wrap .bn-logo { min-width: max-content; }
 }
 
 /* Mobile polish ------------------------------------------- */

@@ -196,7 +196,7 @@
   .bn-bar { display: flex; align-items: center; justify-content: space-between; padding: 22px 56px; gap: 32px; transition: background .3s, padding .3s, box-shadow .3s; }
   .bn-wrap:not(.bn-scrolled):not(.bn-solid) .bn-bar { background: linear-gradient(180deg, rgba(var(--navy-rgb), .82), rgba(var(--navy-rgb), .12)); }
   .bn-wrap.bn-scrolled .bn-bar, .bn-wrap.bn-solid .bn-bar { background: var(--navy); box-shadow: 0 4px 18px rgba(var(--navy-rgb), .35); padding: 12px 56px; }
-  .bn-logo img { height: 76px; width: auto; display: block; transition: height .3s; }
+  .bn-logo img { height: 76px; width: auto; max-width: none; flex: none; display: block; transition: height .3s; }
   .bn-wrap.bn-scrolled .bn-logo img, .bn-wrap.bn-solid .bn-logo img { height: 56px; }
   .bn-nav { display: flex; align-items: center; gap: 30px; }
   .bn-top, .bn-item > a { color: var(--cream); font-size: 13.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 400; padding: 10px 0; display: inline-block; transition: color .2s; cursor: pointer; white-space: nowrap; }
@@ -288,9 +288,9 @@
   /* Laptops 1024-1279px: compact the desktop bar so the icons and the booking button always fit */
   @media (max-width: 1279px) {
     .bn-bar, .bn-wrap.bn-scrolled .bn-bar, .bn-wrap.bn-solid .bn-bar { padding-left: 24px; padding-right: 24px; gap: 20px; }
-    .bn-nav { gap: 16px; }
-    .bn-top, .bn-item > a { font-size: 12.5px; letter-spacing: .08em; }
-    .bn-utils { gap: 16px; }
+    .bn-nav { gap: 14px; }
+    .bn-top, .bn-item > a { font-size: 12px; letter-spacing: .08em; }
+    .bn-utils { gap: 14px; }
     .bn-utils .bn-phone, .bn-utils .bn-div { display: none; }
     .bn-book { font-size: 11px; padding: 9px 12px; letter-spacing: .1em; }
   }
