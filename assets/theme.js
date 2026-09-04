@@ -4,6 +4,8 @@
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var isDesktop = function () { return window.innerWidth > 1023; };
+  /* The header switches to the burger below 1200px (see header.liquid) */
+  var isDesktopNav = function () { return window.innerWidth > 1199; };
 
   /* ---------------- Header ---------------- */
   var wrap = document.getElementById('bnWrap');
@@ -63,7 +65,7 @@
 
       if (canHover) {
         it.addEventListener('mouseenter', function () {
-          if (!isDesktop()) return;
+          if (!isDesktopNav()) return;
           clearTimeout(hoverTimer);
           openItem(it);
         });
@@ -73,7 +75,7 @@
       }
 
       link.addEventListener('click', function (e) {
-        if (!isDesktop()) return;
+        if (!isDesktopNav()) return;
         var isOpen = it.classList.contains('bn-open');
         if (canHover) {
           /* Hover already opened it — a click on the title navigates. */

@@ -267,10 +267,10 @@ body.shop-white { background: #fff; }
   #bnWrap .bn-logo img { height: 64px; }
   #bnWrap.bn-scrolled .bn-logo img, #bnWrap.bn-solid .bn-logo img { height: 52px; }
 }
-@media (max-width: 1023px) { #bnWrap .bn-logo img { height: 56px !important; } }
+@media (max-width: 1199px) { #bnWrap .bn-logo img { height: 56px !important; } }
 
 /* Header: centre the menu on desktop ---------------------- */
-@media (min-width: 1024px) {
+@media (min-width: 1200px) {
   .bn-wrap .bn-bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
   .bn-wrap .bn-logo { justify-self: start; align-self: center; }
   /* Optical centring: the artwork's ink sits 5.4% below its geometric centre (light diamond on top) */
