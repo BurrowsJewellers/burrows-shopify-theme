@@ -10,6 +10,7 @@ A from-scratch Shopify Online Store 2.0 theme for burrowsjewellers.com.au, built
 - **Logo:** the Burrows white logo ships with the theme as `assets/logo-white.png` (navy knocked out to transparency). Theme settings → Logo can override it with an uploaded image or a URL.
 - **Store details** (phone, address, booking URL, map, socials) are theme settings, so they're edited once and used everywhere.
 - **Every section is editable** in the theme customiser — copy, links, images, buttons. Image pickers fall back to a placeholder URL until a real photo is chosen.
+- **Header breakpoints:** full desktop bar from 1280px; a compacted desktop bar (smaller nav type, phone number hidden, tighter booking button) from 1024–1279px; burger menu below 1024px. Search, account and cart icons are always visible at every width.
 - **Navigation** is driven by Shopify menus (Online Store → Navigation). Each mega-menu column is a menu; the header block chooses which. Footer columns use the `footer-shop`, `footer-services` and `footer-information` menus.
 
 ## Templates

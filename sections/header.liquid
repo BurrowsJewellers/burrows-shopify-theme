@@ -117,7 +117,7 @@
     <div class="bn-utils">
       <a href="{{ routes.search_url }}" title="Search" aria-label="Search">{% render 'icon', name: 'search' %}</a>
       {%- if shop.customer_accounts_enabled -%}
-        <a class="bn-desktop" href="{{ routes.account_url }}" title="Account" aria-label="Account">{% render 'icon', name: 'account' %}</a>
+        <a href="{{ routes.account_url }}" title="Account" aria-label="Account">{% render 'icon', name: 'account' %}</a>
       {%- endif -%}
       <a class="bn-cart" href="{{ routes.cart_url }}" title="Cart" aria-label="Cart">
         {% render 'icon', name: 'cart' %}
@@ -204,7 +204,8 @@
   .bn-sale { color: var(--gold-2) !important; font-weight: 500; }
   .bn-sale:hover { color: #ecd478 !important; }
   .bn-utils { display: flex; align-items: center; gap: 20px; }
-  .bn-utils a { color: var(--cream); display: flex; align-items: center; transition: color .2s; }
+  .bn-utils a { color: var(--cream); display: flex; align-items: center; transition: color .2s; flex: none; }
+  .bn-utils svg { flex: none; }
   .bn-utils a:hover { color: var(--gold-3); }
   .bn-phone { font-size: 13px; letter-spacing: .06em; gap: 8px; white-space: nowrap; }
   .bn-div { width: 1px; height: 20px; background: rgba(var(--cream-rgb), .25); }
@@ -284,10 +285,14 @@
   .bn-dbook { background: var(--gold); color: var(--navy); font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; padding: 14px; text-align: center; }
   .bn-dphone { display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(23, 29, 80, .3); color: var(--ink); font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; padding: 13px; }
 
+  /* Laptops 1024-1279px: compact the desktop bar so the icons and the booking button always fit */
   @media (max-width: 1279px) {
-    .bn-nav { gap: 20px; }
-    .bn-phone { display: none; }
-    .bn-div { display: none; }
+    .bn-bar, .bn-wrap.bn-scrolled .bn-bar, .bn-wrap.bn-solid .bn-bar { padding-left: 24px; padding-right: 24px; gap: 20px; }
+    .bn-nav { gap: 16px; }
+    .bn-top, .bn-item > a { font-size: 12.5px; letter-spacing: .08em; }
+    .bn-utils { gap: 16px; }
+    .bn-utils .bn-phone, .bn-utils .bn-div { display: none; }
+    .bn-book { font-size: 11px; padding: 9px 12px; letter-spacing: .1em; }
   }
   @media (max-width: 1023px) {
     .bn-nav, .bn-desktop { display: none !important; }
