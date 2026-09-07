@@ -25,6 +25,21 @@
   var el = function (tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var cap = function (s) { s = String(s || '').toLowerCase(); return s.charAt(0).toUpperCase() + s.slice(1); };
+  var GRADES = { ID: 'Ideal', EIGHTX: 'Ideal', EX: 'Excellent', VG: 'Very good', GD: 'Good', G: 'Good', F: 'Fair', FR: 'Fair', P: 'Poor', PR: 'Poor' };
+  var grade = function (v) { if (!v) return ''; var k = String(v).toUpperCase(); return GRADES[k] || cap(v); };
+  /* Line drawings of each centre shape — the card image until Nivoda supplies a photo, and the fallback after. */
+  var SHAPE_ART = {
+    Round: '<circle cx="50" cy="50" r="40"/><path d="M50 10 78 22 90 50 78 78 50 90 22 78 10 50 22 22Z"/><path d="M50 10v80M10 50h80M22 22l56 56M78 22 22 78"/><circle cx="50" cy="50" r="16"/>',
+    Oval: '<ellipse cx="50" cy="50" rx="30" ry="42"/><ellipse cx="50" cy="50" rx="14" ry="22"/><path d="M50 8v84M20 50h60M28 22l44 56M72 22 28 78"/>',
+    Emerald: '<path d="M30 10h40l14 14v52L70 90H30L16 76V24Z"/><path d="M36 20h28l10 10v40L64 80H36L26 70V30Z"/><path d="M42 32h16l6 6v24l-6 6H42l-6-6V38Z"/><path d="M16 24 26 30M84 24 74 30M16 76l10-6M84 76 74 70"/>',
+    Pear: '<path d="M50 6C30 32 14 46 14 62a36 36 0 0 0 72 0C86 46 70 32 50 6Z"/><path d="M50 30c-10 14-20 22-20 32a20 20 0 0 0 40 0c0-10-10-18-20-32Z"/><path d="M50 6v92M14 62h72"/>',
+    Princess: '<path d="M12 12h76v76H12Z"/><path d="M50 12 88 50 50 88 12 50Z"/><path d="M30 30h40v40H30Z"/><path d="M12 12l76 76M88 12 12 88"/>',
+    Cushion: '<path d="M32 10h36c14 0 22 8 22 22v36c0 14-8 22-22 22H32c-14 0-22-8-22-22V32c0-14 8-22 22-22Z"/><path d="M38 26h24c8 0 12 4 12 12v24c0 8-4 12-12 12H38c-8 0-12-4-12-12V38c0-8 4-12 12-12Z"/><path d="M50 10v80M10 50h80M18 18l64 64M82 18 18 82"/>'
+  };
+  function shapeArt(shape) {
+    var d = SHAPE_ART[cap(shape)] || SHAPE_ART.Round;
+    return '<svg class="rb__shape" viewBox="0 0 100 100" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">' + d + '</svg>';
+  }
   function chip(label, on, cls, onClick) {
     var b = el('button', 'rb__chip' + (on ? ' on' : '') + (cls ? ' ' + cls : ''), esc(label));
     b.type = 'button'; b.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -187,7 +202,7 @@
     if (s.lab === 'IGI') return 'https://www.igi.org/verify.php?r=' + encodeURIComponent(s.cert);
     return '';
   }
-  function stoneTitle(s) { return (+s.ct).toFixed(2) + 'ct ' + s.shape + ' · ' + s.col + ' ' + s.cl + (s.cut ? ' · ' + cap(s.cut) + ' cut' : ''); }
+  function stoneTitle(s) { return (+s.ct).toFixed(2) + 'ct ' + s.shape + ' · ' + s.col + ' ' + s.cl + (s.cut ? ' · ' + grade(s.cut) + ' cut' : ''); }
 
   function screenStones() {
     if (!state.mount) return screenGrid();
@@ -240,9 +255,11 @@
       var g = el('div', 'rb__stones');
       list.forEach(function (s) {
         var c = el('button', 'rb__stone' + (state.stone && state.stone.cert === s.cert ? ' on' : '')); c.type = 'button';
-        if (s.image) { var im = el('img'); im.src = s.image; im.alt = ''; im.loading = 'lazy'; c.appendChild(im); }
+        var media = el('div', 'rb__stone-media');
+        if (s.image) { var im = el('img'); im.src = s.image; im.alt = ''; im.loading = 'lazy'; im.addEventListener('error', function () { media.innerHTML = shapeArt(s.shape); }); media.appendChild(im); } else media.innerHTML = shapeArt(s.shape);
+        c.appendChild(media);
         c.appendChild(el('div', 'ct', (+s.ct).toFixed(2) + ' ct'));
-        c.appendChild(el('div', 'spec', esc(s.col + ' colour · ' + s.cl + (s.cut ? ' · ' + cap(s.cut) + ' cut' : ''))));
+        c.appendChild(el('div', 'spec', esc(s.col + ' colour · ' + s.cl + (s.cut ? ' · ' + grade(s.cut) + ' cut' : ''))));
         c.appendChild(el('div', 'price', money(s.retail)));
         if (s.lab && s.lab !== 'NONE') c.appendChild(el('div', 'cert', esc(s.lab + ' ' + (s.cert || '')))); else c.appendChild(el('div', 'tag', 'Uncertified'));
         c.addEventListener('click', function () { openStone(s); });
@@ -270,14 +287,15 @@
     var media = el('div', 'rb__dlg-media');
     if (s.video) { var fr = el('iframe'); fr.src = s.video; fr.title = 'Diamond video'; fr.loading = 'lazy'; fr.allow = 'autoplay'; media.appendChild(fr); }
     else if (s.image) { var im = el('img'); im.src = s.image; im.alt = ''; media.appendChild(im); }
-    else media.appendChild(el('div', 'none', 'Photo and video arrive with the certificate — ask us and we\'ll send them.'));
+    else { media.innerHTML = shapeArt(s.shape) + '<div class="none">Photo and video come with the certificate — ask us and we\'ll send them.</div>'; }
     wrap.appendChild(media);
     var body = el('div', 'rb__dlg-body');
     body.appendChild(el('h3', null, esc((+s.ct).toFixed(2) + 'ct ' + s.shape)));
     body.appendChild(el('div', 'rb__price', money(s.retail) + '<small>AUD incl. GST</small>'));
     var specs = el('dl', 'rb__specs');
-    var rows = [['Type', state.type === 'lab' ? 'Lab-grown' : 'Natural'], ['Colour', s.col], ['Clarity', s.cl], ['Cut', s.cut ? cap(s.cut) : '—'], ['Certificate', s.lab && s.lab !== 'NONE' ? s.lab + ' ' + (s.cert || '') : 'Uncertified']];
+    var rows = [['Type', state.type === 'lab' ? 'Lab-grown' : 'Natural'], ['Colour', s.col], ['Clarity', s.cl], ['Cut', s.cut ? grade(s.cut) : '—']].concat(s.polish ? [['Polish', grade(s.polish)]] : []).concat(s.symmetry ? [['Symmetry', grade(s.symmetry)]] : []).concat(s.fluorescence ? [['Fluorescence', cap(s.fluorescence)]] : []).concat([ ['Certificate', s.lab && s.lab !== 'NONE' ? s.lab + ' ' + (s.cert || '') : 'Uncertified']]);
     if (s.measurements) rows.push(['Measurements', s.measurements]);
+    if (s.delivery) rows.push(['Delivery to us', s.delivery]);
     rows.forEach(function (r) { specs.appendChild(el('dt', null, esc(r[0]))); specs.appendChild(el('dd', null, esc(r[1]))); });
     body.appendChild(specs);
     var cl = certLink(s); if (cl) { var a = el('a', 'rb__link', 'Check the ' + esc(s.lab) + ' report'); a.href = cl; a.target = '_blank'; a.rel = 'noopener'; body.appendChild(a); }
