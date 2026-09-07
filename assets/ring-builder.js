@@ -186,7 +186,8 @@
         var stones = (j.stones || []).map(function (s) { s.shape = cap(s.shape || shape); return s; });
         // v1 API ignores offset/limit and returns ~10 stones; v2 reports total/offset so we know if there are more.
         var paged = typeof j.total === 'number' && typeof j.offset === 'number';
-        var out = { stones: stones, total: paged ? j.total : stones.length, hasMore: paged ? (j.offset + stones.length) < j.total && stones.length > 0 : false };
+        // A full page means there may be more, whatever the reported total says (Nivoda's count can equal the page size).
+        var out = { stones: stones, total: paged ? Math.max(j.total, j.offset + stones.length) : stones.length, hasMore: paged ? stones.length >= PAGE : false };
         stoneCache[key] = out; return out;
       });
   }
@@ -258,7 +259,7 @@
       drawChips();
       var list = applyFilters(all);
       var kind = (state.type === 'lab' ? 'lab-grown' : 'natural') + ' ' + state.shape.toLowerCase();
-      count.textContent = list.length ? (list.length + ' ' + kind + ' diamond' + (list.length === 1 ? '' : 's') + (total > all.length ? ' shown of ' + total.toLocaleString('en-AU') + ' available' : ' available now')) : '';
+      count.textContent = list.length ? (list.length + ' ' + kind + ' diamond' + (list.length === 1 ? '' : 's') + (total > all.length ? ' shown of ' + total.toLocaleString('en-AU') + ' available' : (hasMore ? ' shown — more available' : ' available now'))) : '';
       more.innerHTML = '';
       if (hasMore) { var mb = el('button', 'btn btn--outline-dark', 'Show more diamonds'); mb.type = 'button'; mb.addEventListener('click', function () { mb.disabled = true; mb.textContent = 'Loading…'; loadPage(loaded); }); more.appendChild(mb); }
       holder.innerHTML = '';
