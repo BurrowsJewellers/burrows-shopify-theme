@@ -16,6 +16,7 @@
   var CT_STEPS = [0.3, 0.4, 0.5, 0.7, 0.9, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5];
 
   var mounts = [];
+  var apiCart = null; // true once /api/health reports the cart endpoint is switched on
   var state = { step: 1, style: 'all', mount: null, shape: 'Round', metal: null, size: '', type: cfg.defaultType || 'lab', stone: null,
     filters: { minct: 0.3, maxct: 5, colours: [], clarities: [], certified: !!cfg.certifiedOnly, sort: 'price' } };
   var stoneCache = {};
@@ -371,16 +372,18 @@
     right.appendChild(el('h3', null, cfg.cartEnabled ? 'Ready when you are' : 'Next step'));
     right.appendChild(el('ol', null, '<li>We secure this exact diamond with the supplier.</li><li>The setting is made to order in your size and metal.</li><li>The stone is set, checked in store, and ready to collect or ship.</li>'));
     var actions = el('div', 'rb__actions');
-    if (cfg.cartEnabled && mt.variant_id) {
+    var q = new URLSearchParams(); q.set('sku', (m.ref || m.id) + ' · ' + mt.name + (state.size ? ' · ' + state.size : '')); q.set('design', (s.lab && s.lab !== 'NONE' ? s.lab + ' ' : 'Stone ') + (s.cert || ''));
+    var enquiryHref = cfg.contactUrl + '?' + q.toString() + '#contact';
+    var canCart = cfg.cartEnabled && apiCart === true;
+    if (canCart) {
       var add = el('button', 'btn btn--gold btn--lg', 'Add to cart'); add.type = 'button';
-      add.addEventListener('click', function () { addToCart(add, m, mt, s); }); actions.appendChild(add);
+      add.addEventListener('click', function () { addToCart(add, m, mt, s, enquiryHref); }); actions.appendChild(add);
     } else {
-      var enq = el('a', 'btn btn--gold btn--lg', 'Enquire about this ring');
-      var q = new URLSearchParams(); q.set('sku', (m.ref || m.id) + ' · ' + mt.name + (state.size ? ' · ' + state.size : '')); q.set('design', (s.lab && s.lab !== 'NONE' ? s.lab + ' ' : 'Stone ') + (s.cert || ''));
-      enq.href = cfg.contactUrl + '?' + q.toString() + '#contact'; actions.appendChild(enq);
+      var enq = el('a', 'btn btn--gold btn--lg', 'Enquire about this ring'); enq.href = enquiryHref; actions.appendChild(enq);
     }
     if (cfg.bookingUrl) { var bk = el('a', 'btn btn--outline-dark btn--lg', esc(cfg.bookingLabel || 'Book a consultation')); bk.href = cfg.bookingUrl; bk.target = '_blank'; bk.rel = 'noopener'; actions.appendChild(bk); }
     right.appendChild(actions);
+    if (canCart) { var enqLink = el('a', 'rb__link', 'Prefer to ask us about it first? Send an enquiry'); enqLink.href = enquiryHref; enqLink.style.alignSelf = 'flex-start'; right.appendChild(enqLink); }
     var copy = el('button', 'rb__link rb__copy', 'Copy a link to this design'); copy.type = 'button'; copy.style.background = 'none'; copy.style.border = '0'; copy.style.borderBottom = '1px solid var(--gold-2)'; copy.style.cursor = 'pointer'; copy.style.font = 'inherit'; copy.style.fontSize = '13px'; copy.style.padding = '0';
     copy.addEventListener('click', function () { writeUrl(); var u = location.href; (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () { toast('Link copied'); }, function () { window.prompt('Copy this link', u); }); });
     right.appendChild(copy);
@@ -389,23 +392,38 @@
     r.appendChild(right); app.appendChild(r);
   }
 
-  /* Cart path (needs the Builder API /cart endpoint — creates the diamond line in Shopify, returns its variant id). */
-  function addToCart(btn, m, mt, s) {
-    btn.disabled = true; btn.textContent = 'Adding…';
+  /* Cart: the Builder API re-checks the stone with Nivoda, creates one hidden Shopify product for the build
+     (setting + stone, priced server-side) and returns its variant id; we add that one line to the normal cart. */
+  function addToCart(btn, m, mt, s, enquiryHref) {
+    btn.disabled = true; btn.textContent = 'Checking the stone…';
     var build = 'RB-' + Date.now().toString(36).toUpperCase();
-    fetch(cfg.apiBase.replace(/\/$/, '') + '/cart', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stone: s, type: state.type, mount: { id: m.id, ref: m.ref, title: m.title, metal: mt.name, variant_id: mt.variant_id }, size: state.size, build: build }) })
-      .then(function (r) { if (!r.ok) throw new Error('cart'); return r.json(); })
+    var payload = { build: build, type: state.type, size: state.size || '',
+      mount: { id: m.id, ref: m.ref || m.id, title: m.title, metal: mt.name, price: +mt.price || 0, variant_id: mt.variant_id || null, shape: state.shape },
+      stone: { id: s.id, item_id: s.item_id, cert: s.cert, lab: s.lab, retail: s.retail } };
+    var status = 0;
+    fetch(cfg.apiBase.replace(/\/$/, '') + '/cart', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function (r) { status = r.status; return r.json().catch(function () { return {}; }); })
       .then(function (j) {
-        var props = { 'Ring build': build, 'Setting': m.title + ' · ' + mt.name, 'Finger size': state.size || 'To be confirmed', 'Centre stone': stoneTitle(s) + (s.cert ? ' · ' + s.lab + ' ' + s.cert : '') };
-        var items = [{ id: mt.variant_id, quantity: 1, properties: props }];
-        if (j.variant_id) items.push({ id: j.variant_id, quantity: 1, properties: props });
-        return fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: items }) });
+        if (status === 409 || j.error === 'stone_unavailable') { throw { kind: 'gone' }; }
+        if (status === 501) { throw { kind: 'off' }; }
+        if (status !== 200 || !j.variant_id) { throw { kind: 'fail', detail: j.detail }; }
+        btn.textContent = 'Adding to cart…';
+        var props = { 'Ring build': j.build || build, 'Setting': m.title + ' · ' + mt.name, 'Centre stone': (j.stone && j.stone.title) || stoneTitle(s), 'Finger size': state.size || 'To be confirmed', 'Lead time': m.lead_time || cfg.leadTime };
+        return fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: [{ id: j.variant_id, quantity: 1, properties: props }] }) })
+          .then(function (r) { if (!r.ok) throw { kind: 'fail' }; location.href = '/cart'; });
       })
-      .then(function (r) { if (!r.ok) throw new Error('add'); location.href = '/cart'; })
-      .catch(function () { btn.disabled = false; btn.textContent = 'Add to cart'; toast('That didn\'t go through — please try again or call us.'); });
+      .catch(function (e) {
+        btn.disabled = false; btn.textContent = 'Add to cart';
+        if (e && e.kind === 'gone') { toast('That diamond has just been taken — please choose another.'); state.stone = null; setTimeout(function () { screenStones(); scrollTop(); }, 1600); return; }
+        if (e && e.kind === 'off') { toast('Online ordering isn\'t switched on yet — send us an enquiry instead.'); if (enquiryHref) location.href = enquiryHref; return; }
+        toast('That didn\'t go through — please try again or call us on ' + cfg.phone + '.');
+      });
   }
 
   /* ---------- boot ---------- */
+  if (cfg.cartEnabled) {
+    fetch(cfg.apiBase.replace(/\/$/, '') + '/health').then(function (r) { return r.json(); }).then(function (j) { apiCart = !!(j && j.cart); if (state.step === 4) screenReview(); }).catch(function () { apiCart = false; });
+  }
   function boot(list) {
     mounts = (list || []).filter(function (m) { return m && m.metals && m.metals.length; });
     if (!mounts.length) { app.innerHTML = ''; app.appendChild(el('div', 'rb__empty', 'No designs are set up yet.')); return; }
