@@ -1,0 +1,160 @@
+{%- comment -%}
+  Burrows Ring Builder — our own builder (replaces the Nivoda Connect app block).
+  Step 1 setting · Step 2 metal & size · Step 3 live diamond (Nivoda via the Builder API) · Step 4 review.
+
+  Mount catalogue source (section setting):
+    - "sample":     assets/ring-mounts-sample.json — stand-in designs for the draft theme.
+    - "collection": products in the chosen collection. Each product = one design:
+        variants           option "Metal" (one variant per metal, price per metal)
+        metafields         builder.style (text), builder.shapes (list of text),
+                           builder.centre_min_ct / builder.centre_max_ct (decimal),
+                           builder.lead_time (text)
+        media alt text     "<Metal>|<Shape>" (e.g. "White gold|Round") picks the render;
+                           "<Metal>" alone covers every shape for that metal.
+  Diamonds come from the Builder API (assets/ring-builder.js → {{ section.settings.api_base }}).
+{%- endcomment -%}
+{%- assign s = section.settings -%}
+{%- liquid
+  assign mounts_json = ''
+  if s.mounts_source == 'collection' and s.mounts_collection != blank
+    assign col = collections[s.mounts_collection]
+    capture mounts_json
+      echo '['
+      for product in col.products
+        unless forloop.first
+          echo ','
+        endunless
+        echo '{"id":'
+        echo product.handle | json
+        echo ',"ref":'
+        echo product.selected_or_first_available_variant.sku | json
+        echo ',"title":'
+        echo product.title | json
+        echo ',"url":'
+        echo product.url | json
+        echo ',"style":'
+        assign pstyle = product.metafields.builder.style.value | default: product.product_type | downcase
+        echo pstyle | json
+        echo ',"shapes":'
+        echo product.metafields.builder.shapes.value | json
+        echo ',"centre_min_ct":'
+        echo product.metafields.builder.centre_min_ct.value | default: 0.3
+        echo ',"centre_max_ct":'
+        echo product.metafields.builder.centre_max_ct.value | default: 3
+        echo ',"lead_time":'
+        echo product.metafields.builder.lead_time.value | default: s.lead_time | json
+        echo ',"metals":['
+        for v in product.variants
+          unless forloop.first
+            echo ','
+          endunless
+          assign vprice = v.price | divided_by: 100.0
+          echo '{"name":'
+          echo v.title | json
+          echo ',"price":'
+          echo vprice
+          echo ',"variant_id":'
+          echo v.id
+          echo ',"available":'
+          echo v.available
+          echo '}'
+        endfor
+        echo '],"renders":{'
+        assign first_r = true
+        for media in product.media
+          if media.media_type == 'image'
+            assign alt = media.alt | default: 'default'
+            unless first_r
+              echo ','
+            endunless
+            assign first_r = false
+            echo alt | json
+            echo ':'
+            echo media | image_url: width: 1200 | json
+          endif
+        endfor
+        echo '}}'
+      endfor
+      echo ']'
+    endcapture
+  endif
+-%}
+<section class="full-width rb" id="ringBuilder" data-ring-builder>
+  <div class="rb__inner">
+    <header class="rb__head">
+      {%- if s.eyebrow != blank -%}<div class="eyebrow">{{ s.eyebrow }}</div>{%- endif -%}
+      <h1 class="rb__title">{{ s.heading }}</h1>
+      {%- if s.intro != blank -%}<p class="rb__intro lede">{{ s.intro }}</p>{%- endif -%}
+      <ol class="rb__steps" data-rb-steps aria-label="Steps">
+        <li data-step="1"><span>1</span>Setting</li>
+        <li data-step="2"><span>2</span>Metal &amp; size</li>
+        <li data-step="3"><span>3</span>Diamond</li>
+        <li data-step="4"><span>4</span>Review</li>
+      </ol>
+    </header>
+    <div class="rb__app" data-rb-app aria-live="polite">
+      <div class="rb__loading"><span class="rb__spin"></span>Loading the builder…</div>
+    </div>
+    <noscript><p class="rb__intro">The ring builder needs JavaScript. Call us on {{ settings.store_phone_display }} and we'll design it with you.</p></noscript>
+  </div>
+  <script type="application/json" data-rb-config>
+    {
+      "apiBase": {{ s.api_base | strip | json }},
+      "mountsSource": {{ s.mounts_source | json }},
+      "sampleUrl": {{ 'ring-mounts-sample.json' | asset_url | json }},
+      "defaultType": {{ s.default_type | json }},
+      "showNatural": {{ s.show_natural }},
+      "certifiedOnly": {{ s.certified_only }},
+      "sizes": {{ s.sizes | split: ',' | json }},
+      "leadTime": {{ s.lead_time | json }},
+      "contactUrl": {{ s.contact_url | default: '/pages/contact' | json }},
+      "bookingUrl": {{ settings.booking_url | json }},
+      "bookingLabel": {{ s.booking_label | json }},
+      "phone": {{ settings.store_phone_display | json }},
+      "phoneTel": {{ settings.store_phone_tel | json }},
+      "cartEnabled": {{ s.cart_enabled }},
+      "sizeGuideUrl": {{ s.size_guide_url | json }},
+      "feedNote": {{ s.feed_note | json }},
+      "sampleNote": {{ s.sample_note | json }}
+    }
+  </script>
+  {%- if mounts_json != blank -%}<script type="application/json" data-rb-mounts>{{ mounts_json }}</script>{%- endif -%}
+</section>
+<link rel="stylesheet" href="{{ 'ring-builder.css' | asset_url }}">
+<script src="{{ 'ring-builder.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Ring builder",
+  "tag": "section",
+  "class": "section-ring-builder",
+  "limit": 1,
+  "settings": [
+    { "type": "header", "content": "Copy" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Design your engagement ring" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Choose the setting, then the diamond" },
+    { "type": "textarea", "id": "intro", "label": "Intro", "default": "Our own designs, made to order in Mildura, paired with a certified diamond sourced direct from our suppliers — no third party in between, so the price stays competitive." },
+    { "type": "text", "id": "lead_time", "label": "Lead time line", "default": "Made to order · about 3–4 weeks" },
+    { "type": "text", "id": "feed_note", "label": "Diamond feed note", "default": "Live availability from our diamond suppliers, priced in AUD including GST." },
+    { "type": "text", "id": "sample_note", "label": "Sample catalogue note (shown only while using sample designs)", "default": "Sample designs — our own catalogue is on its way." },
+
+    { "type": "header", "content": "Mount catalogue" },
+    { "type": "select", "id": "mounts_source", "label": "Source", "options": [ { "value": "sample", "label": "Sample designs (draft only)" }, { "value": "collection", "label": "Products in a collection" } ], "default": "sample" },
+    { "type": "collection", "id": "mounts_collection", "label": "Mounts collection", "info": "One product per design, one variant per metal. See the notes at the top of sections/ring-builder.liquid for the metafields and media naming." },
+    { "type": "text", "id": "sizes", "label": "Finger sizes offered", "default": "H,H½,I,I½,J,J½,K,K½,L,L½,M,M½,N,N½,O,O½,P,P½,Q,Q½,R,R½,S,S½,T,T½,U,V,W,X,Y,Z", "info": "Comma-separated, AU sizes" },
+    { "type": "url", "id": "size_guide_url", "label": "Ring size guide link" },
+
+    { "type": "header", "content": "Diamonds" },
+    { "type": "text", "id": "api_base", "label": "Builder API base URL", "default": "https://dashboard.burrowsjewellers.com.au/ring-builder/api" },
+    { "type": "select", "id": "default_type", "label": "Default diamond type", "options": [ { "value": "lab", "label": "Lab-grown" }, { "value": "nat", "label": "Natural" } ], "default": "lab" },
+    { "type": "checkbox", "id": "show_natural", "label": "Offer natural diamonds too", "default": true },
+    { "type": "checkbox", "id": "certified_only", "label": "Only show certified stones (GIA / IGI etc.)", "default": true },
+
+    { "type": "header", "content": "Review step" },
+    { "type": "checkbox", "id": "cart_enabled", "label": "Add to cart (needs the Builder API cart endpoint)", "default": false, "info": "Off = customers send an enquiry with the design and stone details prefilled." },
+    { "type": "url", "id": "contact_url", "label": "Enquiry link", "info": "Defaults to the contact page" },
+    { "type": "text", "id": "booking_label", "label": "Booking button label", "default": "Book a consultation" }
+  ],
+  "presets": [ { "name": "Ring builder" } ]
+}
+{% endschema %}
