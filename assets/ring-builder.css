@@ -1,0 +1,134 @@
+/* Burrows Ring Builder — section styles (tokens from snippets/css-variables.liquid) */
+.rb { background: var(--cream); padding: 40px var(--gutter) var(--section-pad); }
+.rb__inner { max-width: var(--page-max); margin: 0 auto; }
+.rb__head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; margin-bottom: 36px; }
+.rb__title { font-family: var(--font-heading); font-weight: 500; font-size: clamp(34px, 4vw, 48px); line-height: 1.1; color: var(--ink); margin: 0; text-wrap: balance; }
+.rb__intro { max-width: 640px; margin: 0; }
+.rb__steps { list-style: none; margin: 12px 0 0; padding: 0; display: flex; gap: 0; align-items: center; }
+.rb__steps li { display: flex; align-items: center; gap: 9px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 500; cursor: default; }
+.rb__steps li + li::before { content: ''; width: 36px; height: 1px; background: rgba(var(--gold-dark-rgb), .35); margin: 0 14px; }
+.rb__steps li span { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(var(--gold-dark-rgb), .45); display: grid; place-items: center; font-size: 12px; letter-spacing: 0; color: var(--gold-dark); }
+.rb__steps li.on { color: var(--ink); }
+.rb__steps li.on span { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+.rb__steps li.done { color: var(--ink); cursor: pointer; }
+.rb__steps li.done span { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+.rb__loading, .rb__empty { padding: 56px 20px; text-align: center; color: var(--muted); font-weight: 300; }
+.rb__spin { display: inline-block; width: 20px; height: 20px; border: 2px solid rgba(var(--gold-dark-rgb), .25); border-top-color: var(--gold); border-radius: 50%; animation: rbspin .8s linear infinite; vertical-align: middle; margin-right: 10px; }
+@keyframes rbspin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .rb__spin { animation-duration: 2s; } }
+
+/* Shared bits */
+.rb__label { font-size: 11.5px; letter-spacing: .24em; text-transform: uppercase; color: var(--gold-dark); font-weight: 500; }
+.rb__label b { color: var(--ink); letter-spacing: .05em; text-transform: none; font-size: 13px; font-weight: 400; }
+.rb__chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.rb__chip { min-width: 44px; height: 44px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(var(--gold-dark-rgb), .35); background: transparent; font: inherit; font-size: 13.5px; color: var(--body); cursor: pointer; font-family: var(--font-body); }
+.rb__chip:hover { border-color: var(--gold); }
+.rb__chip:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.rb__chip.on { background: var(--ink); border-color: var(--ink); color: var(--cream); font-weight: 500; }
+.rb__chip.dis { opacity: .4; cursor: not-allowed; }
+.rb__chip--sm { height: 36px; font-size: 12.5px; padding: 0 12px; min-width: 36px; }
+.rb__back { background: none; border: 0; padding: 0 0 18px; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer; font-family: var(--font-body); }
+.rb__back:hover { color: var(--ink); }
+.rb__next .rb__back { align-self: flex-start; padding: 6px 0; }
+.rb__note { font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.6; }
+.rb__note--sample { display: inline-block; background: var(--sand); color: var(--gold-dark); padding: 6px 12px; font-size: 12px; letter-spacing: .06em; margin-bottom: 18px; }
+.rb__price { font-family: var(--font-heading); font-size: 34px; color: var(--ink); line-height: 1; }
+.rb__price small { font-family: var(--font-body); font-size: 12px; color: var(--muted); letter-spacing: .06em; margin-left: 8px; }
+.rb__select { height: 44px; border: 1px solid rgba(var(--gold-dark-rgb), .35); background: #fff; padding: 0 12px; font: inherit; font-size: 14px; color: var(--ink); font-family: var(--font-body); min-width: 120px; border-radius: 0; }
+.rb__link { color: var(--gold-dark); border-bottom: 1px solid var(--gold-2); font-size: 13px; }
+.rb__actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.rb__actions .btn { flex: 1 1 200px; }
+
+/* Step 1: settings grid */
+.rb__filters { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 28px; }
+.rb__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.rb__card { background: #fff; border: 1px solid rgba(var(--gold-dark-rgb), .18); text-align: left; padding: 0; cursor: pointer; display: flex; flex-direction: column; font: inherit; font-family: var(--font-body); color: var(--body); transition: box-shadow .2s, transform .2s; }
+.rb__card:hover { box-shadow: 0 14px 34px rgba(var(--navy-rgb), .1); transform: translateY(-2px); }
+.rb__card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.rb__card img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #fff; padding: 18px; display: block; }
+.rb__cardbody { padding: 16px 18px 20px; border-top: 1px solid rgba(var(--gold-dark-rgb), .14); display: flex; flex-direction: column; gap: 5px; }
+.rb__cardtitle { font-family: var(--font-heading); font-size: 21px; color: var(--ink); line-height: 1.2; }
+.rb__cardmeta { font-size: 12.5px; color: var(--muted); font-weight: 300; }
+.rb__cardprice { font-size: 14px; color: var(--ink); font-weight: 500; margin-top: 4px; }
+.rb__cardprice small { color: var(--muted); font-weight: 300; font-size: 12px; }
+
+/* Step 2: configure */
+.rb__detail { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: start; }
+.rb__stage { background: #fff; border: 1px solid rgba(var(--gold-dark-rgb), .18); display: grid; place-items: center; padding: 28px; position: sticky; top: calc(var(--header-height, 90px) + 16px); }
+.rb__stage img { width: 100%; max-width: 520px; aspect-ratio: 1; object-fit: contain; display: block; }
+.rb__panel { display: flex; flex-direction: column; gap: 24px; }
+.rb__panel h2 { font-family: var(--font-heading); font-weight: 500; font-size: 34px; line-height: 1.1; color: var(--ink); margin: 0; }
+.rb__opt { display: flex; flex-direction: column; gap: 10px; }
+.rb__sizerow { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.rb__lead { display: flex; gap: 10px; align-items: center; font-size: 13.5px; color: var(--body); }
+.rb__lead::before { content: ''; width: 6px; height: 6px; background: var(--gold); transform: rotate(45deg); flex: none; }
+
+/* Step 3: diamonds */
+.rb__tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 22px; }
+.rb__toolbar { display: grid; grid-template-columns: 1fr auto; gap: 18px 28px; align-items: start; padding: 20px 22px; background: #fff; border: 1px solid rgba(var(--gold-dark-rgb), .18); margin-bottom: 22px; }
+.rb__toolbar .rb__opt { gap: 8px; }
+.rb__toolbar-row { display: flex; gap: 22px; flex-wrap: wrap; }
+.rb__range { display: flex; align-items: center; gap: 8px; }
+.rb__range .rb__select { min-width: 96px; }
+.rb__stones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.rb__stone { background: #fff; border: 1px solid rgba(var(--gold-dark-rgb), .18); padding: 18px; text-align: left; cursor: pointer; font: inherit; font-family: var(--font-body); color: var(--body); display: flex; flex-direction: column; gap: 6px; transition: border-color .2s; }
+.rb__stone:hover { border-color: var(--gold); }
+.rb__stone:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.rb__stone.on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.rb__stone img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #f4f4f4; margin-bottom: 6px; }
+.rb__stone .ct { font-family: var(--font-heading); font-size: 26px; color: var(--ink); line-height: 1; }
+.rb__stone .spec { font-size: 12.5px; color: var(--muted); font-weight: 300; }
+.rb__stone .cert { font-size: 11.5px; color: var(--muted); letter-spacing: .04em; }
+.rb__stone .price { font-size: 15px; color: var(--ink); font-weight: 500; margin-top: 4px; }
+.rb__stone .tag { align-self: flex-start; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-dark); border: 1px solid rgba(var(--gold-dark-rgb), .35); padding: 3px 7px; }
+.rb__count { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+
+/* Stone detail (dialog) */
+.rb__dialog { border: 0; padding: 0; max-width: 760px; width: calc(100% - 32px); background: #fff; box-shadow: 0 30px 80px rgba(var(--navy-rgb), .35); }
+.rb__dialog::backdrop { background: rgba(var(--navy-rgb), .55); }
+.rb__dlg { display: grid; grid-template-columns: 1fr 1fr; }
+.rb__dlg-media { background: #f6f6f6; display: grid; place-items: center; min-height: 320px; }
+.rb__dlg-media img, .rb__dlg-media iframe { width: 100%; aspect-ratio: 1; object-fit: cover; border: 0; display: block; }
+.rb__dlg-media .none { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
+.rb__dlg-body { padding: 28px; display: flex; flex-direction: column; gap: 14px; }
+.rb__dlg-body h3 { font-family: var(--font-heading); font-weight: 500; font-size: 30px; color: var(--ink); margin: 0; line-height: 1.1; }
+.rb__specs { display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; font-size: 13.5px; margin: 0; }
+.rb__specs dt { color: var(--muted); font-weight: 300; }
+.rb__specs dd { margin: 0; color: var(--ink); }
+.rb__dlg-close { position: absolute; top: 10px; right: 12px; background: none; border: 0; font-size: 26px; line-height: 1; color: var(--muted); cursor: pointer; }
+
+/* Step 4: review */
+.rb__review { display: grid; grid-template-columns: 1.15fr 1fr; gap: 36px; align-items: start; }
+.rb__card--review { background: #fff; border: 1px solid rgba(var(--gold-dark-rgb), .18); padding: 26px; cursor: default; }
+.rb__card--review:hover { transform: none; box-shadow: none; }
+.rb__hero { display: flex; gap: 18px; align-items: center; margin-bottom: 18px; }
+.rb__hero img { width: 110px; height: 110px; object-fit: contain; background: #fff; border: 1px solid rgba(var(--gold-dark-rgb), .18); }
+.rb__hero h3 { font-family: var(--font-heading); font-weight: 500; font-size: 26px; color: var(--ink); margin: 0 0 4px; }
+.rb__row { display: flex; justify-content: space-between; gap: 20px; padding: 12px 0; border-top: 1px solid rgba(var(--gold-dark-rgb), .14); font-size: 14.5px; }
+.rb__row span:last-child { color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rb__row small { display: block; color: var(--muted); font-weight: 300; font-size: 12.5px; margin-top: 2px; }
+.rb__total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 16px; border-top: 1px solid var(--ink); margin-top: 6px; }
+.rb__total b { font-family: var(--font-heading); font-weight: 500; font-size: 30px; color: var(--ink); }
+.rb__next { display: flex; flex-direction: column; gap: 16px; }
+.rb__next h3 { font-family: var(--font-heading); font-weight: 500; font-size: 28px; color: var(--ink); margin: 0; }
+.rb__next ol { margin: 0; padding-left: 1.2em; font-size: 14px; color: var(--body); display: grid; gap: 6px; }
+.rb__copy { align-self: flex-start; }
+.rb__toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: var(--ink); color: var(--cream); padding: 12px 18px; font-size: 13px; z-index: 50; }
+
+@media (max-width: 1023px) {
+  .rb { padding: 28px var(--gutter-mobile) var(--section-pad-mobile); }
+  .rb__grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .rb__detail, .rb__review, .rb__dlg { grid-template-columns: 1fr; gap: 26px; }
+  .rb__stage { position: static; padding: 16px; }
+  .rb__stones { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .rb__toolbar { grid-template-columns: 1fr; }
+  .rb__steps li + li::before { width: 16px; margin: 0 8px; }
+  .rb__steps li { font-size: 0; gap: 0; }
+  .rb__steps li span { font-size: 12px; }
+  .rb__steps li.on { font-size: 11px; gap: 8px; }
+}
+@media (max-width: 520px) {
+  .rb__grid { grid-template-columns: 1fr; }
+  .rb__stones { grid-template-columns: 1fr 1fr; }
+  .rb__actions .btn { flex-basis: 100%; }
+}
