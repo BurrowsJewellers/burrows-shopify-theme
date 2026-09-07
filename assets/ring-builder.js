@@ -174,7 +174,7 @@
   }
 
   /* ---------- step 3: diamonds ---------- */
-  var PAGE = 60;
+  var PAGE = 48; // Nivoda allows at most 50 per query
   function fetchStones(shape, type, offset) {
     var key = shape + '|' + type + '|' + (state.filters.certified ? 'c' : 'a') + '|' + offset;
     if (stoneCache[key]) return Promise.resolve(stoneCache[key]);
