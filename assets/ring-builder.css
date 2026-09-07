@@ -85,6 +85,8 @@
 .rb__stone .price { font-size: 15px; color: var(--ink); font-weight: 500; margin-top: 4px; }
 .rb__stone .tag { align-self: flex-start; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-dark); border: 1px solid rgba(var(--gold-dark-rgb), .35); padding: 3px 7px; }
 .rb__count { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+.rb__more { display: flex; justify-content: center; margin: 26px 0 8px; }
+.rb__more:empty { display: none; }
 
 /* Stone detail (dialog) */
 .rb__dialog { border: 0; padding: 0; max-width: 760px; width: calc(100% - 32px); background: #fff; box-shadow: 0 30px 80px rgba(var(--navy-rgb), .35); }

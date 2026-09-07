@@ -174,14 +174,21 @@
   }
 
   /* ---------- step 3: diamonds ---------- */
-  function fetchStones(shape, type) {
-    var key = shape + '|' + type;
+  var PAGE = 60;
+  function fetchStones(shape, type, offset) {
+    var key = shape + '|' + type + '|' + (state.filters.certified ? 'c' : 'a') + '|' + offset;
     if (stoneCache[key]) return Promise.resolve(stoneCache[key]);
     var f = state.filters, m = state.mount;
     var q = 'shape=' + encodeURIComponent(shape.toUpperCase()) + '&type=' + type
-      + '&minct=' + (m ? m.centre_min_ct : 0.3) + '&maxct=' + (m ? m.centre_max_ct : 5) + '&limit=60' + (f.certified ? '&cert=1' : '');
+      + '&minct=' + (m ? m.centre_min_ct : 0.3) + '&maxct=' + (m ? m.centre_max_ct : 5) + '&limit=' + PAGE + '&offset=' + offset + (f.certified ? '&cert=1' : '');
     return fetch(cfg.apiBase.replace(/\/$/, '') + '/diamonds?' + q).then(function (r) { if (!r.ok) throw new Error('feed'); return r.json(); })
-      .then(function (j) { stoneCache[key] = (j.stones || []).map(function (s) { s.shape = cap(s.shape || shape); return s; }); return stoneCache[key]; });
+      .then(function (j) {
+        var stones = (j.stones || []).map(function (s) { s.shape = cap(s.shape || shape); return s; });
+        // v1 API ignores offset/limit and returns ~10 stones; v2 reports total/offset so we know if there are more.
+        var paged = typeof j.total === 'number' && typeof j.offset === 'number';
+        var out = { stones: stones, total: paged ? j.total : stones.length, hasMore: paged ? (j.offset + stones.length) < j.total && stones.length > 0 : false };
+        stoneCache[key] = out; return out;
+      });
   }
   function applyFilters(list) {
     var f = state.filters, m = state.mount;
@@ -245,11 +252,15 @@
       clChips.innerHTML = ''; CLARITY.forEach(function (c) { clChips.appendChild(chip(c, f.clarities.indexOf(c) > -1, 'rb__chip--sm', function () { var i = f.clarities.indexOf(c); i > -1 ? f.clarities.splice(i, 1) : f.clarities.push(c); draw(); })); });
       certChips.innerHTML = ''; certChips.appendChild(chip('Certified only', f.certified, 'rb__chip--sm', function () { f.certified = !f.certified; stoneCache = {}; load(); }));
     }
-    var all = [];
+    var all = [], loaded = 0, total = 0, hasMore = false, more = el('div', 'rb__more');
+    app.insertBefore(more, app.lastChild);
     function draw() {
       drawChips();
       var list = applyFilters(all);
-      count.textContent = list.length ? list.length + ' ' + (state.type === 'lab' ? 'lab-grown' : 'natural') + ' ' + state.shape.toLowerCase() + ' diamond' + (list.length === 1 ? '' : 's') + ' available now' : '';
+      var kind = (state.type === 'lab' ? 'lab-grown' : 'natural') + ' ' + state.shape.toLowerCase();
+      count.textContent = list.length ? (list.length + ' ' + kind + ' diamond' + (list.length === 1 ? '' : 's') + (total > all.length ? ' shown of ' + total.toLocaleString('en-AU') + ' available' : ' available now')) : '';
+      more.innerHTML = '';
+      if (hasMore) { var mb = el('button', 'btn btn--outline-dark', 'Show more diamonds'); mb.type = 'button'; mb.addEventListener('click', function () { mb.disabled = true; mb.textContent = 'Loading…'; loadPage(loaded); }); more.appendChild(mb); }
       holder.innerHTML = '';
       if (!list.length) { holder.appendChild(el('div', 'rb__empty', all.length ? 'Nothing matches those filters — try widening the carat range or colour.' : 'No ' + (state.type === 'lab' ? 'lab-grown' : 'natural') + ' ' + state.shape.toLowerCase() + ' diamonds in the feed right now. Try the other type, or call us on ' + esc(cfg.phone) + '.')); return; }
       var g = el('div', 'rb__stones');
@@ -267,12 +278,20 @@
       });
       holder.appendChild(g);
     }
-    function load() {
-      holder.innerHTML = ''; holder.appendChild(el('div', 'rb__loading', '<span class="rb__spin"></span>Finding ' + esc(state.shape.toLowerCase()) + ' diamonds…')); count.textContent = '';
+    function loadPage(offset) {
       var shape = state.shape, type = state.type;
-      fetchStones(shape, type).then(function (list) {
+      return fetchStones(shape, type, offset).then(function (r) {
         if (shape !== state.shape || type !== state.type) return;
-        all = list; draw();
+        var seen = {}; all.forEach(function (s) { seen[s.cert || s.id] = 1; });
+        r.stones.forEach(function (s) { if (!seen[s.cert || s.id]) { all.push(s); seen[s.cert || s.id] = 1; } });
+        loaded = offset + r.stones.length; total = r.total; hasMore = r.hasMore;
+        draw();
+      });
+    }
+    function load() {
+      holder.innerHTML = ''; holder.appendChild(el('div', 'rb__loading', '<span class="rb__spin"></span>Finding ' + esc(state.shape.toLowerCase()) + ' diamonds…')); count.textContent = ''; more.innerHTML = '';
+      all = []; loaded = 0; total = 0; hasMore = false;
+      loadPage(0).then(function () {
         if (state.pendingStone) { var s = all.filter(function (x) { return x.cert === state.pendingStone; })[0]; state.pendingStone = null; if (s) { state.stone = s; screenReview(); } }
       }).catch(function () { holder.innerHTML = ''; holder.appendChild(el('div', 'rb__empty', 'The live diamond feed is taking a moment. Please try again shortly, or call us on ' + esc(cfg.phone) + '.')); });
     }
