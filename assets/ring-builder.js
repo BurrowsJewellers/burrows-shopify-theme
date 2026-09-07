@@ -305,9 +305,28 @@
     dlg = el('dialog', 'rb__dialog');
     var wrap = el('div', 'rb__dlg');
     var media = el('div', 'rb__dlg-media');
-    if (s.video) { var fr = el('iframe'); fr.src = s.video; fr.title = 'Diamond video'; fr.loading = 'lazy'; fr.allow = 'autoplay'; media.appendChild(fr); }
-    else if (s.image) { var im = el('img'); im.src = s.image; im.alt = ''; media.appendChild(im); }
-    else { media.innerHTML = shapeArt(s.shape) + '<div class="none">Photo and video come with the certificate — ask us and we\'ll send them.</div>'; }
+    var frame = el('div', 'rb__dlg-frame'); media.appendChild(frame);
+    function showPhoto() {
+      frame.innerHTML = '';
+      if (s.image) { var im = el('img'); im.src = s.image; im.alt = (+s.ct).toFixed(2) + 'ct ' + s.shape + ' diamond'; im.addEventListener('error', function () { frame.innerHTML = shapeArt(s.shape); }); frame.appendChild(im); }
+      else frame.innerHTML = shapeArt(s.shape) + '<div class="none">Photo and video come with the certificate — ask us and we\'ll send them.</div>';
+    }
+    function showVideo() {
+      // Nivoda's viewer renders at the size in the URL (default 500/500); ask for the size of the frame so nothing overflows.
+      var w = Math.max(300, Math.round(frame.clientWidth || 480));
+      var src = s.video.replace(/\/video\/\d+\/\d+/, '/video/' + w + '/' + w);
+      frame.innerHTML = '';
+      var fr = el('iframe'); fr.src = src; fr.title = '360° video of the diamond'; fr.setAttribute('scrolling', 'no'); fr.allow = 'autoplay'; fr.loading = 'eager';
+      frame.appendChild(fr);
+    }
+    showPhoto();
+    if (s.video && s.image) {
+      var tabs = el('div', 'rb__dlg-tabs');
+      var tPhoto = chip('Photo', true, 'rb__chip--sm'), tVideo = chip('360° video', false, 'rb__chip--sm');
+      tPhoto.addEventListener('click', function () { tPhoto.classList.add('on'); tVideo.classList.remove('on'); showPhoto(); });
+      tVideo.addEventListener('click', function () { tVideo.classList.add('on'); tPhoto.classList.remove('on'); showVideo(); });
+      tabs.appendChild(tPhoto); tabs.appendChild(tVideo); media.appendChild(tabs);
+    } else if (s.video && !s.image) { showVideo(); }
     wrap.appendChild(media);
     var body = el('div', 'rb__dlg-body');
     body.appendChild(el('h3', null, esc((+s.ct).toFixed(2) + 'ct ' + s.shape)));
