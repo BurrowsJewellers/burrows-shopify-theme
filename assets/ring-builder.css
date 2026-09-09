@@ -77,9 +77,13 @@
 .rb__stone:hover { border-color: var(--gold); }
 .rb__stone:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .rb__stone.on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
-.rb__stone-media { width: 100%; aspect-ratio: 4 / 3; margin-bottom: 8px; display: grid; place-items: center; background: #fff; }
-.rb__stone-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Supplier photos come in every size and background — a fixed square frame with a centred cover crop keeps the grid uniform. */
+.rb__stone-media { position: relative; width: 100%; aspect-ratio: 1 / 1; margin-bottom: 8px; overflow: hidden; background: #f3f1ec; border-radius: 2px; }
+.rb__stone-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+.rb__stone .ct { min-height: 26px; }
+.rb__stone .spec { min-height: 18px; }
 .rb__shape { width: 46%; height: auto; color: var(--gold-dark); opacity: .75; }
+.rb__stone-media .rb__shape { position: absolute; left: 27%; top: 27%; width: 46%; height: 46%; }
 .rb__dlg-frame .rb__shape { width: 46%; height: auto; }
 .rb__stone .ct { font-family: var(--font-heading); font-size: 26px; color: var(--ink); line-height: 1; }
 .rb__stone .spec { font-size: 12.5px; color: var(--muted); font-weight: 300; }
