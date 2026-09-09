@@ -166,6 +166,16 @@ solitaire, pavé variants), all six shapes, $1,438–$2,518 settings.
 
 **A. Done (9 Sep):** v2 `/api/diamonds` matches the selection — mount carat range, filters, paging, photos.
 
+**Gotcha (9 Sep): the `dropship-sync` app on the droplet (Shopify Remix app in `/app`, pm2 `dropship-sync`) archives
+any product whose tracked stock sums to ≤ 0 — which is every builder product, since they are untracked. It archived
+all six settings and a live build once. Patched in `/app/app/services/syncLogic.server.ts`: products of type
+`Ring mount` / `Ring build`, tagged `hidden-service` / `ring-builder`, or vendor Burrows Jewellers with an `RB-` SKU are
+protected from archiving and inventory writes (log line "Protected ring-builder/service products this run: N").
+Full sync runs every 6 h on an hourly tick. If builder products ever vanish again, check that guard first.
+Also: the settings' "Lab Grown Diamond …" titles match the store's automated Diamonds / Lab Grown Diamond
+collections (title rules); the theme's product card hides `hidden-service` products, but feeds reading those
+collections (Klaviyo, Google) may not.
+
 **B. Cart is on (9 Sep).** `POST /api/cart` runs with the 25% deposit mode and a live build reached the
 cart with the right figures (§2). Still to decide: how the 75% balance is collected (draft order / invoice
 from the order), a customer-facing deposit-terms line on the review step, and whether the Retail Edge sync
