@@ -54,6 +54,7 @@
   }
   function scrollTop() { root.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
 
+  function absUrl(u) { u = u || ''; if (u.indexOf('//') === 0) return 'https:' + u; if (u.indexOf('/') === 0) return location.origin + u; return u; }
   function renderFor(m, metal, shape) {
     var r = m.renders || {};
     var byMetal = r[metal] || {};
@@ -404,7 +405,7 @@
     btn.disabled = true; btn.textContent = 'Checking the stone…';
     var build = 'RB-' + Date.now().toString(36).toUpperCase();
     var payload = { build: build, type: state.type, size: state.size || '',
-      mount: { id: m.id, ref: mt.sku || m.ref || m.id, title: m.title, metal: mt.name, price: +mt.price || 0, variant_id: mt.variant_id || null, shape: state.shape },
+      mount: { id: m.id, ref: mt.sku || m.ref || m.id, title: m.title, metal: mt.name, price: +mt.price || 0, variant_id: mt.variant_id || null, shape: state.shape, image: absUrl(renderFor(m, mt.name, state.shape)) },
       stone: { id: s.id, item_id: s.item_id, cert: s.cert, lab: s.lab, retail: s.retail } };
     var status = 0;
     fetch(cfg.apiBase.replace(/\/$/, '') + '/cart', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
