@@ -41,9 +41,14 @@ They were built in separate sessions; this handover exists because the chat that
 - `GET /api/diamonds` **v2 is live on the droplet**: honours `minct/maxct/colour/clarity/cert/limit/offset`,
   returns `total`/`offset` and the richer stone fields (image, video, item_id, measurements, cut/polish/
   symmetry, fluorescence, delivery). Nivoda caps a query at 50, so the API chunks and the theme pages 48.
-- `POST /api/cart` and `cart:true` on `/api/health` are **written (`server.v2.js` in the ring-builder folder,
-  deploy prompt `deploy-prompt-3.md`/later) but need `SHOPIFY_ADMIN_TOKEN` in the droplet `.env`** —
-  a custom app with `read_products, write_products, write_publications`. Until then the theme shows Enquiry.
+- `POST /api/cart` is **live and tested end to end (9 Sep 2026)**: `/api/health` → `{ok,version:2,cart:true,deposit_pct:25}`.
+  Auth is the Dev Dashboard app's **client-credentials grant** (`SHOPIFY_CLIENT_ID` + `SHOPIFY_CLIENT_SECRET`
+  in the droplet `.env`; the API mints a 24 h Admin token itself and refreshes it — no long-lived token).
+  Scopes: `write_products, write_publications` (+ read). `SHOPIFY_ADMIN_TOKEN` is only a legacy fallback.
+  Test build `RB-MTTG13DL` (Solitaire SP · Rose gold · O + 0.30ct Round D SI1 IGI lab) produced a hidden
+  "Ring build" product at $421 = 25% of $1,683 with Ring total / Deposit / Balance line properties; it was
+  archived afterwards. Every real build creates one such product (tags `ring-builder`, `build:<ref>`,
+  `stone:<cert>`, `hidden-service`); unsold ones are archived automatically after `BUILD_TTL_DAYS` (7).
 - Settings are **Shopify products** now (type "Ring mount", automated collection `ring-mounts`, pinned
   `builder.*` metafields, renders by media alt `Metal|Shape`); the six samples are loaded as `mount-sample-*`.
 
@@ -74,8 +79,9 @@ survives rebuilds. **Never put builder files inside `.../frontend/dist`.**
   endpoint `intg-customer-staging.nivodaapi.net`). Not secret. Used to build the demo before prod access.
 - **Nivoda PRODUCTION** — Mark's real feed login. Lives **only** in `/opt/ring-builder-api/.env` on the
   droplet, and in a local file `nivoda.txt` in Mark's Downloads. **Never commit these.**
-- **Shopify Admin token** (for the future `/api/cart`) — not created yet. When made, it goes in the
-  droplet `.env` only.
+- **Shopify app credentials** (for `/api/cart`) — Dev Dashboard app "Ring Builder API": `SHOPIFY_CLIENT_ID`
+  and `SHOPIFY_CLIENT_SECRET` live **only** in `/opt/ring-builder-api/.env`. The API exchanges them for a
+  short-lived Admin token (client-credentials grant). Never paste them into chat or git.
 
 ---
 
@@ -156,11 +162,12 @@ solitaire, pavé variants), all six shapes, $1,438–$2,518 settings.
 
 **A. Done (9 Sep):** v2 `/api/diamonds` matches the selection — mount carat range, filters, paging, photos.
 
-**B. Switch the cart on.** `POST /api/cart` and the 25% deposit mode are built (§5). Remaining: create the
-Shopify custom app token, put it in the droplet `.env` with `DEPOSIT_PCT=25`, restart PM2, confirm
-`/api/health` shows `cart:true`, then place a test order end to end and check the order shows ring total /
-deposit / balance. Decide how the balance is collected (draft order / invoice from the order) and add a
-customer-facing terms line about the deposit.
+**B. Cart is on (9 Sep).** `POST /api/cart` runs with the 25% deposit mode and a live build reached the
+cart with the right figures (§2). Still to decide: how the 75% balance is collected (draft order / invoice
+from the order), a customer-facing deposit-terms line on the review step, and whether the Retail Edge sync
+must be told to ignore products of type "Ring build" / "Ring mount" (tag `hidden-service`). Cart line
+properties (Ring build ref, setting, stone, size, lead time, totals) come through on the order for the
+workshop.
 
 **C. CAD from the design spec.** A full CAD design brief for the modular "one shank, many heads"
 signature setting (0.5–5 ct, 6 shapes, 3 metals) was written — it's the file

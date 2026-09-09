@@ -363,7 +363,7 @@
     var hero = el('div', 'rb__hero'); var im = el('img'); im.src = renderFor(m, mt.name, state.shape); im.alt = m.title; hero.appendChild(im);
     hero.appendChild(el('div', null, '<h3>' + esc(m.title) + '</h3><div class="rb__note">' + esc(state.shape + ' · ' + mt.name + (state.size ? ' · size ' + state.size : ' · size to be confirmed')) + '</div>'));
     left.appendChild(hero);
-    left.appendChild(el('div', 'rb__row', '<span>Setting<small>' + esc(m.ref || m.id) + ' · ' + esc(mt.name) + '</small></span><span>' + money(mt.price) + '</span>'));
+    left.appendChild(el('div', 'rb__row', '<span>Setting<small>' + esc(mt.sku || m.ref || m.id) + ' · ' + esc(mt.name) + '</small></span><span>' + money(mt.price) + '</span>'));
     left.appendChild(el('div', 'rb__row', '<span>' + esc((state.type === 'lab' ? 'Lab-grown ' : 'Natural ') + stoneTitle(s)) + '<small>' + esc(s.lab && s.lab !== 'NONE' ? s.lab + ' certificate ' + s.cert : 'Uncertified') + '</small></span><span>' + money(s.retail) + '</span>'));
     left.appendChild(el('div', 'rb__total', '<span class="rb__label">Ring total · AUD incl. GST</span><b>' + money(total) + '</b>'));
     var canCart = cfg.cartEnabled && apiCart === true;
@@ -379,7 +379,7 @@
     right.appendChild(el('h3', null, cfg.cartEnabled ? 'Ready when you are' : 'Next step'));
     right.appendChild(el('ol', null, '<li>We secure this exact diamond with the supplier.</li><li>The setting is made to order in your size and metal.</li><li>The stone is set, checked in store, and ready to collect or ship' + (canCart && depositPct > 0 ? ' once the balance is settled' : '') + '.</li>'));
     var actions = el('div', 'rb__actions');
-    var q = new URLSearchParams(); q.set('sku', (m.ref || m.id) + ' · ' + mt.name + (state.size ? ' · ' + state.size : '')); q.set('design', (s.lab && s.lab !== 'NONE' ? s.lab + ' ' : 'Stone ') + (s.cert || ''));
+    var q = new URLSearchParams(); q.set('sku', (mt.sku || m.ref || m.id) + ' · ' + mt.name + (state.size ? ' · ' + state.size : '')); q.set('design', (s.lab && s.lab !== 'NONE' ? s.lab + ' ' : 'Stone ') + (s.cert || ''));
     var enquiryHref = cfg.contactUrl + '?' + q.toString() + '#contact';
     if (canCart) {
       var add = el('button', 'btn btn--gold btn--lg', depositPct > 0 ? 'Pay ' + depositPct + '% deposit' : 'Add to cart'); add.type = 'button';
@@ -404,7 +404,7 @@
     btn.disabled = true; btn.textContent = 'Checking the stone…';
     var build = 'RB-' + Date.now().toString(36).toUpperCase();
     var payload = { build: build, type: state.type, size: state.size || '',
-      mount: { id: m.id, ref: m.ref || m.id, title: m.title, metal: mt.name, price: +mt.price || 0, variant_id: mt.variant_id || null, shape: state.shape },
+      mount: { id: m.id, ref: mt.sku || m.ref || m.id, title: m.title, metal: mt.name, price: +mt.price || 0, variant_id: mt.variant_id || null, shape: state.shape },
       stone: { id: s.id, item_id: s.item_id, cert: s.cert, lab: s.lab, retail: s.retail } };
     var status = 0;
     fetch(cfg.apiBase.replace(/\/$/, '') + '/cart', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
