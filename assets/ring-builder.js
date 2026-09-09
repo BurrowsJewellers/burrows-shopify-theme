@@ -143,7 +143,8 @@
   /* ---------- step 1: settings ---------- */
   // cfg.cardsPer: "design" = one card per design (6); "shape" = one card per design and shape (36),
   // with a shape filter row so a customer who knows their shape is back to six.
-  var gridShape = 'all';
+  var gridShape = 'all', gridColour = null; // step-1 filters (colour = which metal the cards are shown in)
+  function colourHasRenders(c) { return mounts.some(function (m) { var r = m.renders || {}; if (r[c]) return true; for (var k in r) if (k.indexOf(c + '|') === 0) return true; return false; }); }
   function screenGrid() {
     setStep(1); app.innerHTML = '';
     var perShape = cfg.cardsPer === 'shape';
@@ -156,6 +157,12 @@
       [['all', 'All shapes']].concat(shapesAvail.map(function (sh) { return [sh, sh]; })).forEach(function (o) {
         f.appendChild(chip(o[1], gridShape === o[0], 'rb__chip--sm', function () { gridShape = o[0]; screenGrid(); }));
       });
+    }
+    var colours = []; mounts.forEach(function (m) { coloursOf(m).forEach(function (c) { if (colours.indexOf(c) < 0 && colourHasRenders(c)) colours.push(c); }); });
+    if (!gridColour || colours.indexOf(gridColour) < 0) gridColour = colours.indexOf(parseMetal(cfg.defaultMetal || '').colour) > -1 ? parseMetal(cfg.defaultMetal).colour : colours[0];
+    if (colours.length > 1) {
+      f.appendChild(el('span', 'rb__filters-gap'));
+      colours.forEach(function (c) { f.appendChild(chip(c, gridColour === c, 'rb__chip--sm', function () { gridColour = c; screenGrid(); })); });
     }
     if (f.children.length) app.appendChild(f);
     if (mounts.length && mounts[0].sample && cfg.sampleNote) { var sn = el('div', 'rb__note--sample', esc(cfg.sampleNote)); sn.style.display = 'block'; sn.style.textAlign = 'center'; app.appendChild(sn); }
@@ -170,7 +177,7 @@
     });
     if (!cards.length) { app.appendChild(el('div', 'rb__empty', 'No designs match — try another style or shape.')); return; }
     cards.forEach(function (c) {
-      var m = c.m, metal = preferredColour(m);
+      var m = c.m, metal = gridColour && coloursOf(m).indexOf(gridColour) > -1 ? gridColour : preferredColour(m);
       var shape = c.shape || (m.shapes && m.shapes.indexOf('Round') > -1 ? 'Round' : (m.shapes || SHAPES)[0]);
       var card = el('button', 'rb__card'); card.type = 'button';
       var img = el('img'); img.src = renderFor(m, metal, shape, c.shape ? state.ct || 1 : null); img.alt = m.title + (c.shape ? ' — ' + c.shape : ''); img.loading = 'lazy'; card.appendChild(img);
@@ -182,7 +189,8 @@
       card.addEventListener('click', function () {
         state.mount = m;
         var want = c.shape || state.shape; state.shape = (m.shapes || SHAPES).indexOf(want) > -1 ? want : (m.shapes || SHAPES)[0];
-        state.metal = defaultMetal(m, state.metal); state.stone = null; applyBracket(m); screenDetail(); scrollTop();
+        var prev = parseMetal(state.metal || ''); state.metal = defaultMetal(m, (prev.carat || parseMetal(cfg.defaultMetal || '').carat || '18ct') + ' ' + metal);
+        state.stone = null; applyBracket(m); screenDetail(); scrollTop();
       });
       g.appendChild(card);
     });
