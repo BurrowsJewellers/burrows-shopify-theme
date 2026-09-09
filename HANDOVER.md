@@ -50,7 +50,11 @@ They were built in separate sessions; this handover exists because the chat that
   archived afterwards. Every real build creates one such product (tags `ring-builder`, `build:<ref>`,
   `stone:<cert>`, `hidden-service`); unsold ones are archived automatically after `BUILD_TTL_DAYS` (7).
 - Settings are **Shopify products** now (type "Ring mount", automated collection `ring-mounts`, pinned
-  `builder.*` metafields, renders by media alt `Metal|Shape`); the six samples are loaded as `mount-sample-*`.
+  `builder.*` metafields, renders by media alt `Colour|Shape` and `Colour|Shape|Size`); the six samples are
+  loaded as `mount-sample-*`. **9 Sep:** the old VDB builder was scraped (its 288 "rings" = these six designs ×
+  8 centre sizes × 6 shapes, 14K only) and folded in: old titles, `builder.price_by_carat` (14ct AUD by centre
+  size), 10 metal variants (9/14/18ct + platinum), 833 size-specific renders. Theme + API v2.2 scale the setting
+  price by the chosen stone's size bracket (0.3/0.5/1/1.5/2/3/4/5ct), as the old builder did.
 
 ---
 

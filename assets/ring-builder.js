@@ -64,10 +64,21 @@
     var same = (m.metals || []).filter(function (x) { return x.colour === colour; });
     return same.filter(function (x) { return x.carat === carat; })[0] || same.filter(function (x) { return x.carat === '18ct'; })[0] || same[0] || (m.metals || [])[0];
   }
-  function renderFor(m, metal, shape) {
+  /* Centre-stone size brackets: the setting price and render step up with the stone (old builder's 8 sizes). */
+  var CT_BRACKETS = [0.3, 0.5, 1, 1.5, 2, 3, 4, 5];
+  function bracketOf(ct) { ct = +ct || 0; var b = CT_BRACKETS[0]; CT_BRACKETS.forEach(function (x) { if (ct >= x - 0.005) b = x; }); return b; }
+  function bracketAlt(b) { return b < 1 ? b.toFixed(2) + 'ct' : String(b) + 'ct'; }
+  function priceFor(m, mt, ct) {
+    var base = +mt.price || 0, t = m.price_by_carat;
+    if (!t || ct == null) return base;
+    var one = +t['1'] || +t['1.0'] || 0, at = +t[String(bracketOf(ct))] || +t[bracketOf(ct).toFixed(1)] || 0;
+    return one && at ? Math.round(base * at / one) : base;
+  }
+  function renderFor(m, metal, shape, ct) {
     var r = m.renders || {};
     metal = parseMetal(metal).colour;
     if (!r[metal] && !r[metal + '|' + shape] && /platinum|palladium/i.test(metal)) metal = 'White gold'; // platinum reads as white gold in the renders
+    if (ct != null && r[metal + '|' + shape + '|' + bracketAlt(bracketOf(ct))]) return r[metal + '|' + shape + '|' + bracketAlt(bracketOf(ct))];
     var byMetal = r[metal] || {};
     if (typeof byMetal === 'string') return byMetal;
     return byMetal[shape] || byMetal['default'] || r[metal + '|' + shape] || r[metal] || r['default'] || (function () {
@@ -78,7 +89,7 @@
   function metalOf(m, name) { return (m.metals || []).filter(function (x) { return x.name === name; })[0] || (m.metals || [])[0]; }
   function preferredColour(m) { var cs = coloursOf(m); var want = parseMetal(cfg.defaultMetal || 'Yellow gold').colour; return cs.indexOf(want) > -1 ? want : cs[0]; }
   function defaultMetal(m, prev) { var exact = (m.metals || []).filter(function (x) { return x.name === prev; })[0]; if (exact) return exact.name; var pm = parseMetal(prev); return pickMetal(m, pm.colour && coloursOf(m).indexOf(pm.colour) > -1 ? pm.colour : preferredColour(m), pm.carat || parseMetal(cfg.defaultMetal || '').carat || '18ct').name; }
-  function fromPrice(m) { return Math.min.apply(null, (m.metals || []).map(function (x) { return +x.price || 0; }).filter(Boolean)); }
+  function fromPrice(m) { return Math.min.apply(null, (m.metals || []).map(function (x) { return priceFor(m, x, m.price_by_carat ? 0.3 : null); }).filter(Boolean)); }
 
   /* ---------- URL state ---------- */
   function readUrl() {
@@ -180,7 +191,7 @@
     function sync() {
       var mt = metalOf(m, state.metal); state.metal = mt.name;
       img.src = renderFor(m, mt.name, state.shape);
-      price.innerHTML = money(mt.price) + '<small>setting · AUD incl. GST</small>';
+      price.innerHTML = money(priceFor(m, mt, m.price_by_carat ? 0.3 : null)) + '<small>setting' + (m.price_by_carat ? ' with a 0.30ct centre · steps up with the stone size' : '') + ' · AUD incl. GST</small>';
       shapeLabel.innerHTML = 'Centre shape &mdash; <b>' + esc(state.shape) + '</b>';
       shapeChips.innerHTML = ''; SHAPES.forEach(function (sh) { var has = shapes.indexOf(sh) > -1; shapeChips.appendChild(chip(sh, sh === state.shape, has ? '' : 'dis', has ? function () { state.shape = sh; state.stone = null; sync(); } : null)); });
       metalLabel.innerHTML = 'Metal &mdash; <b>' + esc(mt.colour) + '</b>';
@@ -376,13 +387,13 @@
     var m = state.mount, s = state.stone; if (!m) return screenGrid(); if (!s) return screenStones();
     setStep(4); app.innerHTML = '';
     var back = el('button', 'rb__back', '&larr; Back to diamonds'); back.type = 'button'; back.addEventListener('click', function () { screenStones(); }); app.appendChild(back);
-    var mt = metalOf(m, state.metal); var total = (+mt.price || 0) + (+s.retail || 0);
+    var mt = metalOf(m, state.metal); var setPrice = priceFor(m, mt, s.ct); var total = setPrice + (+s.retail || 0);
     var r = el('div', 'rb__review');
     var left = el('div', 'rb__card rb__card--review');
-    var hero = el('div', 'rb__hero'); var im = el('img'); im.src = renderFor(m, mt.name, state.shape); im.alt = m.title; hero.appendChild(im);
+    var hero = el('div', 'rb__hero'); var im = el('img'); im.src = renderFor(m, mt.name, state.shape, s.ct); im.alt = m.title; hero.appendChild(im);
     hero.appendChild(el('div', null, '<h3>' + esc(m.title) + '</h3><div class="rb__note">' + esc(state.shape + ' · ' + mt.name + (state.size ? ' · size ' + state.size : ' · size to be confirmed')) + '</div>'));
     left.appendChild(hero);
-    left.appendChild(el('div', 'rb__row', '<span>Setting<small>' + esc(mt.sku || m.ref || m.id) + ' · ' + esc(mt.name) + '</small></span><span>' + money(mt.price) + '</span>'));
+    left.appendChild(el('div', 'rb__row', '<span>Setting<small>' + esc(mt.sku || m.ref || m.id) + ' · ' + esc(mt.name) + (m.price_by_carat ? ' · made for a ' + esc(bracketAlt(bracketOf(s.ct))) + ' centre' : '') + '</small></span><span>' + money(setPrice) + '</span>'));
     left.appendChild(el('div', 'rb__row', '<span>' + esc((state.type === 'lab' ? 'Lab-grown ' : 'Natural ') + stoneTitle(s)) + '<small>' + esc(s.lab && s.lab !== 'NONE' ? s.lab + ' certificate ' + s.cert : 'Uncertified') + '</small></span><span>' + money(s.retail) + '</span>'));
     left.appendChild(el('div', 'rb__total', '<span class="rb__label">Ring total · AUD incl. GST</span><b>' + money(total) + '</b>'));
     var canCart = cfg.cartEnabled && apiCart === true;
@@ -423,7 +434,7 @@
     btn.disabled = true; btn.textContent = 'Checking the stone…';
     var build = 'RB-' + Date.now().toString(36).toUpperCase();
     var payload = { build: build, type: state.type, size: state.size || '',
-      mount: { id: m.id, ref: mt.sku || m.ref || m.id, title: m.title, metal: mt.name, price: +mt.price || 0, variant_id: mt.variant_id || null, shape: state.shape, image: absUrl(renderFor(m, mt.name, state.shape)) },
+      mount: { id: m.id, ref: mt.sku || m.ref || m.id, title: m.title, metal: mt.name, price: priceFor(m, mt, s.ct), variant_id: mt.variant_id || null, shape: state.shape, image: absUrl(renderFor(m, mt.name, state.shape, s.ct)) },
       stone: { id: s.id, item_id: s.item_id, cert: s.cert, lab: s.lab, retail: s.retail } };
     var status = 0;
     fetch(cfg.apiBase.replace(/\/$/, '') + '/cart', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
