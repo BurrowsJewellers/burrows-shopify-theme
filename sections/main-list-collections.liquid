@@ -6,6 +6,7 @@
   <div class="lc__grid">
     {%- paginate collections by 24 -%}
       {%- for collection in collections -%}
+        {%- if collection.handle == 'ring-mounts' -%}{%- continue -%}{%- endif -%}
         {%- if collection.products_count > 0 -%}
           <a class="lc__card" href="{{ collection.url }}">
             <div class="lc__media">

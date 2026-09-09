@@ -11,6 +11,8 @@
                            builder.lead_time (text)
         media alt text     "<Metal>|<Shape>" (e.g. "White gold|Round") picks the render;
                            "<Metal>" alone covers every shape for that metal.
+        product type       "Ring mount" (the "Ring mounts" collection is automated on this type)
+        tags               hidden-service (keeps it out of the shop) · sample-design (shows the sample note)
   Diamonds come from the Builder API (assets/ring-builder.js → {{ section.settings.api_base }}).
 {%- endcomment -%}
 {%- assign s = section.settings -%}
@@ -43,6 +45,9 @@
         echo product.metafields.builder.centre_max_ct.value | default: 3
         echo ',"lead_time":'
         echo product.metafields.builder.lead_time.value | default: s.lead_time | json
+        if product.tags contains 'sample-design'
+          echo ',"sample":true'
+        endif
         echo ',"metals":['
         for v in product.variants
           unless forloop.first
