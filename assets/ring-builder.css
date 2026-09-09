@@ -41,6 +41,8 @@
 
 /* Step 1: settings grid */
 .rb__filters { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 28px; }
+.rb__filters-gap { flex-basis: 100%; height: 4px; }
+.rb__cardshape { font-weight: 400; opacity: .7; white-space: nowrap; }
 .rb__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 .rb__card { background: #fff; border: 1px solid rgba(var(--gold-dark-rgb), .18); text-align: left; padding: 0; cursor: pointer; display: flex; flex-direction: column; font: inherit; font-family: var(--font-body); color: var(--body); transition: box-shadow .2s, transform .2s; }
 .rb__card:hover { box-shadow: 0 14px 34px rgba(var(--navy-rgb), .1); transform: translateY(-2px); }

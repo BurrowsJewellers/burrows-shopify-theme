@@ -141,29 +141,47 @@
   }
 
   /* ---------- step 1: settings ---------- */
+  // cfg.cardsPer: "design" = one card per design (6); "shape" = one card per design and shape (36),
+  // with a shape filter row so a customer who knows their shape is back to six.
+  var gridShape = 'all';
   function screenGrid() {
     setStep(1); app.innerHTML = '';
+    var perShape = cfg.cardsPer === 'shape';
     var styles = ['all'].concat(mounts.map(function (m) { return m.style; }).filter(function (v, i, a) { return v && a.indexOf(v) === i; }));
-    if (styles.length > 2) {
-      var f = el('div', 'rb__filters');
-      styles.forEach(function (st) { f.appendChild(chip(st === 'all' ? 'All designs' : cap(st), state.style === st, 'rb__chip--sm', function () { state.style = st; screenGrid(); })); });
-      app.appendChild(f);
+    var f = el('div', 'rb__filters');
+    if (styles.length > 2) styles.forEach(function (st) { f.appendChild(chip(st === 'all' ? 'All designs' : cap(st), state.style === st, 'rb__chip--sm', function () { state.style = st; screenGrid(); })); });
+    if (perShape) {
+      var shapesAvail = SHAPES.filter(function (sh) { return mounts.some(function (m) { return (m.shapes || SHAPES).indexOf(sh) > -1; }); });
+      if (styles.length > 2) f.appendChild(el('span', 'rb__filters-gap'));
+      [['all', 'All shapes']].concat(shapesAvail.map(function (sh) { return [sh, sh]; })).forEach(function (o) {
+        f.appendChild(chip(o[1], gridShape === o[0], 'rb__chip--sm', function () { gridShape = o[0]; screenGrid(); }));
+      });
     }
+    if (f.children.length) app.appendChild(f);
     if (mounts.length && mounts[0].sample && cfg.sampleNote) { var sn = el('div', 'rb__note--sample', esc(cfg.sampleNote)); sn.style.display = 'block'; sn.style.textAlign = 'center'; app.appendChild(sn); }
     var g = el('div', 'rb__grid');
-    var list = mounts.filter(function (m) { return state.style === 'all' || m.style === state.style; });
-    if (!list.length) { app.appendChild(el('div', 'rb__empty', 'No designs in this style yet.')); return; }
-    list.forEach(function (m) {
-      var metal = preferredColour(m);
+    var designs = mounts.filter(function (m) { return state.style === 'all' || m.style === state.style; });
+    // One entry per card: {m, shape}. shape is null for the per-design layout.
+    var cards = [];
+    designs.forEach(function (m) {
+      var shapes = m.shapes && m.shapes.length ? m.shapes : SHAPES;
+      if (!perShape) cards.push({ m: m, shape: null });
+      else SHAPES.forEach(function (sh) { if (shapes.indexOf(sh) > -1 && (gridShape === 'all' || gridShape === sh)) cards.push({ m: m, shape: sh }); });
+    });
+    if (!cards.length) { app.appendChild(el('div', 'rb__empty', 'No designs match — try another style or shape.')); return; }
+    cards.forEach(function (c) {
+      var m = c.m, metal = preferredColour(m);
+      var shape = c.shape || (m.shapes && m.shapes.indexOf('Round') > -1 ? 'Round' : (m.shapes || SHAPES)[0]);
       var card = el('button', 'rb__card'); card.type = 'button';
-      var img = el('img'); img.src = renderFor(m, metal, m.shapes && m.shapes.indexOf('Round') > -1 ? 'Round' : (m.shapes || [])[0]); img.alt = m.title; img.loading = 'lazy'; card.appendChild(img);
+      var img = el('img'); img.src = renderFor(m, metal, shape, c.shape ? state.ct || 1 : null); img.alt = m.title + (c.shape ? ' — ' + c.shape : ''); img.loading = 'lazy'; card.appendChild(img);
       var body = el('div', 'rb__cardbody');
-      body.appendChild(el('div', 'rb__cardtitle', esc(m.title)));
-      body.appendChild(el('div', 'rb__cardmeta', esc((m.shapes || []).length ? 'For ' + m.shapes.join(', ').toLowerCase() + ' centres' : '')));
+      body.appendChild(el('div', 'rb__cardtitle', esc(m.title) + (c.shape ? ' <span class="rb__cardshape">&mdash; ' + esc(c.shape) + '</span>' : '')));
+      body.appendChild(el('div', 'rb__cardmeta', esc(c.shape ? c.shape + ' centre · also ' + (m.shapes || SHAPES).filter(function (x) { return x !== c.shape; }).join(', ').toLowerCase() : ((m.shapes || []).length ? 'For ' + m.shapes.join(', ').toLowerCase() + ' centres' : ''))));
       var fp = fromPrice(m); if (fp) body.appendChild(el('div', 'rb__cardprice', 'Setting from ' + money(fp) + ' <small>· ' + esc(coloursOf(m).join(', ')) + '</small>'));
       card.appendChild(body);
       card.addEventListener('click', function () {
-        state.mount = m; state.shape = (m.shapes || SHAPES).indexOf(state.shape) > -1 ? state.shape : (m.shapes || SHAPES)[0];
+        state.mount = m;
+        var want = c.shape || state.shape; state.shape = (m.shapes || SHAPES).indexOf(want) > -1 ? want : (m.shapes || SHAPES)[0];
         state.metal = defaultMetal(m, state.metal); state.stone = null; applyBracket(m); screenDetail(); scrollTop();
       });
       g.appendChild(card);
