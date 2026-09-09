@@ -1,5 +1,7 @@
 # Burrows Jewellers — Shopify theme
 
+> **Continuing this project (ring builder)?** Start with **[`HANDOVER.md`](HANDOVER.md)** — the full history, the live Builder-API infrastructure and contract, credential locations, and the prioritised next steps (match Nivoda queries to the user's selection, 25% deposit cart, CAD from the design brief). It's the single source of truth for picking this up on a new machine or in a new chat.
+
 A from-scratch Shopify Online Store 2.0 theme for burrowsjewellers.com.au, built from the July 2026 "Website Redesign (Claude)" design draft. It replaces the Turbo (Out of the Sandbox) theme.
 
 ## How it's set up
@@ -29,7 +31,7 @@ The product page shows the ring's size as a label plus a navy pill ("Ring size �
 
 ## Ring builder (branch `ring-builder`)
 
-Our own builder, replacing the Nivoda Connect app block: `sections/ring-builder.liquid` + `assets/ring-builder.js` / `ring-builder.css`, placed on `templates/page.ring-builder.json`. Four steps — setting, metal & finger size, live diamond, review. Full spec and prerequisites: `SPEC.md` in the `ring-builder` project folder.
+Our own builder, replacing the Nivoda Connect app block: `sections/ring-builder.liquid` + `assets/ring-builder.js` / `ring-builder.css`, placed on `templates/page.ring-builder.json`. Four steps — setting, metal & finger size, live diamond, review. Full spec and prerequisites: `SPEC.md` in the `ring-builder` project folder. **See also [`HANDOVER.md`](HANDOVER.md) for the back-end (Builder API) side, infrastructure and next steps.**
 
 - **Mounts** are Shopify products now (collection `ring-mounts`, automated on product type "Ring mount"; metafield definitions `builder.style`, `builder.shapes`, `builder.centre_min_ct`, `builder.centre_max_ct`, `builder.lead_time` are pinned on the product form). The six sample designs were loaded as products `mount-sample-*` (tags `hidden-service`, `builder`, `sample-design`) so the flow can be tested end to end; delete them when the real catalogue lands. The section's "Source" setting also still offers: *Sample designs* (`assets/ring-mounts-sample.json`, stand-ins until the CAD designer's catalogue arrives — the images are the prototype's Smiling Rocks renders and must not go live) or *Products in a collection* (one product per design, one variant per metal, `builder.*` metafields and render images named by alt text `Metal|Shape`; details in the comment at the top of the section).
 - **Diamonds** come from the Builder API on the droplet (`https://dashboard.burrowsjewellers.com.au/ring-builder/api`, Node service in `/opt/ring-builder-api`), which queries Nivoda live and applies the Burrows margin matrix. The section sends `minct/maxct/cert/limit` for the v2 API and filters client-side as well, so it works against the v1 API too (which only returns ~10 stones per shape).

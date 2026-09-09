@@ -17,6 +17,7 @@
 
   var mounts = [];
   var apiCart = null; // true once /api/health reports the cart endpoint is switched on
+  var depositPct = 0; // >0 when the API takes a deposit rather than the full price
   var state = { step: 1, style: 'all', mount: null, shape: 'Round', metal: null, size: '', type: cfg.defaultType || 'lab', stone: null,
     filters: { minct: 0.3, maxct: 5, colours: [], clarities: [], certified: !!cfg.certifiedOnly, sort: 'price' } };
   var stoneCache = {};
@@ -365,18 +366,23 @@
     left.appendChild(el('div', 'rb__row', '<span>Setting<small>' + esc(m.ref || m.id) + ' · ' + esc(mt.name) + '</small></span><span>' + money(mt.price) + '</span>'));
     left.appendChild(el('div', 'rb__row', '<span>' + esc((state.type === 'lab' ? 'Lab-grown ' : 'Natural ') + stoneTitle(s)) + '<small>' + esc(s.lab && s.lab !== 'NONE' ? s.lab + ' certificate ' + s.cert : 'Uncertified') + '</small></span><span>' + money(s.retail) + '</span>'));
     left.appendChild(el('div', 'rb__total', '<span class="rb__label">Ring total · AUD incl. GST</span><b>' + money(total) + '</b>'));
+    var canCart = cfg.cartEnabled && apiCart === true;
+    if (canCart && depositPct > 0) {
+      var dep = Math.round(total * depositPct / 100);
+      left.appendChild(el('div', 'rb__row', '<span>Pay today<small>' + depositPct + '% deposit to secure the diamond and start the setting</small></span><span>' + money(dep) + '</span>'));
+      left.appendChild(el('div', 'rb__row', '<span>Balance on completion<small>Before collection or dispatch</small></span><span>' + money(total - dep) + '</span>'));
+    }
     left.appendChild(el('p', 'rb__note', esc(m.lead_time || cfg.leadTime) + '. The diamond is live supplier stock, so we confirm it the moment you order.'));
     r.appendChild(left);
 
     var right = el('div', 'rb__next');
     right.appendChild(el('h3', null, cfg.cartEnabled ? 'Ready when you are' : 'Next step'));
-    right.appendChild(el('ol', null, '<li>We secure this exact diamond with the supplier.</li><li>The setting is made to order in your size and metal.</li><li>The stone is set, checked in store, and ready to collect or ship.</li>'));
+    right.appendChild(el('ol', null, '<li>We secure this exact diamond with the supplier.</li><li>The setting is made to order in your size and metal.</li><li>The stone is set, checked in store, and ready to collect or ship' + (canCart && depositPct > 0 ? ' once the balance is settled' : '') + '.</li>'));
     var actions = el('div', 'rb__actions');
     var q = new URLSearchParams(); q.set('sku', (m.ref || m.id) + ' · ' + mt.name + (state.size ? ' · ' + state.size : '')); q.set('design', (s.lab && s.lab !== 'NONE' ? s.lab + ' ' : 'Stone ') + (s.cert || ''));
     var enquiryHref = cfg.contactUrl + '?' + q.toString() + '#contact';
-    var canCart = cfg.cartEnabled && apiCart === true;
     if (canCart) {
-      var add = el('button', 'btn btn--gold btn--lg', 'Add to cart'); add.type = 'button';
+      var add = el('button', 'btn btn--gold btn--lg', depositPct > 0 ? 'Pay ' + depositPct + '% deposit' : 'Add to cart'); add.type = 'button';
       add.addEventListener('click', function () { addToCart(add, m, mt, s, enquiryHref); }); actions.appendChild(add);
     } else {
       var enq = el('a', 'btn btn--gold btn--lg', 'Enquire about this ring'); enq.href = enquiryHref; actions.appendChild(enq);
@@ -409,6 +415,7 @@
         if (status !== 200 || !j.variant_id) { throw { kind: 'fail', detail: j.detail }; }
         btn.textContent = 'Adding to cart…';
         var props = { 'Ring build': j.build || build, 'Setting': m.title + ' · ' + mt.name, 'Centre stone': (j.stone && j.stone.title) || stoneTitle(s), 'Finger size': state.size || 'To be confirmed', 'Lead time': m.lead_time || cfg.leadTime };
+        if (j.deposit_pct > 0) { props['Ring total'] = money(j.ring_total); props['Deposit'] = j.deposit_pct + '% · ' + money(j.charge); props['Balance on completion'] = money(j.balance); }
         // Real setting variant + the diamond the API just created = two lines sharing the build number.
         // Sample designs (no variant) come back as one combined line.
         var items = [];
@@ -418,7 +425,7 @@
           .then(function (r) { if (!r.ok) throw { kind: 'fail' }; location.href = '/cart'; });
       })
       .catch(function (e) {
-        btn.disabled = false; btn.textContent = 'Add to cart';
+        btn.disabled = false; btn.textContent = depositPct > 0 ? 'Pay ' + depositPct + '% deposit' : 'Add to cart';
         if (e && e.kind === 'gone') { toast('That diamond has just been taken — please choose another.'); state.stone = null; setTimeout(function () { screenStones(); scrollTop(); }, 1600); return; }
         if (e && e.kind === 'off') { toast('Online ordering isn\'t switched on yet — send us an enquiry instead.'); if (enquiryHref) location.href = enquiryHref; return; }
         toast('That didn\'t go through — please try again or call us on ' + cfg.phone + '.');
@@ -427,7 +434,7 @@
 
   /* ---------- boot ---------- */
   if (cfg.cartEnabled) {
-    fetch(cfg.apiBase.replace(/\/$/, '') + '/health').then(function (r) { return r.json(); }).then(function (j) { apiCart = !!(j && j.cart); if (state.step === 4) screenReview(); }).catch(function () { apiCart = false; });
+    fetch(cfg.apiBase.replace(/\/$/, '') + '/health').then(function (r) { return r.json(); }).then(function (j) { apiCart = !!(j && j.cart); depositPct = (j && +j.deposit_pct) || 0; if (state.step === 4) screenReview(); }).catch(function () { apiCart = false; });
   }
   function boot(list) {
     mounts = (list || []).filter(function (m) { return m && m.metals && m.metals.length; });

@@ -37,12 +37,15 @@ They were built in separate sessions; this handover exists because the chat that
   API access. The theme builder is the real front end; the standalone page can be retired later.
 - Endpoints working now: `GET /api/health` → `{ok:true}` and `GET /api/diamonds?shape=&type=` → live priced stones.
 
-### Endpoints NOT built yet (the theme expects them)
-- `GET /api/health` does **not** yet return `cart:true` (needs a Shopify Admin token).
-- `POST /api/cart` **does not exist yet**.
-- `GET /api/diamonds` ignores `minct/maxct/limit/offset/cert` and returns a fixed carat-band set
-  (~10–12 stones). The theme treats this as "v1" and still works, but with no real filtering or
-  pagination. See §5 for the v2 contract it wants.
+### Status of the endpoints (updated 9 Sep 2026)
+- `GET /api/diamonds` **v2 is live on the droplet**: honours `minct/maxct/colour/clarity/cert/limit/offset`,
+  returns `total`/`offset` and the richer stone fields (image, video, item_id, measurements, cut/polish/
+  symmetry, fluorescence, delivery). Nivoda caps a query at 50, so the API chunks and the theme pages 48.
+- `POST /api/cart` and `cart:true` on `/api/health` are **written (`server.v2.js` in the ring-builder folder,
+  deploy prompt `deploy-prompt-3.md`/later) but need `SHOPIFY_ADMIN_TOKEN` in the droplet `.env`** —
+  a custom app with `read_products, write_products, write_publications`. Until then the theme shows Enquiry.
+- Settings are **Shopify products** now (type "Ring mount", automated collection `ring-mounts`, pinned
+  `builder.*` metafields, renders by media alt `Metal|Shape`); the six samples are loaded as `mount-sample-*`.
 
 ---
 
@@ -103,14 +106,21 @@ Body the theme posts:
   "mount":{ "id","ref","title","metal","price","variant_id","shape" },
   "stone":{ "id","item_id","cert","lab","retail" } }
 ```
-Expected server behaviour: re-check the stone is still available with Nivoda; re-price server-side
-(never trust the client price); create **one hidden Shopify product for the whole build** (setting +
-stone), tagged `hidden-service` + `ring-builder`, published to the Online Store only; return
-`{ variant_id, build, stone:{title} }`. The theme then calls Shopify `/cart/add.js` with that
-`variant_id` + line properties (build id, setting, stone, finger size, lead time).
-Error codes the theme handles: **409** or `{error:"stone_unavailable"}` → "just taken, pick another";
-**501** → cart off, fall back to enquiry; anything else → generic retry.
-Housekeeping: the API should archive unbought build-products after ~7 days.
+Server behaviour (implemented in `server.v2.js`): re-check the stone with Nivoda (`get_diamond_by_id`,
+409 if gone); re-price server-side; read the setting price from the Shopify variant, never the browser.
+Then, depending on `DEPOSIT_PCT` in `.env`:
+- **`DEPOSIT_PCT=0` (full price):** create **the diamond as its own hidden product** (type "Diamond",
+  SKU = cert, tags `hidden-service` + `ring-builder` + `build:RB-…`), return `{variant_id, mount_variant_id,
+  combined:false, …}`; the theme adds **two lines** — the setting's variant and the diamond — with shared
+  line properties (build id, setting, stone, finger size, lead time).
+- **`DEPOSIT_PCT=25` (Mark's requirement):** create **one hidden "deposit" product** for the whole ring priced
+  at 25% of setting + stone, with ring total / deposit / balance in its description and returned as
+  `{ring_total, charge, balance, deposit_pct, combined:true}`; the theme shows "Pay today" and "Balance on
+  completion" rows, the button reads "Pay 25% deposit", and the line properties carry the same figures so
+  staff and customer both see the balance. `/api/health` reports `deposit_pct`.
+Error codes the theme handles: **409** / `stone_unavailable` → "just taken, pick another"; **501** → cart
+off, fall back to enquiry; anything else → generic retry. Unbought build products are archived after
+`BUILD_TTL_DAYS` (7).
 
 ---
 
@@ -144,18 +154,13 @@ solitaire, pavé variants), all six shapes, $1,438–$2,518 settings.
 
 ## 8. Prioritised remaining work
 
-**A. Match the Nivoda query to the user's selection (v2 `/api/diamonds`).** Honour `minct/maxct` (from the
-mount's `centre_min_ct/max_ct` and the customer's carat filter), `cert`, `limit`, `offset`; return
-`total`+`offset` for paging; add the richer stone fields (image, video, item_id, measurements, cut/
-polish/symmetry, fluorescence). Today it returns fixed carat-band samples regardless of selection —
-**this is the "queries don't match the selection" issue.**
+**A. Done (9 Sep):** v2 `/api/diamonds` matches the selection — mount carat range, filters, paging, photos.
 
-**B. Shopify Add-to-Cart with a 25% deposit.** Build `POST /api/cart` + Shopify Admin token so
-`/health` reports `cart:true`. **New requirement:** the cart should take a **25% deposit**, not the full
-price. Options to weigh: create the hidden build-product priced at 25% of the total (with the balance
-noted as due on completion via line properties/order notes), or use a deposit/partial-payment app or a
-Shopify draft order. Decide the deposit mechanism, then price the hidden product/line accordingly and
-make the balance unmistakable to staff and customer.
+**B. Switch the cart on.** `POST /api/cart` and the 25% deposit mode are built (§5). Remaining: create the
+Shopify custom app token, put it in the droplet `.env` with `DEPOSIT_PCT=25`, restart PM2, confirm
+`/api/health` shows `cart:true`, then place a test order end to end and check the order shows ring total /
+deposit / balance. Decide how the balance is collected (draft order / invoice from the order) and add a
+customer-facing terms line about the deposit.
 
 **C. CAD from the design spec.** A full CAD design brief for the modular "one shank, many heads"
 signature setting (0.5–5 ct, 6 shapes, 3 metals) was written — it's the file
