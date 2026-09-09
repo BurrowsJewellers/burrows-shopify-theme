@@ -76,7 +76,8 @@
     })();
   }
   function metalOf(m, name) { return (m.metals || []).filter(function (x) { return x.name === name; })[0] || (m.metals || [])[0]; }
-  function defaultMetal(m, prev) { var exact = (m.metals || []).filter(function (x) { return x.name === prev; })[0]; if (exact) return exact.name; var pm = parseMetal(prev); return pickMetal(m, pm.colour && coloursOf(m).indexOf(pm.colour) > -1 ? pm.colour : coloursOf(m)[0], pm.carat || '18ct').name; }
+  function preferredColour(m) { var cs = coloursOf(m); var want = parseMetal(cfg.defaultMetal || 'Yellow gold').colour; return cs.indexOf(want) > -1 ? want : cs[0]; }
+  function defaultMetal(m, prev) { var exact = (m.metals || []).filter(function (x) { return x.name === prev; })[0]; if (exact) return exact.name; var pm = parseMetal(prev); return pickMetal(m, pm.colour && coloursOf(m).indexOf(pm.colour) > -1 ? pm.colour : preferredColour(m), pm.carat || parseMetal(cfg.defaultMetal || '').carat || '18ct').name; }
   function fromPrice(m) { return Math.min.apply(null, (m.metals || []).map(function (x) { return +x.price || 0; }).filter(Boolean)); }
 
   /* ---------- URL state ---------- */
@@ -132,7 +133,7 @@
     var list = mounts.filter(function (m) { return state.style === 'all' || m.style === state.style; });
     if (!list.length) { app.appendChild(el('div', 'rb__empty', 'No designs in this style yet.')); return; }
     list.forEach(function (m) {
-      var metal = m.metals[0] ? m.metals[0].name : '';
+      var metal = preferredColour(m);
       var card = el('button', 'rb__card'); card.type = 'button';
       var img = el('img'); img.src = renderFor(m, metal, m.shapes && m.shapes.indexOf('Round') > -1 ? 'Round' : (m.shapes || [])[0]); img.alt = m.title; img.loading = 'lazy'; card.appendChild(img);
       var body = el('div', 'rb__cardbody');

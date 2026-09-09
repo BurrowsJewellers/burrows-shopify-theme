@@ -117,6 +117,7 @@
       "showNatural": {{ s.show_natural }},
       "certifiedOnly": {{ s.certified_only }},
       "sizes": {{ s.sizes | split: ',' | json }},
+      "defaultMetal": {{ s.default_metal | default: 'Yellow gold' | json }},
       "leadTime": {{ s.lead_time | json }},
       "contactUrl": {{ s.contact_url | default: '/pages/contact' | json }},
       "bookingUrl": {{ settings.booking_url | json }},
@@ -152,6 +153,7 @@
     { "type": "header", "content": "Mount catalogue" },
     { "type": "select", "id": "mounts_source", "label": "Source", "options": [ { "value": "sample", "label": "Sample designs (draft only)" }, { "value": "collection", "label": "Products in a collection" } ], "default": "sample" },
     { "type": "collection", "id": "mounts_collection", "label": "Mounts collection", "info": "One product per design, one variant per metal. See the notes at the top of sections/ring-builder.liquid for the metafields and media naming." },
+    { "type": "text", "id": "default_metal", "label": "Default metal", "default": "18ct Yellow gold", "info": "Shown on the design cards and preselected on step 2, e.g. \"18ct Yellow gold\" or \"Platinum\". Designs without it fall back to their first metal." },
     { "type": "text", "id": "sizes", "label": "Finger sizes offered", "default": "H,H½,I,I½,J,J½,K,K½,L,L½,M,M½,N,N½,O,O½,P,P½,Q,Q½,R,R½,S,S½,T,T½,U,V,W,X,Y,Z", "info": "Comma-separated, AU sizes" },
     { "type": "url", "id": "size_guide_url", "label": "Ring size guide link" },
 
