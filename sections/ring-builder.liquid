@@ -5,12 +5,16 @@
   Mount catalogue source (section setting):
     - "sample":     assets/ring-mounts-sample.json — stand-in designs for the draft theme.
     - "collection": products in the chosen collection. Each product = one design:
-        variants           option "Metal" (one variant per metal, price per metal)
+        variants           option "Metal", one variant per metal + carat, priced individually. Name them
+                           "<carat> <colour>" — "9ct White gold", "14ct Yellow gold", "18ct Rose gold" — or
+                           just "Platinum". The builder groups them into a Metal row (colour) and a
+                           Metal carat row; platinum has no carat row. Add or drop carats per design freely.
         metafields         builder.style (text), builder.shapes (list of text),
                            builder.centre_min_ct / builder.centre_max_ct (decimal),
                            builder.lead_time (text)
-        media alt text     "<Metal>|<Shape>" (e.g. "White gold|Round") picks the render;
-                           "<Metal>" alone covers every shape for that metal.
+        media alt text     "<Colour>|<Shape>" (e.g. "White gold|Round") picks the render — colour only,
+                           not carat; "<Colour>" alone covers every shape for that colour. Platinum uses
+                           the White gold render unless a "Platinum|…" render exists.
         product type       "Ring mount" (the "Ring mounts" collection is automated on this type)
         tags               hidden-service (keeps it out of the shop) · sample-design (shows the sample note)
   Diamonds come from the Builder API (assets/ring-builder.js → {{ section.settings.api_base }}).

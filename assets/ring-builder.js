@@ -55,8 +55,19 @@
   function scrollTop() { root.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
 
   function absUrl(u) { u = u || ''; if (u.indexOf('//') === 0) return 'https:' + u; if (u.indexOf('/') === 0) return location.origin + u; return u; }
+  /* Metal variants are named "<carat> <colour>" ("18ct Rose gold") or just a colour ("Platinum"). */
+  function parseMetal(name) { var mm = /^(\d+\s*(?:ct|k|kt))\s+(.+)$/i.exec(String(name || '').trim()); return mm ? { carat: mm[1].replace(/\s+/g, '').toLowerCase().replace(/kt?$/, 'ct'), colour: mm[2].trim() } : { carat: '', colour: String(name || '').trim() }; }
+  function normMetals(m) { (m.metals || []).forEach(function (x) { var pm = parseMetal(x.name); x.colour = x.colour || pm.colour; x.carat = x.carat == null ? pm.carat : x.carat; }); return m; }
+  function coloursOf(m) { var out = []; (m.metals || []).forEach(function (x) { if (out.indexOf(x.colour) < 0) out.push(x.colour); }); return out; }
+  function caratsOf(m, colour) { var out = []; (m.metals || []).forEach(function (x) { if (x.colour === colour && x.carat && out.indexOf(x.carat) < 0) out.push(x.carat); }); return out; }
+  function pickMetal(m, colour, carat) {
+    var same = (m.metals || []).filter(function (x) { return x.colour === colour; });
+    return same.filter(function (x) { return x.carat === carat; })[0] || same.filter(function (x) { return x.carat === '18ct'; })[0] || same[0] || (m.metals || [])[0];
+  }
   function renderFor(m, metal, shape) {
     var r = m.renders || {};
+    metal = parseMetal(metal).colour;
+    if (!r[metal] && !r[metal + '|' + shape] && /platinum|palladium/i.test(metal)) metal = 'White gold'; // platinum reads as white gold in the renders
     var byMetal = r[metal] || {};
     if (typeof byMetal === 'string') return byMetal;
     return byMetal[shape] || byMetal['default'] || r[metal + '|' + shape] || r[metal] || r['default'] || (function () {
@@ -65,6 +76,7 @@
     })();
   }
   function metalOf(m, name) { return (m.metals || []).filter(function (x) { return x.name === name; })[0] || (m.metals || [])[0]; }
+  function defaultMetal(m, prev) { var exact = (m.metals || []).filter(function (x) { return x.name === prev; })[0]; if (exact) return exact.name; var pm = parseMetal(prev); return pickMetal(m, pm.colour && coloursOf(m).indexOf(pm.colour) > -1 ? pm.colour : coloursOf(m)[0], pm.carat || '18ct').name; }
   function fromPrice(m) { return Math.min.apply(null, (m.metals || []).map(function (x) { return +x.price || 0; }).filter(Boolean)); }
 
   /* ---------- URL state ---------- */
@@ -126,11 +138,11 @@
       var body = el('div', 'rb__cardbody');
       body.appendChild(el('div', 'rb__cardtitle', esc(m.title)));
       body.appendChild(el('div', 'rb__cardmeta', esc((m.shapes || []).length ? 'For ' + m.shapes.join(', ').toLowerCase() + ' centres' : '')));
-      var fp = fromPrice(m); if (fp) body.appendChild(el('div', 'rb__cardprice', 'Setting from ' + money(fp) + ' <small>· ' + esc(m.metals.map(function (x) { return x.name; }).join(', ')) + '</small>'));
+      var fp = fromPrice(m); if (fp) body.appendChild(el('div', 'rb__cardprice', 'Setting from ' + money(fp) + ' <small>· ' + esc(coloursOf(m).join(', ')) + '</small>'));
       card.appendChild(body);
       card.addEventListener('click', function () {
         state.mount = m; state.shape = (m.shapes || SHAPES).indexOf(state.shape) > -1 ? state.shape : (m.shapes || SHAPES)[0];
-        state.metal = metalOf(m, state.metal).name; state.stone = null; screenDetail(); scrollTop();
+        state.metal = defaultMetal(m, state.metal); state.stone = null; screenDetail(); scrollTop();
       });
       g.appendChild(card);
     });
@@ -141,7 +153,7 @@
   function screenDetail() {
     var m = state.mount; if (!m) return screenGrid();
     setStep(2); app.innerHTML = '';
-    if (!state.metal) state.metal = m.metals[0].name;
+    state.metal = defaultMetal(m, state.metal);
     var back = el('button', 'rb__back', '&larr; All designs'); back.type = 'button'; back.addEventListener('click', function () { screenGrid(); }); app.appendChild(back);
     var d = el('div', 'rb__detail');
     var stage = el('div', 'rb__stage'); var img = el('img'); img.alt = m.title; stage.appendChild(img); d.appendChild(stage);
@@ -151,6 +163,7 @@
     var shapes = m.shapes && m.shapes.length ? m.shapes : SHAPES;
     var shapeOpt = el('div', 'rb__opt'); var shapeLabel = el('div', 'rb__label'); shapeOpt.appendChild(shapeLabel); var shapeChips = el('div', 'rb__chips'); shapeOpt.appendChild(shapeChips); panel.appendChild(shapeOpt);
     var metalOpt = el('div', 'rb__opt'); var metalLabel = el('div', 'rb__label'); metalOpt.appendChild(metalLabel); var metalChips = el('div', 'rb__chips'); metalOpt.appendChild(metalChips); panel.appendChild(metalOpt);
+    var caratOpt = el('div', 'rb__opt'); var caratLabel = el('div', 'rb__label'); caratOpt.appendChild(caratLabel); var caratChips = el('div', 'rb__chips'); caratOpt.appendChild(caratChips); panel.appendChild(caratOpt);
     var sizeOpt = el('div', 'rb__opt'); sizeOpt.appendChild(el('div', 'rb__label', 'Finger size'));
     var sizeRow = el('div', 'rb__sizerow'); var sel = el('select', 'rb__select'); sel.setAttribute('aria-label', 'Finger size');
     sel.appendChild(new Option('Choose later', '')); (cfg.sizes || []).forEach(function (s) { s = s.trim(); if (s) sel.appendChild(new Option(s, s)); }); sel.value = state.size || '';
@@ -169,8 +182,12 @@
       price.innerHTML = money(mt.price) + '<small>setting · AUD incl. GST</small>';
       shapeLabel.innerHTML = 'Centre shape &mdash; <b>' + esc(state.shape) + '</b>';
       shapeChips.innerHTML = ''; SHAPES.forEach(function (sh) { var has = shapes.indexOf(sh) > -1; shapeChips.appendChild(chip(sh, sh === state.shape, has ? '' : 'dis', has ? function () { state.shape = sh; state.stone = null; sync(); } : null)); });
-      metalLabel.innerHTML = 'Metal &mdash; <b>' + esc(mt.name) + '</b>';
-      metalChips.innerHTML = ''; m.metals.forEach(function (x) { metalChips.appendChild(chip(x.name, x.name === mt.name, '', function () { state.metal = x.name; sync(); })); });
+      metalLabel.innerHTML = 'Metal &mdash; <b>' + esc(mt.colour) + '</b>';
+      metalChips.innerHTML = ''; coloursOf(m).forEach(function (c) { metalChips.appendChild(chip(c, c === mt.colour, '', function () { state.metal = pickMetal(m, c, mt.carat).name; sync(); })); });
+      var carats = caratsOf(m, mt.colour);
+      caratOpt.style.display = carats.length ? '' : 'none';
+      caratLabel.innerHTML = 'Metal carat &mdash; <b>' + esc(mt.carat || '') + '</b>';
+      caratChips.innerHTML = ''; carats.forEach(function (c) { caratChips.appendChild(chip(c, c === mt.carat, '', function () { state.metal = pickMetal(m, mt.colour, c).name; sync(); })); });
       writeUrl();
     }
     sync();
@@ -438,10 +455,10 @@
     fetch(cfg.apiBase.replace(/\/$/, '') + '/health').then(function (r) { return r.json(); }).then(function (j) { apiCart = !!(j && j.cart); depositPct = (j && +j.deposit_pct) || 0; if (state.step === 4) screenReview(); }).catch(function () { apiCart = false; });
   }
   function boot(list) {
-    mounts = (list || []).filter(function (m) { return m && m.metals && m.metals.length; });
+    mounts = (list || []).filter(function (m) { return m && m.metals && m.metals.length; }).map(normMetals);
     if (!mounts.length) { app.innerHTML = ''; app.appendChild(el('div', 'rb__empty', 'No designs are set up yet.')); return; }
     readUrl();
-    if (state.mount && !state.metal) state.metal = state.mount.metals[0].name;
+    if (state.mount) state.metal = defaultMetal(state.mount, state.metal);
     go(state.step);
   }
   var inline = root.querySelector('[data-rb-mounts]');
