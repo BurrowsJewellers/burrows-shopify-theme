@@ -208,11 +208,14 @@
   /* ---------- step 3: diamonds ---------- */
   var PAGE = 48; // Nivoda allows at most 50 per query
   function fetchStones(shape, type, offset) {
-    var key = shape + '|' + type + '|' + (state.filters.certified ? 'c' : 'a') + '|' + offset;
-    if (stoneCache[key]) return Promise.resolve(stoneCache[key]);
+    // The filters go to the API, so "1.5ct and up" searches the whole feed rather than the cheapest page.
     var f = state.filters, m = state.mount;
+    var lo = Math.max(+f.minct || 0.3, m ? +m.centre_min_ct || 0.3 : 0.3), hi = Math.min(+f.maxct || 5, m ? +m.centre_max_ct || 5 : 5);
     var q = 'shape=' + encodeURIComponent(shape.toUpperCase()) + '&type=' + type
-      + '&minct=' + (m ? m.centre_min_ct : 0.3) + '&maxct=' + (m ? m.centre_max_ct : 5) + '&limit=' + PAGE + '&offset=' + offset + (f.certified ? '&cert=1' : '');
+      + '&minct=' + lo + '&maxct=' + Math.max(lo, hi) + '&limit=' + PAGE + '&offset=' + offset + (f.certified ? '&cert=1' : '')
+      + (f.colours.length ? '&colour=' + f.colours.join(',') : '') + (f.clarities.length ? '&clarity=' + f.clarities.join(',') : '');
+    var key = q;
+    if (stoneCache[key]) return Promise.resolve(stoneCache[key]);
     return fetch(cfg.apiBase.replace(/\/$/, '') + '/diamonds?' + q).then(function (r) { if (!r.ok) throw new Error('feed'); return r.json(); })
       .then(function (j) {
         var stones = (j.stones || []).map(function (s) { s.shape = cap(s.shape || shape); return s; });
@@ -262,8 +265,8 @@
     var lo = +state.mount.centre_min_ct || 0.3, hi = +state.mount.centre_max_ct || 5;
     CT_STEPS.filter(function (c) { return c >= lo && c <= hi; }).forEach(function (c) { minS.appendChild(new Option(c.toFixed(2) + ' ct', c)); maxS.appendChild(new Option(c.toFixed(2) + ' ct', c)); });
     minS.value = String(Math.max(lo, f.minct)); maxS.value = String(Math.min(hi, f.maxct)); if (!minS.value) minS.selectedIndex = 0; if (!maxS.value) maxS.selectedIndex = maxS.options.length - 1;
-    minS.addEventListener('change', function () { f.minct = +minS.value; if (f.maxct < f.minct) { f.maxct = f.minct; maxS.value = minS.value; } draw(); });
-    maxS.addEventListener('change', function () { f.maxct = +maxS.value; if (f.minct > f.maxct) { f.minct = f.maxct; minS.value = maxS.value; } draw(); });
+    minS.addEventListener('change', function () { f.minct = +minS.value; if (f.maxct < f.minct) { f.maxct = f.minct; maxS.value = minS.value; } load(); });
+    maxS.addEventListener('change', function () { f.maxct = +maxS.value; if (f.minct > f.maxct) { f.minct = f.maxct; minS.value = maxS.value; } load(); });
     rng.appendChild(minS); rng.appendChild(el('span', 'rb__note', 'to')); rng.appendChild(maxS); ctOpt.appendChild(rng); left.appendChild(ctOpt);
     // colour
     var colOpt = el('div', 'rb__opt'); colOpt.appendChild(el('div', 'rb__label', 'Colour')); var colChips = el('div', 'rb__chips'); colOpt.appendChild(colChips); left.appendChild(colOpt);
@@ -281,8 +284,8 @@
     app.appendChild(el('p', 'rb__note', esc(cfg.feedNote)));
 
     function drawChips() {
-      colChips.innerHTML = ''; COLOURS.forEach(function (c) { colChips.appendChild(chip(c, f.colours.indexOf(c) > -1, 'rb__chip--sm', function () { var i = f.colours.indexOf(c); i > -1 ? f.colours.splice(i, 1) : f.colours.push(c); draw(); })); });
-      clChips.innerHTML = ''; CLARITY.forEach(function (c) { clChips.appendChild(chip(c, f.clarities.indexOf(c) > -1, 'rb__chip--sm', function () { var i = f.clarities.indexOf(c); i > -1 ? f.clarities.splice(i, 1) : f.clarities.push(c); draw(); })); });
+      colChips.innerHTML = ''; COLOURS.forEach(function (c) { colChips.appendChild(chip(c, f.colours.indexOf(c) > -1, 'rb__chip--sm', function () { var i = f.colours.indexOf(c); i > -1 ? f.colours.splice(i, 1) : f.colours.push(c); load(); })); });
+      clChips.innerHTML = ''; CLARITY.forEach(function (c) { clChips.appendChild(chip(c, f.clarities.indexOf(c) > -1, 'rb__chip--sm', function () { var i = f.clarities.indexOf(c); i > -1 ? f.clarities.splice(i, 1) : f.clarities.push(c); load(); })); });
       certChips.innerHTML = ''; certChips.appendChild(chip('Certified only', f.certified, 'rb__chip--sm', function () { f.certified = !f.certified; stoneCache = {}; load(); }));
     }
     var all = [], loaded = 0, total = 0, hasMore = false, more = el('div', 'rb__more');
