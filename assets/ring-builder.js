@@ -13,13 +13,13 @@
   var SHAPES = ['Round', 'Oval', 'Emerald', 'Pear', 'Princess', 'Cushion'];
   var COLOURS = ['D', 'E', 'F', 'G', 'H', 'I', 'J'];
   var CLARITY = ['FL', 'IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1'];
-  var CT_STEPS = [0.3, 0.4, 0.5, 0.7, 0.9, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5];
+  var CT_STEPS = [0.3, 0.4, 0.5, 0.7, 0.9, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6];
 
   var mounts = [];
   var apiCart = null; // true once /api/health reports the cart endpoint is switched on
   var depositPct = 0; // >0 when the API takes a deposit rather than the full price
-  var state = { step: 1, style: 'all', mount: null, shape: 'Round', metal: null, size: '', type: cfg.defaultType || 'lab', stone: null,
-    filters: { minct: 0.3, maxct: 5, colours: [], clarities: [], certified: !!cfg.certifiedOnly, sort: 'price' } };
+  var state = { step: 1, style: 'all', mount: null, shape: 'Round', metal: null, size: '', ct: null, type: cfg.defaultType || 'lab', stone: null,
+    filters: { minct: 0.3, maxct: 6, colours: [], clarities: [], certified: !!cfg.certifiedOnly, sort: 'price' } };
   var stoneCache = {};
 
   /* ---------- helpers ---------- */
@@ -68,6 +68,15 @@
   var CT_BRACKETS = [0.3, 0.5, 1, 1.5, 2, 3, 4, 5];
   function bracketOf(ct) { ct = +ct || 0; var b = CT_BRACKETS[0]; CT_BRACKETS.forEach(function (x) { if (ct >= x - 0.005) b = x; }); return b; }
   function bracketAlt(b) { return b < 1 ? b.toFixed(2) + 'ct' : String(b) + 'ct'; }
+  function bracketLabel(b) { return b < 1 ? b.toFixed(2) + ' ct' : String(b) + ' ct'; }
+  function bracketsFor(m) { var lo = +m.centre_min_ct || 0.3, hi = +m.centre_max_ct || 6; return CT_BRACKETS.filter(function (b) { return b >= lo - 0.005 && b <= hi + 0.005; }); }
+  // The chosen centre carat narrows the diamond list to that bracket (1 ct = 1.00 up to the next step).
+  function applyBracket(m) {
+    var bs = bracketsFor(m); if (!bs.length) return;
+    if (state.ct == null || bs.indexOf(state.ct) < 0) state.ct = bs.indexOf(1) > -1 ? 1 : bs[0];
+    var i = bs.indexOf(state.ct), hi = +m.centre_max_ct || 6;
+    state.filters.minct = state.ct; state.filters.maxct = i < bs.length - 1 ? bs[i + 1] : Math.max(hi, state.ct);
+  }
   function priceFor(m, mt, ct) {
     var base = +mt.price || 0, t = m.price_by_carat;
     if (!t || ct == null) return base;
@@ -98,6 +107,7 @@
     if (p.get('shape')) state.shape = cap(p.get('shape'));
     if (p.get('metal')) state.metal = p.get('metal');
     if (p.get('size')) state.size = p.get('size');
+    if (p.get('ct') && CT_BRACKETS.indexOf(+p.get('ct')) > -1) state.ct = +p.get('ct');
     if (p.get('type') === 'nat' && cfg.showNatural) state.type = 'nat';
     if (p.get('stone') && state.mount) { state.pendingStone = p.get('stone'); state.step = 3; }
     if (p.get('step')) state.step = Math.min(+p.get('step') || state.step, state.mount ? 4 : 1);
@@ -105,8 +115,8 @@
   function writeUrl() {
     if (!window.history || !history.replaceState) return;
     var u = new URL(location.href); var q = u.searchParams;
-    ['mount', 'shape', 'metal', 'size', 'type', 'stone', 'step'].forEach(function (k) { q.delete(k); });
-    if (state.mount) { q.set('mount', state.mount.id); q.set('shape', state.shape); if (state.metal) q.set('metal', state.metal); if (state.size) q.set('size', state.size); }
+    ['mount', 'shape', 'metal', 'size', 'ct', 'type', 'stone', 'step'].forEach(function (k) { q.delete(k); });
+    if (state.mount) { q.set('mount', state.mount.id); q.set('shape', state.shape); if (state.metal) q.set('metal', state.metal); if (state.ct) q.set('ct', state.ct); if (state.size) q.set('size', state.size); }
     if (state.type !== 'lab') q.set('type', state.type);
     if (state.stone) q.set('stone', state.stone.cert || state.stone.id);
     if (state.step > 1) q.set('step', state.step);
@@ -154,7 +164,7 @@
       card.appendChild(body);
       card.addEventListener('click', function () {
         state.mount = m; state.shape = (m.shapes || SHAPES).indexOf(state.shape) > -1 ? state.shape : (m.shapes || SHAPES)[0];
-        state.metal = defaultMetal(m, state.metal); state.stone = null; screenDetail(); scrollTop();
+        state.metal = defaultMetal(m, state.metal); state.stone = null; applyBracket(m); screenDetail(); scrollTop();
       });
       g.appendChild(card);
     });
@@ -174,6 +184,7 @@
     var price = el('div', 'rb__price'); panel.appendChild(price);
     var shapes = m.shapes && m.shapes.length ? m.shapes : SHAPES;
     var shapeOpt = el('div', 'rb__opt'); var shapeLabel = el('div', 'rb__label'); shapeOpt.appendChild(shapeLabel); var shapeChips = el('div', 'rb__chips'); shapeOpt.appendChild(shapeChips); panel.appendChild(shapeOpt);
+    var ctOpt = el('div', 'rb__opt'); var ctLabel = el('div', 'rb__label'); ctOpt.appendChild(ctLabel); var ctChips = el('div', 'rb__chips'); ctOpt.appendChild(ctChips); panel.appendChild(ctOpt);
     var metalOpt = el('div', 'rb__opt'); var metalLabel = el('div', 'rb__label'); metalOpt.appendChild(metalLabel); var metalChips = el('div', 'rb__chips'); metalOpt.appendChild(metalChips); panel.appendChild(metalOpt);
     var caratOpt = el('div', 'rb__opt'); var caratLabel = el('div', 'rb__label'); caratOpt.appendChild(caratLabel); var caratChips = el('div', 'rb__chips'); caratOpt.appendChild(caratChips); panel.appendChild(caratOpt);
     var sizeOpt = el('div', 'rb__opt'); sizeOpt.appendChild(el('div', 'rb__label', 'Finger size'));
@@ -190,8 +201,11 @@
 
     function sync() {
       var mt = metalOf(m, state.metal); state.metal = mt.name;
-      img.src = renderFor(m, mt.name, state.shape);
-      price.innerHTML = money(priceFor(m, mt, m.price_by_carat ? 0.3 : null)) + '<small>setting' + (m.price_by_carat ? ' with a 0.30ct centre · steps up with the stone size' : '') + ' · AUD incl. GST</small>';
+      applyBracket(m);
+      img.src = renderFor(m, mt.name, state.shape, state.ct);
+      price.innerHTML = money(priceFor(m, mt, state.ct)) + '<small>setting for a ' + esc(bracketLabel(state.ct)) + ' centre · AUD incl. GST</small>';
+      ctLabel.innerHTML = 'Centre carat (setting) &mdash; <b>' + esc(bracketLabel(state.ct)) + '</b>';
+      ctChips.innerHTML = ''; bracketsFor(m).forEach(function (b) { ctChips.appendChild(chip(bracketLabel(b), b === state.ct, '', function () { state.ct = b; state.stone = null; applyBracket(m); sync(); })); });
       shapeLabel.innerHTML = 'Centre shape &mdash; <b>' + esc(state.shape) + '</b>';
       shapeChips.innerHTML = ''; SHAPES.forEach(function (sh) { var has = shapes.indexOf(sh) > -1; shapeChips.appendChild(chip(sh, sh === state.shape, has ? '' : 'dis', has ? function () { state.shape = sh; state.stone = null; sync(); } : null)); });
       metalLabel.innerHTML = 'Metal &mdash; <b>' + esc(mt.colour) + '</b>';
@@ -210,7 +224,7 @@
   function fetchStones(shape, type, offset) {
     // The filters go to the API, so "1.5ct and up" searches the whole feed rather than the cheapest page.
     var f = state.filters, m = state.mount;
-    var lo = Math.max(+f.minct || 0.3, m ? +m.centre_min_ct || 0.3 : 0.3), hi = Math.min(+f.maxct || 5, m ? +m.centre_max_ct || 5 : 5);
+    var lo = Math.max(+f.minct || 0.3, m ? +m.centre_min_ct || 0.3 : 0.3), hi = Math.min(+f.maxct || 6, m ? +m.centre_max_ct || 6 : 6);
     var q = 'shape=' + encodeURIComponent(shape.toUpperCase()) + '&type=' + type
       + '&minct=' + lo + '&maxct=' + Math.max(lo, hi) + '&limit=' + PAGE + '&offset=' + offset + (f.certified ? '&cert=1' : '')
       + (f.colours.length ? '&colour=' + f.colours.join(',') : '') + (f.clarities.length ? '&clarity=' + f.clarities.join(',') : '');
@@ -262,7 +276,7 @@
     // carat range
     var ctOpt = el('div', 'rb__opt'); ctOpt.appendChild(el('div', 'rb__label', 'Carat'));
     var rng = el('div', 'rb__range'); var minS = el('select', 'rb__select'), maxS = el('select', 'rb__select'); minS.setAttribute('aria-label', 'Minimum carat'); maxS.setAttribute('aria-label', 'Maximum carat');
-    var lo = +state.mount.centre_min_ct || 0.3, hi = +state.mount.centre_max_ct || 5;
+    var lo = +state.mount.centre_min_ct || 0.3, hi = +state.mount.centre_max_ct || 6;
     CT_STEPS.filter(function (c) { return c >= lo && c <= hi; }).forEach(function (c) { minS.appendChild(new Option(c.toFixed(2) + ' ct', c)); maxS.appendChild(new Option(c.toFixed(2) + ' ct', c)); });
     minS.value = String(Math.max(lo, f.minct)); maxS.value = String(Math.min(hi, f.maxct)); if (!minS.value) minS.selectedIndex = 0; if (!maxS.value) maxS.selectedIndex = maxS.options.length - 1;
     minS.addEventListener('change', function () { f.minct = +minS.value; if (f.maxct < f.minct) { f.maxct = f.minct; maxS.value = minS.value; } load(); });
@@ -294,7 +308,8 @@
       drawChips();
       var list = applyFilters(all);
       var kind = (state.type === 'lab' ? 'lab-grown' : 'natural') + ' ' + state.shape.toLowerCase();
-      count.textContent = list.length ? (list.length + ' ' + kind + ' diamond' + (list.length === 1 ? '' : 's') + (total > all.length ? ' shown of ' + total.toLocaleString('en-AU') + ' available' : (hasMore ? ' shown — more available' : ' available now'))) : '';
+      var forNote = state.ct ? ' for the ' + bracketLabel(state.ct) + ' setting' : '';
+      count.textContent = list.length ? (list.length + ' ' + kind + ' diamond' + (list.length === 1 ? '' : 's') + (total > all.length ? ' shown of ' + total.toLocaleString('en-AU') + ' available' : (hasMore ? ' shown — more available' : ' available now')) + forNote) : '';
       more.innerHTML = '';
       if (hasMore) { var mb = el('button', 'btn btn--outline-dark', 'Show more diamonds'); mb.type = 'button'; mb.addEventListener('click', function () { mb.disabled = true; mb.textContent = 'Loading…'; loadPage(loaded); }); more.appendChild(mb); }
       holder.innerHTML = '';
@@ -473,7 +488,7 @@
     mounts = (list || []).filter(function (m) { return m && m.metals && m.metals.length; }).map(normMetals);
     if (!mounts.length) { app.innerHTML = ''; app.appendChild(el('div', 'rb__empty', 'No designs are set up yet.')); return; }
     readUrl();
-    if (state.mount) state.metal = defaultMetal(state.mount, state.metal);
+    if (state.mount) { state.metal = defaultMetal(state.mount, state.metal); applyBracket(state.mount); }
     go(state.step);
   }
   var inline = root.querySelector('[data-rb-mounts]');

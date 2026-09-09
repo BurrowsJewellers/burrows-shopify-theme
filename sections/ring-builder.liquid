@@ -20,6 +20,8 @@
                            sizes 0.30ct 0.50ct 1ct 1.5ct 2ct 3ct 4ct 5ct) is used once a stone is chosen;
                            "<Colour>" alone covers every shape. Platinum uses the White gold render
                            unless a "Platinum|…" render exists.
+        centre carat       step 2 offers the centre-size brackets (0.30 0.50 1 1.5 2 3 4 5 ct) that fall inside
+                           builder.centre_min_ct–centre_max_ct; the chosen bracket filters the diamond list.
         product type       "Ring mount" (the "Ring mounts" collection is automated on this type)
         tags               hidden-service (keeps it out of the shop) · sample-design (shows the sample note)
   Diamonds come from the Builder API (assets/ring-builder.js → {{ section.settings.api_base }}).
@@ -51,7 +53,7 @@
         echo ',"centre_min_ct":'
         echo product.metafields.builder.centre_min_ct.value | default: 0.3
         echo ',"centre_max_ct":'
-        echo product.metafields.builder.centre_max_ct.value | default: 3
+        echo product.metafields.builder.centre_max_ct.value | default: 6
         echo ',"lead_time":'
         echo product.metafields.builder.lead_time.value | default: s.lead_time | json
         if product.metafields.builder.price_by_carat.value
