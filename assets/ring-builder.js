@@ -409,7 +409,12 @@
         if (status !== 200 || !j.variant_id) { throw { kind: 'fail', detail: j.detail }; }
         btn.textContent = 'Adding to cart…';
         var props = { 'Ring build': j.build || build, 'Setting': m.title + ' · ' + mt.name, 'Centre stone': (j.stone && j.stone.title) || stoneTitle(s), 'Finger size': state.size || 'To be confirmed', 'Lead time': m.lead_time || cfg.leadTime };
-        return fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: [{ id: j.variant_id, quantity: 1, properties: props }] }) })
+        // Real setting variant + the diamond the API just created = two lines sharing the build number.
+        // Sample designs (no variant) come back as one combined line.
+        var items = [];
+        if (!j.combined && j.mount_variant_id) items.push({ id: j.mount_variant_id, quantity: 1, properties: props });
+        items.push({ id: j.variant_id, quantity: 1, properties: props });
+        return fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: items }) })
           .then(function (r) { if (!r.ok) throw { kind: 'fail' }; location.href = '/cart'; });
       })
       .catch(function (e) {
