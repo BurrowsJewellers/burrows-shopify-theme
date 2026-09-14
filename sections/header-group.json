@@ -12,12 +12,12 @@
             "url": "shopify://collections/engagement-rings",
             "width": "small",
             "col1_heading": "Engagement & Wedding",
-            "col1_menu": "engagement-wedding-mega",
-            "col1_highlight": "Ring Builder",
+            "col1_menu": "engagement-wedding-mega-v2",
+            "col1_highlight": "Engagement Ring Builder",
             "feature_image_url": "https://images.unsplash.com/photo-1719924998065-0c60e329ef58?fm=jpg&q=75&w=900&auto=format&fit=crop",
             "feature_title": "Build your ring",
-            "feature_link_label": "Diamonds direct from supplier",
-            "feature_url": "/apps/ring-creator/rb-get-started"
+            "feature_link_label": "Our own designs, diamonds direct from supplier",
+            "feature_url": "/pages/ring-builder"
           }
         },
         "jewellery": {
