@@ -57,7 +57,9 @@
       if (a) a.setAttribute('aria-expanded', 'true');
     };
     var hoverTimer = null;
-    var canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+    /* Header setting "Open the menu panels on": click (default) or hover. Touch devices always use click. */
+    var clickMode = wrap.getAttribute('data-mega-open') !== 'hover';
+    var canHover = !clickMode && window.matchMedia && window.matchMedia('(hover: hover)').matches;
 
     items.forEach(function (it) {
       var link = it.querySelector(':scope > a');
@@ -82,7 +84,7 @@
           return;
         }
         e.preventDefault();
-        if (isOpen) { window.location.href = link.href; } else { openItem(it); }
+        if (isOpen) { if (clickMode) closeAll(); else window.location.href = link.href; } else { openItem(it); }
       });
 
       /* Keyboard: ArrowDown on a focused title opens the panel and moves focus into it. */

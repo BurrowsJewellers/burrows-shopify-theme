@@ -12,7 +12,7 @@
   endif
 -%}
 
-<div class="bn-wrap{% unless transparent %} bn-solid{% endunless %}" id="bnWrap" data-header>
+<div class="bn-wrap{% unless transparent %} bn-solid{% endunless %}" id="bnWrap" data-header data-mega-open="{{ section.settings.mega_open | default: 'click' }}">
   {%- if section.settings.show_announcement -%}
     {%- assign msgs = '' -%}
     {%- if section.settings.announcement_1 != blank -%}{%- assign msgs = msgs | append: section.settings.announcement_1 | append: '|' -%}{%- endif -%}
@@ -105,6 +105,9 @@
                       {%- if block.settings.feature_link_label != blank -%}<span class="bn-fl">{{ block.settings.feature_link_label }} &rarr;</span>{%- endif -%}
                     </span>
                   </a>
+                {%- endif -%}
+                {%- if section.settings.mega_open != 'hover' and block.settings.url != blank -%}
+                  <a class="bn-all" href="{{ block.settings.url }}">Shop all {{ block.settings.title | downcase }} &rarr;</a>
                 {%- endif -%}
               </div>
             </div>
@@ -221,6 +224,10 @@
   .bn-mega { position: absolute; left: 0; right: 0; top: 100%; background: var(--cream); border-bottom: 2px solid var(--gold); box-shadow: 0 22px 42px rgba(var(--navy-rgb), .18); padding: 44px 56px 48px; display: none; gap: 0; }
   .bn-item.bn-open .bn-mega { display: grid; }
   .bn-item.bn-open > a { color: var(--gold-3); }
+  .bn-wrap[data-mega-open="click"] .bn-item > a::after { content: ""; display: inline-block; width: 5px; height: 5px; margin-left: 8px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-3px) rotate(45deg); transition: transform .2s; opacity: .8; }
+  .bn-wrap[data-mega-open="click"] .bn-item.bn-open > a::after { transform: translateY(1px) rotate(-135deg); }
+  .bn-all { grid-column: 1 / -1; justify-self: start; margin-top: 26px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-dark); border-bottom: 1px solid rgba(var(--gold-dark-rgb), .5); padding-bottom: 3px; }
+  .bn-all:hover { color: var(--ink); border-color: var(--ink); }
   .bn-mega--cols-1 { grid-template-columns: 1fr; }
   .bn-mega--cols-2 { grid-template-columns: 1fr 1fr; }
   .bn-mega--cols-3 { grid-template-columns: 1fr 1fr 1.2fr; }
@@ -329,7 +336,9 @@
     { "type": "checkbox", "id": "show_phone", "label": "Show phone number", "default": true },
     { "type": "text", "id": "book_label", "label": "Booking button label", "default": "Book an Appointment", "info": "The link comes from Theme settings → Store details." },
     { "type": "text", "id": "search_placeholder", "label": "Mobile search placeholder", "default": "Search rings, brands, watches…" },
-    { "type": "range", "id": "drawer_open_index", "label": "Mobile menu: section open by default", "min": 0, "max": 6, "step": 1, "default": 2, "info": "0 = none. Counts menu items from the left." }
+    { "type": "range", "id": "drawer_open_index", "label": "Mobile menu: section open by default", "min": 0, "max": 6, "step": 1, "default": 2, "info": "0 = none. Counts menu items from the left." },
+    { "type": "header", "content": "Desktop menus" },
+    { "type": "select", "id": "mega_open", "label": "Open the menu panels on", "options": [ { "value": "click", "label": "Click (title toggles the panel)" }, { "value": "hover", "label": "Hover (title is a link)" } ], "default": "click", "info": "With Click, the title opens and closes its panel and the page it links to is reached from inside the panel; with Hover, the panel opens on mouse-over and clicking the title goes to its link." }
   ],
   "blocks": [
     {
