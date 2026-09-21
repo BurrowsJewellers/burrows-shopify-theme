@@ -38,12 +38,18 @@
     {%- if settings.google_fonts_url != blank -%}
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="{{ settings.google_fonts_url }}" rel="stylesheet">
+      {%- comment -%} Fonts load without blocking first paint (the URL carries display=swap); the fallback font shows until they arrive. {%- endcomment -%}
+      <link rel="preload" as="style" href="{{ settings.google_fonts_url }}" onload="this.onload=null;this.rel='stylesheet'">
+      <noscript><link href="{{ settings.google_fonts_url }}" rel="stylesheet"></noscript>
     {%- endif -%}
 
     {% render 'css-variables' %}
     {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
     {{ 'base.css' | asset_url | stylesheet_tag }}
+    {%- if template.suffix contains 'ring-builder' -%}
+      {%- comment -%} The builder's stylesheet used to arrive after the section had painted unstyled — a full-page layout shift on phones. {%- endcomment -%}
+      {{ 'ring-builder.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
 
     {{ content_for_header }}
   </head>

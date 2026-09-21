@@ -26,7 +26,19 @@
       {{ image | image_url: width: w | image_tag: loading: 'lazy', alt: alt, sizes: '100vw', widths: '600, 900, 1200, 1600, 1920' }}
     {%- endif -%}
   {%- elsif fallback != blank -%}
-    <img src="{{ fallback }}" alt="{{ alt | escape }}" loading="{{ load }}"{% if load == 'eager' %} fetchpriority="high"{% endif %} width="1600" height="1000">
+    {%- liquid
+      comment
+        Unsplash placeholders: serve phone-sized copies instead of the fixed 1920px file (Unsplash resizes on the w= parameter).
+      endcomment
+      assign fb_srcset = ''
+      if fallback contains 'images.unsplash.com' and fallback contains 'w=1920'
+        assign fb_640 = fallback | replace: 'w=1920', 'w=640'
+        assign fb_960 = fallback | replace: 'w=1920', 'w=960'
+        assign fb_1280 = fallback | replace: 'w=1920', 'w=1280'
+        assign fb_srcset = fb_640 | append: ' 640w, ' | append: fb_960 | append: ' 960w, ' | append: fb_1280 | append: ' 1280w, ' | append: fallback | append: ' 1920w'
+      endif
+    -%}
+    <img src="{{ fallback }}"{% if fb_srcset != blank %} srcset="{{ fb_srcset }}" sizes="100vw"{% endif %} alt="{{ alt | escape }}" loading="{{ load }}"{% if load == 'eager' %} fetchpriority="high"{% endif %} width="1600" height="1000">
   {%- else -%}
     {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder' }}
   {%- endif -%}
