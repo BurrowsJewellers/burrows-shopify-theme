@@ -251,7 +251,9 @@
                   assign skip = 'all-products,all,frontpage,full-price,marketing-eligible,tier-500-above,ring-mounts,diamonds,lab-grown-diamond' | split: ','
                   assign n = 0
                   for c in product.collections
-                    if skip contains c.handle or c.handle == vendor_handle or c.handle == type_handle or c.handle contains 'tier-'
+                    assign ch = c.handle | downcase
+                    assign ctl = c.title | downcase
+                    if skip contains c.handle or c.handle == vendor_handle or c.handle == type_handle or ch contains 'tier-' or ch contains 'warehouse' or ctl contains 'warehouse' or ch contains 'dropship' or ch contains 'feed' or ch contains 'dg-' or ch contains '-dg' or ch contains 'test'
                       continue
                     endif
                     if n >= 3
