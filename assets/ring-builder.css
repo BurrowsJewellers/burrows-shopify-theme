@@ -12,6 +12,8 @@
 .rb__steps li.on span { background: var(--ink); border-color: var(--ink); color: var(--cream); }
 .rb__steps li.done { color: var(--ink); cursor: pointer; }
 .rb__steps li.done span { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+/* Reserve room while the builder loads so the footer starts below the fold and doesn't jump when the grid renders. */
+.rb__app { min-height: 100vh; }
 .rb__loading, .rb__empty { padding: 56px 20px; text-align: center; color: var(--muted); font-weight: 300; }
 .rb__spin { display: inline-block; width: 20px; height: 20px; border: 2px solid rgba(var(--gold-dark-rgb), .25); border-top-color: var(--gold); border-radius: 50%; animation: rbspin .8s linear infinite; vertical-align: middle; margin-right: 10px; }
 @keyframes rbspin { to { transform: rotate(360deg); } }
