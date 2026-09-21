@@ -1,4 +1,5 @@
 {%- assign s = section.settings -%}
+{%- assign card_tag = 'h3' -%}{%- if s.heading == blank -%}{%- assign card_tag = 'h2' -%}{%- endif -%}
 <section class="full-width ic bg-{{ s.background }}">
   <div class="container">
     {%- if s.eyebrow != blank or s.heading != blank -%}
@@ -35,7 +36,8 @@
             {%- endif -%}
           {%- if href != blank -%}</a>{%- else -%}</div>{%- endif -%}
           <div class="ic__body">
-            {%- if title != blank -%}<h3 class="ic__title">{% if href != blank %}<a href="{{ href }}">{{ title }}</a>{% else %}{{ title }}{% endif %}</h3>{%- endif -%}
+            {%- comment -%} Card titles sit one level under the section heading; with no section heading they are H2s so the outline never jumps from the page H1 to H3. {%- endcomment -%}
+            {%- if title != blank -%}<{{ card_tag }} class="ic__title">{% if href != blank %}<a href="{{ href }}">{{ title }}</a>{% else %}{{ title }}{% endif %}</{{ card_tag }}>{%- endif -%}
             {%- if b.text != blank -%}<div class="ic__text rte">{{ b.text }}</div>{%- endif -%}
             {%- if b.button_label != blank and href != blank -%}<a class="link-gold" href="{{ href }}">{{ b.button_label }}</a>{%- endif -%}
           </div>
