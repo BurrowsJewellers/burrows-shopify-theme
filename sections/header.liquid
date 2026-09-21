@@ -93,10 +93,11 @@
                 {%- endif -%}
                 {%- if has_feature -%}
                   <a class="bn-feat" href="{{ block.settings.feature_url | default: '#' }}">
+                    {%- comment -%} Panel images are fetched only when a panel first opens (data-src → src in theme.js); hidden images otherwise download on every page view. {%- endcomment -%}
                     {%- if block.settings.feature_image != blank -%}
-                      {{ block.settings.feature_image | image_url: width: 900 | image_tag: loading: 'lazy', alt: block.settings.feature_title }}
+                      <img data-src="{{ block.settings.feature_image | image_url: width: 900 }}" alt="{{ block.settings.feature_title | escape }}" width="900" height="600">
                     {%- elsif block.settings.feature_image_url != blank -%}
-                      <img src="{{ block.settings.feature_image_url }}" alt="" loading="lazy" width="900" height="600">
+                      <img data-src="{{ block.settings.feature_image_url }}" alt="{{ block.settings.feature_title | escape }}" width="900" height="600">
                     {%- endif -%}
                     <span class="bn-fg"></span>
                     <span class="bn-fc">
@@ -207,7 +208,7 @@
   .bn-sale { color: var(--gold-2) !important; font-weight: 500; }
   .bn-sale:hover { color: #ecd478 !important; }
   .bn-utils { display: flex; align-items: center; gap: 20px; }
-  .bn-utils a { color: var(--cream); display: flex; align-items: center; transition: color .2s; flex: none; }
+  .bn-utils a { color: var(--cream); display: flex; align-items: center; justify-content: center; transition: color .2s; flex: none; min-width: 32px; min-height: 32px; }
   .bn-utils svg { flex: none; }
   .bn-utils a:hover { color: var(--gold-3); }
   .bn-phone { font-size: 13px; letter-spacing: .06em; gap: 8px; white-space: nowrap; }

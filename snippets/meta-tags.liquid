@@ -49,7 +49,7 @@
         assign desc = shop.description | default: shop_name
     endcase
   endif
-  assign desc = desc | replace: '  ', ' '
+  assign desc = desc | replace: '&#39;', "'" | replace: '&rsquo;', '’' | replace: '&amp;', '&' | replace: '&nbsp;', ' ' | replace: '  ', ' '
 
   assign og_title = page_title | default: shop_name
   assign og_url = canonical_url | default: request.origin
