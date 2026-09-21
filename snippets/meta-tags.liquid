@@ -3,11 +3,57 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
 {%- liquid
-  assign og_title = page_title | default: shop.name
+  assign shop_name = shop.name | strip
+  assign shop_name_down = shop_name | downcase
+  assign title_down = page_title | downcase
+
+  comment
+    Title: the SEO title from Shopify, plus " – Burrows Jewellers" unless it already carries the name.
+    (shop.name has a trailing space in admin, which used to defeat this check and double the suffix.)
+  endcomment
+  assign has_name = false
+  if title_down contains shop_name_down
+    assign has_name = true
+  endif
+
+  comment
+    Meta description: the SEO description when set, otherwise one built from the page itself
+    (collections and pages with no description used to ship without one).
+  endcomment
+  assign desc = page_description | strip
+  if desc == blank
+    case request.page_type
+      when 'collection'
+        if collection.description != blank
+          assign desc = collection.description | strip_html | strip_newlines | truncate: 155
+        else
+          assign desc = 'Shop ' | append: collection.title | append: ' at ' | append: shop_name | append: ', Mildura — ' | append: collection.all_products_count | append: ' pieces in store and online, with free shipping Australia-wide over $99 and Afterpay available.'
+        endif
+      when 'product'
+        assign desc = product.description | strip_html | strip_newlines | truncate: 155
+        if desc == blank
+          assign desc = product.title | append: ' from ' | append: shop_name | append: ', Mildura. Family jewellers since 1975 — free shipping Australia-wide over $99, Afterpay available.'
+        endif
+      when 'page'
+        assign desc = page.content | strip_html | strip_newlines | truncate: 155
+        if desc == blank
+          assign desc = page.title | append: ' — ' | append: shop_name | append: ', Mildura. Family jewellers since 1975.'
+        endif
+      when 'article'
+        assign desc = article.excerpt_or_content | strip_html | strip_newlines | truncate: 155
+      when 'blog'
+        assign desc = blog.title | append: ' from ' | append: shop_name | append: ' — jewellery news, guides and stories from our Mildura workshop.'
+      when 'list-collections'
+        assign desc = 'Browse every collection at ' | append: shop_name | append: ' — engagement rings, wedding bands, fine jewellery, watches and giftware, in store in Mildura and online.'
+      else
+        assign desc = shop.description | default: shop_name
+    endcase
+  endif
+  assign desc = desc | replace: '  ', ' '
+
+  assign og_title = page_title | default: shop_name
   assign og_url = canonical_url | default: request.origin
   assign og_type = 'website'
-  assign og_description = page_description | default: shop.description | default: shop.name
-
   if request.page_type == 'product'
     assign og_type = 'product'
   elsif request.page_type == 'article'
@@ -15,43 +61,45 @@
   elsif request.page_type == 'password'
     assign og_url = request.origin
   endif
+
+  assign og_img = page_image
+  if og_img == blank and settings.og_image != blank
+    assign og_img = settings.og_image
+  endif
 %}
-
-<meta property="og:site_name" content="{{ shop.name }}">
-<meta property="og:url" content="{{ og_url }}">
-<meta property="og:title" content="{{ og_title | escape }}">
-<meta property="og:type" content="{{ og_type }}">
-<meta property="og:description" content="{{ og_description | escape }}">
-
-{%- if page_image -%}
-  <meta property="og:image" content="http:{{ page_image | image_url }}">
-  <meta property="og:image:secure_url" content="https:{{ page_image | image_url }}">
-  <meta property="og:image:width" content="{{ page_image.width }}">
-  <meta property="og:image:height" content="{{ page_image.height }}">
-{%- endif -%}
-
-{%- if request.page_type == 'product' -%}
-  <script type="application/ld+json">
-    {{ product | structured_data }}
-  </script>
-
-  <meta property="og:price:amount" content="{{ product.price | money_without_currency | strip_html }}">
-  <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
-{%- endif -%}
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ og_title | escape }}">
-<meta name="twitter:description" content="{{ og_description | escape }}">
 
 <title>
   {{ page_title }}
   {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
   {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
-  {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+  {%- unless has_name %} &ndash; {{ shop_name }}{% endunless -%}
 </title>
 
 <link rel="canonical" href="{{ canonical_url }}">
+<meta name="description" content="{{ desc | escape }}">
+{%- if settings.google_site_verification != blank -%}
+<meta name="google-site-verification" content="{{ settings.google_site_verification | strip }}">
+{%- endif -%}
 
-{% if page_description %}
-  <meta name="description" content="{{ page_description | escape }}">
-{% endif %}
+<meta property="og:site_name" content="{{ shop_name }}">
+<meta property="og:url" content="{{ og_url }}">
+<meta property="og:title" content="{{ og_title | escape }}">
+<meta property="og:type" content="{{ og_type }}">
+<meta property="og:description" content="{{ desc | escape }}">
+{%- if og_img -%}
+  {%- assign og_img_url = og_img | image_url: width: 1200 -%}
+  {%- unless og_img_url contains 'http' -%}{%- assign og_img_url = 'https:' | append: og_img_url -%}{%- endunless -%}
+  <meta property="og:image" content="{{ og_img_url }}">
+  <meta property="og:image:secure_url" content="{{ og_img_url }}">
+  {%- if og_img.alt != blank -%}<meta property="og:image:alt" content="{{ og_img.alt | escape }}">{%- endif -%}
+  <meta name="twitter:image" content="{{ og_img_url }}">
+{%- endif -%}
+{%- if request.page_type == 'product' -%}
+  <meta property="og:price:amount" content="{{ product.price | money_without_currency | strip_html }}">
+  <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
+{%- endif -%}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ og_title | escape }}">
+<meta name="twitter:description" content="{{ desc | escape }}">
+
+{% render 'structured-data' %}

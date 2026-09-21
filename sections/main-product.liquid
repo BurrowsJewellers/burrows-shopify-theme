@@ -25,7 +25,7 @@
           {%- for media in product.media limit: 8 -%}
             {%- if media.media_type == 'image' -%}
               <button type="button" class="pd__thumb{% if forloop.first %} on{% endif %}" data-thumb data-media-id="{{ media.id }}" data-full="{{ media | image_url: width: 1400 }}" aria-label="View image {{ forloop.index }}">
-                {{ media | image_url: width: 160 | image_tag: loading: 'lazy', alt: media.alt }}
+                {%- assign thumb_alt = media.alt | default: product.title -%}{{ media | image_url: width: 160 | image_tag: loading: 'lazy', alt: thumb_alt }}
               </button>
             {%- endif -%}
           {%- endfor -%}
@@ -33,7 +33,7 @@
       {%- endif -%}
       <div class="pd__mainimg">
         {%- if product.featured_media -%}
-          {{ product.featured_media | image_url: width: 1400 | image_tag: id: 'MainImage', loading: 'eager', alt: product.title, widths: '600, 900, 1200, 1400', sizes: '(max-width: 900px) 100vw, 55vw' }}
+          {{ product.featured_media | image_url: width: 1400 | image_tag: id: 'MainImage', loading: 'eager', fetchpriority: 'high', alt: product.title, widths: '600, 900, 1200, 1400', sizes: '(max-width: 900px) 100vw, 55vw' }}
         {%- else -%}
           {{ 'product-1' | placeholder_svg_tag: 'placeholder' }}
         {%- endif -%}
@@ -216,7 +216,7 @@
             {%- if product.description != blank -%}
               <details class="acc" {{ block.shopify_attributes }}{% if block.settings.open %} open{% endif %}>
                 <summary>{{ block.settings.heading }}<span class="pm"></span></summary>
-                <div class="acc__body rte">{{ product.description }}</div>
+                <div class="acc__body rte">{% render 'content-headings', html: product.description %}</div>
               </details>
             {%- endif -%}
 
@@ -234,6 +234,34 @@
                   <li data-sku-row{% if cv.sku == blank %} hidden{% endif %}><span>SKU</span><em data-sku>{{ cv.sku }}</em></li>
                   <li data-design-row{% if design_number == blank %} hidden{% endif %}><span>Design no.</span><em data-design-number>{{ design_number }}</em></li>
                 </ul>
+                {%- liquid
+                  comment
+                    Internal links: the brand's collection, the product type's collection and the collections
+                    this product sits in (skipping the automated catch-alls), so every product links outward.
+                  endcomment
+                  assign more = ''
+                  assign vendor_handle = product.vendor | handleize
+                  if collections[vendor_handle].products_count > 0
+                    assign more = more | append: '<a href="' | append: collections[vendor_handle].url | append: '">More from ' | append: product.vendor | append: '</a>'
+                  endif
+                  assign type_handle = product.type | handleize
+                  if type_handle != vendor_handle and collections[type_handle].products_count > 0
+                    assign more = more | append: '<a href="' | append: collections[type_handle].url | append: '">All ' | append: collections[type_handle].title | append: '</a>'
+                  endif
+                  assign skip = 'all-products,all,frontpage,full-price,marketing-eligible,tier-500-above,ring-mounts,diamonds,lab-grown-diamond' | split: ','
+                  assign n = 0
+                  for c in product.collections
+                    if skip contains c.handle or c.handle == vendor_handle or c.handle == type_handle or c.handle contains 'tier-'
+                      continue
+                    endif
+                    if n >= 3
+                      break
+                    endif
+                    assign more = more | append: '<a href="' | append: c.url | append: '">' | append: c.title | append: '</a>'
+                    assign n = n | plus: 1
+                  endfor
+                -%}
+                {%- if more != blank -%}<div class="pd__explore"><span>Explore</span>{{ more }}</div>{%- endif -%}
               </div>
             </details>
 
@@ -360,6 +388,10 @@
   .pd__specs { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
   .pd__specs li { display: flex; gap: 16px; }
   .pd__specs li[hidden] { display: none; }
+  .pd__explore { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(var(--navy-rgb), .1); display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 13px; }
+  .pd__explore span { color: var(--muted); letter-spacing: .12em; text-transform: uppercase; font-size: 11px; align-self: center; }
+  .pd__explore a { color: var(--ink); border-bottom: 1px solid rgba(var(--gold-dark-rgb), .5); }
+  .pd__explore a:hover { border-color: var(--ink); }
   .pd__specs span { min-width: 100px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-dark); font-weight: 500; padding-top: 3px; }
   .pd__specs em { font-style: normal; }
   .pd__work { background: var(--navy-2); padding: 24px 26px; margin-top: 26px; display: flex; gap: 18px; align-items: flex-start; }

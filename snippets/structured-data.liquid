@@ -1,0 +1,160 @@
+{%- comment -%}
+  JSON-LD for search engines. Rendered from snippets/meta-tags.liquid on every page.
+  - JewelryStore (LocalBusiness) on every page: name, address, phone, socials, logo.
+  - WebSite + SearchAction on the home page.
+  - BreadcrumbList on product, collection, page and article.
+  - Product: Shopify's own structured_data (offers, brand, images, variants).
+  - CollectionPage + ItemList (the first page of products) on collections.
+  - Article on blog posts.
+  Opening hours are deliberately not asserted here — set them in Google Business Profile.
+{%- endcomment -%}
+{%- liquid
+  assign shop_name = shop.name | strip
+  assign logo = 'logo-white.png' | asset_url
+  if settings.logo_light != blank
+    assign logo = settings.logo_light | image_url: width: 600
+  elsif settings.logo_light_url != blank
+    assign logo = settings.logo_light_url
+  endif
+  unless logo contains 'http'
+    assign logo = 'https:' | append: logo
+  endunless
+  assign same_as = ''
+  if settings.social_instagram != blank
+    assign same_as = same_as | append: '"' | append: settings.social_instagram | append: '"'
+  endif
+  if settings.social_facebook != blank
+    if same_as != blank
+      assign same_as = same_as | append: ','
+    endif
+    assign same_as = same_as | append: '"' | append: settings.social_facebook | append: '"'
+  endif
+-%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "JewelryStore",
+  "@id": "{{ request.origin }}/#store",
+  "name": {{ shop_name | json }},
+  "url": {{ request.origin | append: '/' | json }},
+  "logo": {{ logo | json }},
+  "image": {{ logo | json }},
+  "telephone": {{ settings.store_phone_tel | default: '+61350232357' | json }},
+  "email": {{ shop.email | json }},
+  "priceRange": "$$",
+  "currenciesAccepted": "AUD",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "68 Langtree Avenue",
+    "addressLocality": "Mildura",
+    "addressRegion": "VIC",
+    "postalCode": "3500",
+    "addressCountry": "AU"
+  },
+  "foundingDate": "1975"{% if same_as != blank %},
+  "sameAs": [{{ same_as }}]{% endif %}
+}
+</script>
+{%- if request.page_type == 'index' -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "{{ request.origin }}/#website",
+  "url": {{ request.origin | append: '/' | json }},
+  "name": {{ shop_name | json }},
+  "publisher": { "@id": "{{ request.origin }}/#store" },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": { "@type": "EntryPoint", "urlTemplate": "{{ request.origin }}/search?q={search_term_string}" },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+{%- endif -%}
+
+{%- liquid
+  comment
+    Breadcrumbs: Home › (collection) › current
+  endcomment
+  assign crumbs = ''
+  case request.page_type
+    when 'product'
+      assign pt = product.title | json
+      if collection
+        assign ct = collection.title | json
+        assign cu = request.origin | append: collection.url | json
+        assign crumbs = '{"@type":"ListItem","position":2,"name":' | append: ct | append: ',"item":' | append: cu | append: '},{"@type":"ListItem","position":3,"name":' | append: pt | append: '}'
+      else
+        assign crumbs = '{"@type":"ListItem","position":2,"name":' | append: pt | append: '}'
+      endif
+    when 'collection'
+      assign ct = collection.title | json
+      assign crumbs = '{"@type":"ListItem","position":2,"name":' | append: ct | append: '}'
+    when 'page'
+      assign pgt = page.title | json
+      assign crumbs = '{"@type":"ListItem","position":2,"name":' | append: pgt | append: '}'
+    when 'article'
+      assign bt = blog.title | json
+      assign bu = request.origin | append: blog.url | json
+      assign at = article.title | json
+      assign crumbs = '{"@type":"ListItem","position":2,"name":' | append: bt | append: ',"item":' | append: bu | append: '},{"@type":"ListItem","position":3,"name":' | append: at | append: '}'
+  endcase
+-%}
+{%- if crumbs != blank -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type":"ListItem","position":1,"name":"Home","item":"{{ request.origin }}/"},
+    {{ crumbs }}
+  ]
+}
+</script>
+{%- endif -%}
+
+{%- if request.page_type == 'product' -%}
+<script type="application/ld+json">
+  {{ product | structured_data }}
+</script>
+{%- elsif request.page_type == 'collection' and collection.products.size > 0 -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": {{ collection.title | json }},
+  "url": {{ request.origin | append: collection.url | json }},
+  {%- if collection.description != blank -%}
+  "description": {{ collection.description | strip_html | strip_newlines | truncate: 300 | json }},
+  {%- endif -%}
+  "isPartOf": { "@id": "{{ request.origin }}/#website" },
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": {{ collection.all_products_count }},
+    "itemListElement": [
+      {%- for p in collection.products limit: 24 -%}
+      {"@type":"ListItem","position":{{ forloop.index }},"url":{{ request.origin | append: p.url | json }},"name":{{ p.title | json }}}{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  }
+}
+</script>
+{%- elsif request.page_type == 'article' -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": {{ article.title | json }},
+  "url": {{ request.origin | append: article.url | json }},
+  "datePublished": {{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' | json }},
+  "dateModified": {{ article.updated_at | date: '%Y-%m-%dT%H:%M:%S%z' | json }},
+  {%- if article.image -%}
+  "image": {{ article.image | image_url: width: 1200 | json }},
+  {%- endif -%}
+  "author": { "@type": "Organization", "name": {{ shop_name | json }} },
+  "publisher": { "@id": "{{ request.origin }}/#store" },
+  "description": {{ article.excerpt_or_content | strip_html | strip_newlines | truncate: 300 | json }}
+}
+</script>
+{%- endif -%}

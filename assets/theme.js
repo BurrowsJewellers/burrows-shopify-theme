@@ -564,3 +564,25 @@
     io.observe(el);
   } else { load(); }
 })();
+
+/* Editor-authored content images (page bodies, product descriptions): the CDN serves full-size originals
+   unless a width is requested. Ask for a sized WebP/AVIF copy, lazy-load below the fold, and give any
+   image with no alt attribute the page title so nothing ships alt-less. */
+(function () {
+  var title = (document.querySelector('main h1') || document.querySelector('h1') || {}).textContent || document.title;
+  title = String(title || '').replace(/\s+/g, ' ').trim();
+  var imgs = document.querySelectorAll('.prose img, .rte img, .acc__body img');
+  Array.prototype.forEach.call(imgs, function (img) {
+    if (!img.hasAttribute('alt')) img.setAttribute('alt', title);
+    if (!img.getAttribute('loading')) img.setAttribute('loading', 'lazy');
+    if (!img.getAttribute('decoding')) img.setAttribute('decoding', 'async');
+    var src = img.getAttribute('src') || '';
+    if (/cdn\.shopify\.com\/s\/files\//.test(src) && !/[?&]width=/.test(src) && !img.getAttribute('srcset')) {
+      var base = src.split('#')[0];
+      var sep = base.indexOf('?') > -1 ? '&' : '?';
+      img.setAttribute('srcset', base + sep + 'width=600 600w, ' + base + sep + 'width=1000 1000w, ' + base + sep + 'width=1600 1600w');
+      img.setAttribute('sizes', '(max-width: 760px) 100vw, 760px');
+      img.setAttribute('src', base + sep + 'width=1000');
+    }
+  });
+})();

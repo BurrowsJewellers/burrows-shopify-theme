@@ -6,8 +6,10 @@
       <h1>{{ page.title }}</h1>
       <div class="page-hero__diamond"></div>
     </div>
+  {%- elsif s.hidden_h1 -%}
+    <h1 class="visually-hidden">{{ page.title }}</h1>
   {%- endif -%}
-  <div class="prose">{{ page.content }}</div>
+  <div class="prose">{% render 'content-headings', html: page.content %}</div>
 </section>
 
 {% schema %}
@@ -15,7 +17,8 @@
   "name": "Page content",
   "settings": [
     { "type": "checkbox", "id": "show_title", "label": "Show page title", "default": true },
-    { "type": "checkbox", "id": "show_breadcrumbs", "label": "Show breadcrumbs", "default": true }
+    { "type": "checkbox", "id": "show_breadcrumbs", "label": "Show breadcrumbs", "default": true },
+    { "type": "checkbox", "id": "hidden_h1", "label": "Add a hidden H1 with the page title when the title is not shown", "default": false, "info": "For pages whose sections have no H1 of their own (contact, custom design). Leave off where another section already provides the H1." }
   ]
 }
 {% endschema %}

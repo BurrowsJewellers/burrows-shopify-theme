@@ -1,1 +1,36 @@
-{"sections":{"main":{"type":"main-page","settings":{"show_title":false,"show_breadcrumbs":true}},"intro":{"type":"image-with-text","settings":{"image":"shopify://shop_images/custom-design-at-burrows-jewellers.jpg","image_position":"left","min_height":520,"background":"cream","heading":"Custom Design","text":"<p>Custom design starts with a conversation. Tell us what you have in mind — a piece you've pictured, stones you'd like to use, or jewellery you'd like remodelled — and we'll help shape it into a design that's beautiful to look at and practical to wear every day.</p><p>We'll talk you through the options, stones and metals in plain English, and give you a clear quote and timeframe before anything is made.</p>"}},"contact":{"type":"contact-form","settings":{"eyebrow":"Start a custom design","heading":"Tell us what you have in mind","text":"Give us a brief of what you envision — the piece, the stones, any jewellery you'd like to remodel — and we'll be in touch to arrange a time to talk it through. Or visit us in store to get started."}}},"order":["main","intro","contact"]}
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "settings": {
+        "show_title": false,
+        "show_breadcrumbs": true,
+        "hidden_h1": true
+      }
+    },
+    "intro": {
+      "type": "image-with-text",
+      "settings": {
+        "image": "shopify://shop_images/custom-design-at-burrows-jewellers.jpg",
+        "image_position": "left",
+        "min_height": 520,
+        "background": "cream",
+        "heading": "Custom Design",
+        "text": "<p>Custom design starts with a conversation. Tell us what you have in mind — a piece you've pictured, stones you'd like to use, or jewellery you'd like remodelled — and we'll help shape it into a design that's beautiful to look at and practical to wear every day.</p><p>We'll talk you through the options, stones and metals in plain English, and give you a clear quote and timeframe before anything is made.</p>"
+      }
+    },
+    "contact": {
+      "type": "contact-form",
+      "settings": {
+        "eyebrow": "Start a custom design",
+        "heading": "Tell us what you have in mind",
+        "text": "Give us a brief of what you envision — the piece, the stones, any jewellery you'd like to remodel — and we'll be in touch to arrange a time to talk it through. Or visit us in store to get started."
+      }
+    }
+  },
+  "order": [
+    "main",
+    "intro",
+    "contact"
+  ]
+}

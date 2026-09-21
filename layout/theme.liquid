@@ -9,7 +9,30 @@
     {%- endif -%}
 
     {% render 'meta-tags' %}
-    {%- if product.tags contains 'hidden-service' -%}<meta name="robots" content="noindex">{%- endif -%}
+    {%- liquid
+      comment
+        Robots: everything public is indexable. noindex only for (a) hidden service products the ring
+        builder creates, (b) the handles listed in Theme settings → SEO (test pages, supplier iframes),
+        (c) on-site search results. Public products, collections, pages and posts never carry it.
+      endcomment
+      assign noindex = false
+      if product.tags contains 'hidden-service'
+        assign noindex = true
+      endif
+      if request.page_type == 'page' and settings.noindex_handles != blank
+        assign nh = settings.noindex_handles | newline_to_br | split: '<br />'
+        for h in nh
+          assign hh = h | strip
+          if hh != blank and hh == page.handle
+            assign noindex = true
+          endif
+        endfor
+      endif
+      if request.page_type == 'search' and settings.noindex_search
+        assign noindex = true
+      endif
+    -%}
+    {%- if noindex -%}<meta name="robots" content="noindex, follow">{%- endif -%}
     {% render 'integrations-head' %}
 
     {%- if settings.google_fonts_url != blank -%}

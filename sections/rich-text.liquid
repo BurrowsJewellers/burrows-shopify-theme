@@ -12,7 +12,7 @@
             <h2 class="h2 rt__heading" {{ block.shopify_attributes }}>{{ block.settings.text }}</h2>
           {%- endif -%}
         {%- when 'text' -%}
-          <div class="rte lede rt__text" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
+          <div class="rte lede rt__text" {{ block.shopify_attributes }}>{% render 'content-headings', html: block.settings.text %}</div>
         {%- when 'button' -%}
           {%- liquid
             assign href = block.settings.url

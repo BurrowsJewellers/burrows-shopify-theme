@@ -209,6 +209,40 @@
     ]
   },
   {
+    "name": "SEO",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Titles, descriptions, canonical links, Open Graph tags and structured data (JewelryStore, breadcrumbs, collections, articles) are generated automatically. Product and collection SEO titles and descriptions still come from each item's Search engine listing in the admin."
+      },
+      {
+        "type": "image_picker",
+        "id": "og_image",
+        "label": "Default social sharing image",
+        "info": "Used when a page has no image of its own (1200×630 px)."
+      },
+      {
+        "type": "text",
+        "id": "google_site_verification",
+        "label": "Google Search Console verification code",
+        "info": "Paste only the content value from the HTML-tag method, not the whole tag. Leave empty if the site is verified by DNS."
+      },
+      {
+        "type": "textarea",
+        "id": "noindex_handles",
+        "label": "Pages to keep out of Google (handles, one per line)",
+        "default": "ring-builder-test\nnivoda-test\ndiamonds-feed\ngemstone-feed\nstuller-iframe\ntwm-retailer-iframe\njeweller\nmap",
+        "info": "Test pages, supplier iframes and internal tools. They stay reachable by URL but carry a noindex tag."
+      },
+      {
+        "type": "checkbox",
+        "id": "noindex_search",
+        "label": "Keep on-site search result pages out of Google",
+        "default": true
+      }
+    ]
+  },
+  {
     "name": "Integrations",
     "settings": [
       {
