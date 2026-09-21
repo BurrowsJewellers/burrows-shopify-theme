@@ -3,6 +3,7 @@
   @param {product} product
   @param {boolean} [show_vendor] - default true
   @param {string} [loading] - lazy | eager
+  @param {string} [priority] - fetchpriority for the main image: auto | high
 {% enddoc %}
 {%- liquid
   assign vendor_on = true
@@ -10,6 +11,7 @@
     assign vendor_on = false
   endif
   assign load = loading | default: 'lazy'
+  assign prio = priority | default: 'auto'
   assign on_sale = false
   if product.compare_at_price > product.price
     assign on_sale = true
@@ -19,7 +21,7 @@
 <div class="pc">
   <a class="pc__img" href="{{ product.url }}" aria-label="{{ product.title | escape }}">
     {%- if product.featured_image -%}
-      {{ product.featured_image | image_url: width: 700 | image_tag: class: 'pc__main', loading: load, alt: product.title, widths: '350, 500, 700', sizes: '(max-width: 820px) 50vw, 25vw' }}
+      {{ product.featured_image | image_url: width: 700 | image_tag: class: 'pc__main', loading: load, fetchpriority: prio, alt: product.title, widths: '350, 500, 700', sizes: '(max-width: 820px) 50vw, 25vw' }}
     {%- else -%}
       {{ 'product-1' | placeholder_svg_tag: 'pc__main pc__placeholder' }}
     {%- endif -%}

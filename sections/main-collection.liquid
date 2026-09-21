@@ -133,7 +133,20 @@
     {%- paginate collection.products by per_page -%}
       <div class="product-grid">
         {%- for product in collection.products -%}
-          {%- render 'product-card', product: product, show_vendor: s.show_vendor -%}
+          {%- liquid
+            comment
+              The first row is the page's largest paint: load it eagerly (the first card at high priority) instead of lazily.
+            endcomment
+            assign card_loading = 'lazy'
+            assign card_priority = 'auto'
+            if forloop.index <= 4
+              assign card_loading = 'eager'
+            endif
+            if forloop.index == 1
+              assign card_priority = 'high'
+            endif
+          -%}
+          {%- render 'product-card', product: product, show_vendor: s.show_vendor, loading: card_loading, priority: card_priority -%}
           {%- if s.show_editorial and forloop.index == s.editorial_position -%}
             <a class="col__editorial" href="{{ s.editorial_url | default: '#' }}">
               <span class="d"></span>
