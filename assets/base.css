@@ -302,3 +302,8 @@ body.shop-white { background: #fff; }
   .full-width.pd .pd__priceline { justify-content: center; }
   .full-width.pd .pd__loc { display: table; margin: 0 auto 14px; }
 }
+
+/* Editor-authored page bodies: nothing pasted in may widen the page on a phone. */
+.prose { overflow-x: hidden; }
+.prose img, .prose iframe, .prose table, .prose video { max-width: 100%; height: auto; }
+.prose .four-c-grid { grid-template-columns: repeat(auto-fit, minmax(min(350px, 100%), 1fr)); }

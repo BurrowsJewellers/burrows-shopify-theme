@@ -53,6 +53,7 @@
     var openItem = function (it) {
       closeAll();
       it.classList.add('bn-open');
+      Array.prototype.forEach.call(it.querySelectorAll('img[data-src]'), function (im) { im.src = im.getAttribute('data-src'); im.removeAttribute('data-src'); });
       var a = it.querySelector(':scope > a');
       if (a) a.setAttribute('aria-expanded', 'true');
     };
