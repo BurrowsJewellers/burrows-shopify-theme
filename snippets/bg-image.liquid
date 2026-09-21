@@ -20,9 +20,13 @@
 -%}
 <div class="{{ wrapper_class }}"{% if factor > 0 %} data-parallax="{{ factor }}"{% endif %}>
   {%- if image != blank -%}
-    {{ image | image_url: width: w | image_tag: loading: load, alt: alt, sizes: '100vw', widths: '600, 900, 1200, 1600, 1920' }}
+    {%- if load == 'eager' -%}
+      {{ image | image_url: width: w | image_tag: loading: 'eager', fetchpriority: 'high', alt: alt, sizes: '100vw', widths: '600, 900, 1200, 1600, 1920' }}
+    {%- else -%}
+      {{ image | image_url: width: w | image_tag: loading: 'lazy', alt: alt, sizes: '100vw', widths: '600, 900, 1200, 1600, 1920' }}
+    {%- endif -%}
   {%- elsif fallback != blank -%}
-    <img src="{{ fallback }}" alt="{{ alt | escape }}" loading="{{ load }}" width="1600" height="1000">
+    <img src="{{ fallback }}" alt="{{ alt | escape }}" loading="{{ load }}"{% if load == 'eager' %} fetchpriority="high"{% endif %} width="1600" height="1000">
   {%- else -%}
     {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder' }}
   {%- endif -%}

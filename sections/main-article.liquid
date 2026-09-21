@@ -8,7 +8,7 @@
   {%- if article.image -%}
     <div class="art__hero">{{ article.image | image_url: width: 1600 | image_tag: loading: 'eager', alt: article.title }}</div>
   {%- endif -%}
-  <div class="prose">{{ article.content }}</div>
+  <div class="prose">{% render 'content-headings', html: article.content %}</div>
 
   {%- if blog.comments_enabled? -%}
     <div class="art__comments">

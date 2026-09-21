@@ -13,7 +13,8 @@
       "type": "main-page",
       "settings": {
         "show_title": false,
-        "show_breadcrumbs": true
+        "show_breadcrumbs": true,
+        "hidden_h1": true
       }
     },
     "apps": {
