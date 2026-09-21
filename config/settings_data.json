@@ -12,17 +12,17 @@
     "blocks": {
       "1232542678405107163": {
         "type": "shopify://apps/instafeed/blocks/head-block/c447db20-095d-4a10-9725-b5977662c9d5",
-        "disabled": false,
+        "disabled": true,
         "settings": {}
       },
       "12657775114333427046": {
         "type": "shopify://apps/essential-countdown/blocks/app_embed/722378e8-5a70-4eae-aa89-9e44e8e9f6de",
-        "disabled": false,
+        "disabled": true,
         "settings": {}
       },
       "17532689981107326958": {
         "type": "shopify://apps/ga-sales-countdown-timer/blocks/app-embeded/2669860a-e233-4fac-a529-c1f2bbc91e3d",
-        "disabled": false,
+        "disabled": true,
         "settings": {}
       },
       "15683396631634586217": {
@@ -39,7 +39,7 @@
       },
       "2567389343055140935": {
         "type": "shopify://apps/microsoft-clarity/blocks/clarity_js/31c3d126-8116-4b4a-8ba1-baeda7c4aeea",
-        "disabled": false,
+        "disabled": true,
         "settings": {}
       },
       "855628211100114053": {
@@ -48,6 +48,7 @@
         "settings": {}
       }
     },
-    "favicon": "shopify://shop_images/Logo.png"
+    "favicon": "shopify://shop_images/Logo.png",
+    "gtm_id": ""
   }
 }

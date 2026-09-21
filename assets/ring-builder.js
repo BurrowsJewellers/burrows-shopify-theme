@@ -123,9 +123,24 @@
     history.replaceState({}, '', u.toString());
   }
 
+  /* ---------- analytics ----------
+     Replaces the four tags the old GTM container fired for the VDB builder: GA4 builder_started /
+     design_saved (via dataLayer and Shopify's pixel bus) and the Klaviyo "Viewed Ring Builder" /
+     "Added Design to Cart" events. */
+  var tracked = {};
+  function track(name, data) {
+    if (tracked[name]) return; tracked[name] = true;
+    var d = data || {}; d.event = name; d.builder = 'burrows';
+    try { (window.dataLayer = window.dataLayer || []).push(d); } catch (e) {}
+    try { if (window.Shopify && Shopify.analytics && Shopify.analytics.publish) Shopify.analytics.publish(name, d); } catch (e) {}
+    try { if (typeof gtag === 'function') gtag('event', name, d); } catch (e) {}
+    try { (window._learnq = window._learnq || []).push(['track', name === 'builder_started' ? 'Viewed Ring Builder' : 'Added Design to Cart', { URL: location.href }]); } catch (e) {}
+  }
+
   /* ---------- steps bar ---------- */
   function setStep(n) {
     state.step = n;
+    if (n === 1) track('builder_started');
     Array.prototype.forEach.call(stepsEl.children, function (li) {
       var i = +li.getAttribute('data-step');
       li.className = i === n ? 'on' : (i < n ? 'done' : '');
@@ -488,6 +503,7 @@
         if (status === 501) { throw { kind: 'off' }; }
         if (status !== 200 || !j.variant_id) { throw { kind: 'fail', detail: j.detail }; }
         btn.textContent = 'Adding to cart…';
+        track('design_saved', { setting: m.title, metal: mt.name, shape: state.shape, carat: s.ct, value: j.ring_total || 0, currency: 'AUD' });
         var props = { 'Ring build': j.build || build, 'Setting': m.title + ' · ' + mt.name, 'Centre stone': (j.stone && j.stone.title) || stoneTitle(s), 'Finger size': state.size || 'To be confirmed', 'Lead time': m.lead_time || cfg.leadTime };
         if (j.deposit_pct > 0) { props['Ring total'] = money(j.ring_total); props['Deposit'] = j.deposit_pct + '% · ' + money(j.charge); props['Balance on completion'] = money(j.balance); }
         // Real setting variant + the diamond the API just created = two lines sharing the build number.
