@@ -19,23 +19,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Diamond Knowledge",
-            "level": "h1"
+            "text": "Diamond knowledge: the four Cs in plain English"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<p>Every diamond is graded on the four Cs — cut, carat, colour and clarity. Together they describe how a stone looks, how rare it is and what it is worth. Here is what each one means.</p>"
+            "text": "<p>Every diamond is graded on cut, carat, colour and clarity. Here is what each one means, and which ones are worth paying for.</p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",
@@ -50,8 +49,8 @@
         "image_position": "left",
         "min_height": 520,
         "background": "cream",
-        "heading": "Cut",
-        "text": "<p>The way a diamond is cut is the most important of the 4C's. Cut refers to the angles and proportions of a diamond, which determines the diamonds beauty, brightness, sparkle and scintillation.</p><p>A perfectly cut diamond can sparkle 3-4 times more than the average diamond, this is because every facet that is cut correctly will reflect light out the top of the diamond, creating maximum sparkle.</p>"
+        "heading": "Cut: pay for this one",
+        "text": "<p>Cut is the angles and proportions of the stone. It decides how much light comes back out of the top, which is what you see as sparkle.</p><p>A well-cut stone looks brighter than a bigger stone cut badly. Aim for an Excellent or Very Good cut grade before you spend on anything else.</p>"
       }
     },
     "imgtext_3": {
@@ -61,8 +60,8 @@
         "image_position": "right",
         "min_height": 520,
         "background": "sand",
-        "heading": "Carat",
-        "text": "<p>A Diamond's weight is measured in Carats and points. The larger the diamond, the more rare it is, so all other factors being equal, a single 1-carat stone is worth more than four quarter carat stones together.</p><p>100 points equals 1 carat (1.00ct). A diamond weighing one quarter of a carat, can also be referred to as 25 points or 0.25ct.</p>"
+        "heading": "Carat: weight, not size",
+        "text": "<p>Carat is weight. 100 points make one carat, so a quarter-carat stone is 25 points or 0.25ct.</p><p>Price jumps at the round numbers. A 0.90ct stone looks almost the same as a 1.00ct stone on the hand and costs noticeably less.</p>"
       }
     },
     "imgtext_4": {
@@ -72,8 +71,8 @@
         "image_position": "left",
         "min_height": 520,
         "background": "cream",
-        "heading": "Colour",
-        "text": "<p>Diamonds come in a variety of colours, ranging from colourless, clear diamonds to those that have a yellow or brown tint. The less colour, the higher the grade and the more desirable & valuable they are.</p><p>A diamonds colour is determined on a scale from 'D' (colourless) to 'Z' (yellow/ brown). Most diamonds used in jewellery are nearly colourless with pale tints of yellow or brown.</p>"
+        "heading": "Colour: G to H is the sweet spot",
+        "text": "<p>Colour runs from D (no colour) to Z (yellow or brown tint). The less colour, the higher the grade and the price.</p><p>Once a stone is set, most people cannot tell G or H from D. That is where the value sits.</p>"
       }
     },
     "imgtext_5": {
@@ -83,8 +82,8 @@
         "image_position": "right",
         "min_height": 520,
         "background": "sand",
-        "heading": "Clarity",
-        "text": "<p>The clarity of a diamond, relates to the amount of inclusions found within the diamond. Inclusions are non-crystallised carbon marks found within a diamond when the the diamond was formed 3 billion years ago.</p><p>The fewer inclusions a gemstone has, the higher its clarity grade and the more valuable it is.</p>"
+        "heading": "Clarity: eye-clean is enough",
+        "text": "<p>Clarity grades count the natural marks inside the stone, from Flawless down to Included.</p><p>Marks at VS and many SI grades are invisible without a loupe. Choose a stone that is clean to the eye rather than paying for a grade you will never see.</p>"
       }
     }
   },

@@ -12,13 +12,13 @@
       "type": "contact-form",
       "settings": {
         "eyebrow": "Get in touch",
-        "heading": "Contact Burrows Jewellers",
-        "text": "<p>Questions about a piece, a repair, a valuation or a custom design — call, email or drop in to Langtree Avenue. For general enquiries email <a href=\"mailto:admin@burrowsjewellers.com.au\">admin@burrowsjewellers.com.au</a>. To book an appointment, use the booking link.</p>",
+        "heading": "Call, email or drop in to Langtree Avenue",
+        "text": "<p>Repairs, valuations, custom design or a question about a piece: call <a href=\"tel:+61350232357\">03 5023 2357</a>, email <a href=\"mailto:admin@burrowsjewellers.com.au\">admin@burrowsjewellers.com.au</a> or visit 68 Langtree Avenue, Mildura. To book a time, use the booking link.</p>",
         "show_email": false,
-        "hours": "Mon–Fri 9:00am–5:00pm · Sat 9:30am–1:30pm · Sun & public holidays closed",
+        "hours": "Mon–Fri 9:00am–5:00pm · Sat 9:30am–1:30pm · Sun and public holidays closed",
         "booking_label": "Book an appointment",
         "button": "Send message",
-        "success": "Thanks — we'll be in touch within one business day.",
+        "success": "Thanks. We'll reply within one business day.",
         "background": "cream"
       }
     }
