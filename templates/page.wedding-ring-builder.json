@@ -19,23 +19,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Design Your Own Wedding Ring with Our Exclusive Ring Builder",
-            "level": "h1"
+            "text": "Design your wedding bands online, then we size them in store"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<p>Your wedding ring is more than just jewelry—it’s a symbol of your everlasting love. At <strong>Burrows Jewellers</strong>, we offer a <strong>Wedding Ring Builder</strong> that lets you create a ring that tells your unique love story. Choose your preferred metal, select a diamond or gemstone, customize the setting, and add a personal engraving. With high-quality craftsmanship and expert guidance, we ensure your custom wedding ring is perfect for your special day. <strong>Start building your dream ring now!</strong></p>"
+            "text": "<p>Choose the metal, profile, width and finish. Order online, or book a fitting and we check the size on your finger before anything is made.</p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",
@@ -55,59 +54,35 @@
     "faq": {
       "type": "faq",
       "blocks": {
-        "q1": {
+        "q_1": {
           "type": "question",
           "settings": {
-            "question": "What is the Wedding Ring Builder?",
-            "answer": "<p>Our <strong>Wedding Ring Builder</strong> is an interactive tool that allows you to design a custom wedding ring by choosing the metal, diamond, setting, and engravings.</p>"
+            "question": "What can I choose?",
+            "answer": "<p>Yellow, white or rose gold, or platinum. Flat, half-round or comfort-fit profiles. Polished, brushed or hammered finishes. Engraving is available.</p>"
           }
         },
-        "q2": {
+        "q_2": {
           "type": "question",
           "settings": {
-            "question": "How does the Wedding Ring Builder work?",
-            "answer": "<p>Simply select your preferred style, choose a metal type, add a diamond or gemstone, and customize the details. Once you finalize your design, you can place your order or consult with our experts.</p>"
+            "question": "How do I get the size right?",
+            "answer": "<p>Book a fitting. Wedding bands are worn every day, so we size your finger in store rather than guessing from a chart.</p>"
           }
         },
-        "q3": {
+        "q_3": {
           "type": "question",
           "settings": {
-            "question": "What metals can I choose for my wedding ring?",
-            "answer": "<p>We offer a variety of high-quality metals, including <strong>platinum, white gold, yellow gold, rose gold, and titanium</strong>.</p>"
-          }
-        },
-        "q4": {
-          "type": "question",
-          "settings": {
-            "question": "Can I add engravings to my wedding ring?",
-            "answer": "<p>Yes! You can personalize your ring with custom engravings such as initials, dates, or meaningful messages.</p>"
-          }
-        },
-        "q5": {
-          "type": "question",
-          "settings": {
-            "question": "Can I preview my design before purchasing?",
-            "answer": "<p>Absolutely! Our <strong>Wedding Ring Builder</strong> offers a <strong>real-time preview</strong> of your design so you can see how it looks before making a decision.</p>"
-          }
-        },
-        "q6": {
-          "type": "question",
-          "settings": {
-            "question": "What if I need help designing my wedding ring?",
-            "answer": "<p>Our expert jewellers are here to help! You can book a consultation to get personalized guidance on creating the perfect wedding ring.</p>"
+            "question": "I want a band that sits against my engagement ring. Can you match it?",
+            "answer": "<p>Yes. Bring the engagement ring in or book a consultation, and we will shape the band to sit flush against it.</p>"
           }
         }
       },
       "block_order": [
-        "q1",
-        "q2",
-        "q3",
-        "q4",
-        "q5",
-        "q6"
+        "q_1",
+        "q_2",
+        "q_3"
       ],
       "settings": {
-        "heading": "FAQ",
+        "heading": "Questions before you start",
         "open_first": false,
         "background": "sand",
         "image": "shopify://shop_images/petr-ovralov-jNpttMRlb_Y-unsplash.jpg"

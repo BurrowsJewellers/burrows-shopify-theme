@@ -18,8 +18,8 @@
         "cart_enabled": false,
         "contact_url": "shopify://pages/contact",
         "mounts_collection": "ring-mounts",
-        "eyebrow": "Preview — design your engagement ring",
-        "sample_note": "Preview build with sample designs — our own catalogue is on its way."
+        "eyebrow": "Preview: design your engagement ring",
+        "sample_note": "Preview build with sample designs. Our own catalogue is on its way."
       }
     }
   },

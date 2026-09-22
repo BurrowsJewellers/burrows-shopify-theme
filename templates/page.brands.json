@@ -22,7 +22,7 @@
         "heading": {
           "type": "heading",
           "settings": {
-            "text": "Jewellery Brands",
+            "text": "Jewellery brands we stock",
             "level": "h1"
           }
         }
@@ -43,7 +43,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/Burrows_Collection-01.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/burrows-collection"
           }
         },
@@ -51,7 +51,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/kirstin-ash.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/kirstin-ash"
           }
         },
@@ -59,7 +59,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/pdpaola-jewelry.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/pdpaola"
           }
         },
@@ -67,7 +67,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/SM_6.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/above-love"
           }
         },
@@ -75,7 +75,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/1234_d64a2815-7be2-439f-938e-b7fded45d63e.png",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/14k-ania-haie"
           }
         },
@@ -83,7 +83,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/Untitled_design_3684073a-1b45-41ea-894e-fec91ce1ee61.png",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://pages/pandora"
           }
         },
@@ -91,7 +91,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/ellani-collections-6.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/ellani"
           }
         },
@@ -99,7 +99,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/Untitled_design_1_4c8add13-5c06-4ee8-bdec-805b68c03743.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/sapphire-dreams-australia"
           }
         },
@@ -107,7 +107,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/ania-haie.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/ania-haie"
           }
         },
@@ -115,7 +115,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/tommy-hilfiger-Jewellery.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/tommy-hilfiger"
           }
         },
@@ -123,7 +123,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/TS_Banner_1.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/thomas-sabo"
           }
         },
@@ -131,7 +131,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/von-treskow.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/von-treskow"
           }
         },
@@ -139,7 +139,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/Signature_Cover_Photo1.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://pages/pandora"
           }
         },
@@ -147,7 +147,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/dreamtime-diamonds-2.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/dreamtime"
           }
         },
@@ -155,7 +155,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/georgini-3.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/georgini"
           }
         },
@@ -163,7 +163,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/PK_logo-black_270x_2x_c547bc3d-fea1-4e21-9a39-1ac36bf16371.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/pink-kimberley"
           }
         },
@@ -171,7 +171,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/cudworth.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/cudworth"
           }
         },
@@ -179,7 +179,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/pig-and-hen.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/pig-hen"
           }
         },
@@ -187,7 +187,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/engelsrufer.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/engelsrufer"
           }
         },
@@ -195,7 +195,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/coeur-de-lion-2.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/coeur-de-lion"
           }
         },
@@ -203,7 +203,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/Untitled_design_18820ea8-4481-4c17-804b-2b10b3fd5770.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/breunings"
           }
         }
@@ -244,7 +244,7 @@
         "heading": {
           "type": "heading",
           "settings": {
-            "text": "Watch Brands",
+            "text": "Watch brands we stock",
             "level": "h2"
           }
         }
@@ -265,7 +265,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/tommy-hilfiger.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/tommy-hilfiger"
           }
         },
@@ -273,7 +273,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/g-shock-2.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/g-shock-watches-for-men"
           }
         },
@@ -281,7 +281,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/casio.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/casio"
           }
         },
@@ -289,7 +289,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/Untitled_design.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/jag"
           }
         },
@@ -297,7 +297,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/armani-exchange-1.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/armani-exchange"
           }
         },
@@ -305,7 +305,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/citizen-1.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/citizen"
           }
         },
@@ -313,7 +313,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/skagen.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/skagen"
           }
         },
@@ -321,7 +321,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/cactus-1.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/cactus"
           }
         },
@@ -329,7 +329,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/sekonda-2.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/sekonda"
           }
         },
@@ -337,7 +337,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/Untitled_design_c48c8fea-2ddf-4cde-8791-be35a5c294ec.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/dkny-watches"
           }
         },
@@ -345,7 +345,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/Adina.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/adina"
           }
         },
@@ -353,7 +353,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/classique.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/classique"
           }
         },
@@ -361,7 +361,7 @@
           "type": "card",
           "settings": {
             "image": "shopify://shop_images/Untitled_design_4cc53187-9555-49c6-a60d-c9778c66042b.jpg",
-            "button_label": "View Collection",
+            "button_label": "Shop the range",
             "url": "shopify://collections/thomas-sabo-watches"
           }
         }

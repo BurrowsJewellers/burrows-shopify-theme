@@ -19,16 +19,15 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "About Us",
-            "level": "h1"
+            "text": "About us"
           }
         }
       },
       "block_order": [
-        "heading"
+        "rt_1"
       ],
       "settings": {
         "background": "cream",
@@ -43,15 +42,15 @@
         "image_position": "left",
         "min_height": 520,
         "background": "cream",
-        "heading": "Burrows Jewellers",
-        "text": "<p>We are a trusted and knowledgeable jeweller located in Mildura, Victoria, providing our local community with quality, unique jewellery and watches.</p><p>We have a wealth of information that we will use to help you select the perfect piece of jewellery. Come in and talk to us about all of your jewellery needs today.</p><p>For more than 30 years, the Burrows family has cared for its customers, offering them top quality services and brands to suit all individuals and styles and proudly continues from one generation to the next.</p>"
+        "heading": "Family jewellers on Langtree Avenue since 1975",
+        "text": "<p>Burrows Jewellers is a family-owned store at 68 Langtree Avenue, Mildura, trading since 1975.</p><p>We sell engagement rings, fine jewellery, watches and gifts, and we are manufacturing jewellers: custom design, remodelling, repairs, valuations and insurance replacements are all arranged through the store.</p><p>Bring in the piece, the photo or the idea. You get plain answers and a price before anything starts.</p>"
       }
     },
     "contact": {
       "type": "contact-form",
       "settings": {
-        "heading": "Contact Us Today!",
-        "text": "<p>To book an appointment to discuss a custom design, remake or remodel please provide a brief of what you envision and we'll be in touch to arrange an appointment.</p>"
+        "heading": "Book a time to talk it through",
+        "text": "<p>Tell us what you have in mind: the piece, the stones, anything you would like remodelled. We reply within one business day to set up a time.</p>"
       }
     }
   },
