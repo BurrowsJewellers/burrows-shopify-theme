@@ -16,23 +16,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Ania Haie Collection",
-            "level": "h2"
+            "text": "Ania Haie: sterling silver, plated in 14ct gold or rhodium"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<p>Discover the elegance and contemporary style of Ania Haie jewellery at Burrows Jewellers. Shop our curated selection of Ania Haie pieces, including necklaces, earrings, rings, and bracelets. Perfect for layering and everyday fashion statements.</p>"
+            "text": "<p>Layer-ready necklaces, earrings, rings and bracelets. Ania Haie is made in 925 sterling silver and finished in 14ct gold or rhodium, so the pieces stack together and hold their colour.</p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",
@@ -43,51 +42,35 @@
     "faq": {
       "type": "faq",
       "blocks": {
-        "q1": {
+        "q_1": {
           "type": "question",
           "settings": {
-            "question": "What materials are used in Ania Haie jewellery?",
-            "answer": "<p>Ania Haie jewellery at Burrows Jewellers is made from high-quality 925 sterling silver and plated with either 14k gold or rhodium. This ensures durability and a luxurious finish for every piece.</p>"
+            "question": "Will it suit sensitive ears?",
+            "answer": "<p>Sterling silver with rhodium or gold plating suits most people. If you react to nickel, ask us about the piece before you buy.</p>"
           }
         },
-        "q2": {
+        "q_2": {
           "type": "question",
           "settings": {
-            "question": "Can Ania Haie jewellery be layered?",
-            "answer": "<p>Yes, Ania Haie is designed with layering in mind. You can mix and match pieces to create a unique, personalized style that fits your look, from necklaces to bracelets.</p>"
+            "question": "How do I keep the plating looking new?",
+            "answer": "<p>Take it off before showers, pools and perfume, and wipe it with a soft cloth. Plating wears with friction, so store pieces so they do not rub together.</p>"
           }
         },
-        "q3": {
+        "q_3": {
           "type": "question",
           "settings": {
-            "question": "Is Ania Haie hypoallergenic?",
-            "answer": "<p>Ania Haie jewellery is crafted with care, and pieces plated with rhodium or gold are typically gentle on sensitive skin. However, if you have specific allergies, please consult with us at Burrows Jewellers before purchase.</p>"
-          }
-        },
-        "q4": {
-          "type": "question",
-          "settings": {
-            "question": "How do I care for my Ania Haie jewellery?",
-            "answer": "<p>To maintain the beauty of your Ania Haie pieces, avoid exposing them to harsh chemicals or water. Clean gently with a soft cloth to keep them looking fresh.</p>"
-          }
-        },
-        "q5": {
-          "type": "question",
-          "settings": {
-            "question": "Is Ania Haie jewellery suitable for gifting?",
-            "answer": "<p>Absolutely! Ania Haie’s trendy and versatile designs make perfect gifts for fashion-forward individuals. Plus, each piece from Burrows Jewellers comes with beautiful packaging, ideal for any occasion.</p>"
+            "question": "Can you gift wrap it?",
+            "answer": "<p>Yes. Every piece leaves the store in its brand box, and we can add a card if you tell us what to write.</p>"
           }
         }
       },
       "block_order": [
-        "q1",
-        "q2",
-        "q3",
-        "q4",
-        "q5"
+        "q_1",
+        "q_2",
+        "q_3"
       ],
       "settings": {
-        "heading": "FAQ",
+        "heading": "Questions about Ania Haie",
         "open_first": false,
         "background": "sand"
       }

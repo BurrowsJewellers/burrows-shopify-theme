@@ -16,8 +16,8 @@
         "image_position": "left",
         "min_height": 520,
         "background": "cream",
-        "heading": "Kirstin Ash",
-        "text": "<p>Discover the timeless elegance of <a href=\"/collections/kirstin-ash\" title=\"Kirstin Ash\"><strong>Kirstin Ash jewellery</strong></a> at Burrows Jewellers. Each piece from the Kirstin Ash collection is crafted with meticulous attention to detail, blending modern design with a touch of vintage inspiration. Whether you're searching for delicate necklaces, intricate rings, or unique bracelets, the <strong>Kirstin Ash</strong> collection offers versatile pieces that can be worn every day or saved for special occasions. Shop the <a href=\"https://burrowsjewellers.com.au/collections/kirstin-ash\" title=\"https://burrowsjewellers.com.au/collections/kirstin-ash\"><strong>Kirstin Ash jewellery</strong> </a>collection to find your perfect accessory and experience the craftsmanship that makes <strong>Kirstin Ash</strong> a beloved name in contemporary jewellery design.</p>"
+        "heading": "Kirstin Ash: designed in Byron Bay",
+        "text": "<p>Fine gold and silver jewellery with organic shapes, semi-precious stones and freshwater pearls. Necklaces, earrings, rings and bracelets made to layer, and many pieces can be engraved.</p>"
       }
     },
     "main": {
@@ -27,43 +27,35 @@
     "faq": {
       "type": "faq",
       "blocks": {
-        "q1": {
+        "q_1": {
           "type": "question",
           "settings": {
-            "question": "What materials are used in Kirstin Ash jewellery?",
-            "answer": "<p>Kirstin Ash jewellery is crafted using high-quality materials, including sterling silver, 9k gold, and 18k gold vermeil. The brand is known for its attention to detail and use of semi-precious stones, ensuring each piece is both beautiful and durable.</p>"
+            "question": "What is it made of?",
+            "answer": "<p>Sterling silver, 9ct gold and 18ct gold vermeil, with semi-precious stones and freshwater pearls.</p>"
           }
         },
-        "q2": {
+        "q_2": {
           "type": "question",
           "settings": {
-            "question": "How do I care for my Kirstin Ash jewellery?",
-            "answer": "<p>To maintain the shine and longevity of your <strong>Kirstin Ash jewellery</strong>, it’s recommended to store your pieces in a dry, cool place, away from direct sunlight. Avoid contact with water, perfumes, and lotions, as these can tarnish the metal over time. Gently polish your jewellery with a soft cloth to keep it looking new. More in <a href=\"https://burrowsjewellers.com.au/pages/kirstin-ash-jewellery-care-instructions\" title=\"https://burrowsjewellers.com.au/pages/kirstin-ash-jewellery-care-instructions\">here</a>.</p>"
+            "question": "How do I keep the gold colour?",
+            "answer": "<p>Vermeil is a thick gold layer over silver. Take it off for showers, pools and perfume and it keeps its colour for years. <a href=\"/pages/kirstin-ash-jewellery-care-instructions\">Full care guide</a>.</p>"
           }
         },
-        "q3": {
+        "q_3": {
           "type": "question",
           "settings": {
-            "question": "Is Kirstin Ash jewellery hypoallergenic?",
-            "answer": "<p>Yes, many pieces from the <strong>Kirstin Ash jewellery</strong> collection are hypoallergenic. Sterling silver and gold vermeil are generally suitable for people with sensitive skin, but it’s always best to check the material details of each piece.</p>"
-          }
-        },
-        "q4": {
-          "type": "question",
-          "settings": {
-            "question": "Where is Kirstin Ash jewellery made?",
-            "answer": "<p><strong>Kirstin Ash jewellery</strong> is designed in Australia and made using ethically sourced materials. The brand focuses on creating pieces that blend timeless beauty with modern craftsmanship, reflecting Kirstin Ash’s Australian roots.</p>"
+            "question": "Is it OK for sensitive skin?",
+            "answer": "<p>Sterling silver and gold vermeil suit most people. If you react to nickel, ask us about the piece first.</p>"
           }
         }
       },
       "block_order": [
-        "q1",
-        "q2",
-        "q3",
-        "q4"
+        "q_1",
+        "q_2",
+        "q_3"
       ],
       "settings": {
-        "heading": "FAQ",
+        "heading": "Questions about Kirstin Ash",
         "open_first": false,
         "background": "sand",
         "image": "shopify://shop_images/WEB211015_KirstinAsh_08_0835_750x_05bf6659-cc8c-493a-8705-9692dcd62ac4.webp"

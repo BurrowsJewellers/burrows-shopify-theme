@@ -16,23 +16,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Charms: The Ultimate Guide to Timeless Elegance",
-            "level": "h2"
+            "text": "Charms for Pandora, Thomas Sabo and charm bracelets"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<h4>Charm bracelets have held a special place in the world of jewelry for generations. These exquisite adornments serve as both a fashion statement and a personal keepsake, making them a beloved choice for many. In this comprehensive guide, we dive into the enchanting world of charm bracelets, exploring their rich history, the variety of charms available, and how to create your own unique, meaningful piece.</h4>"
+            "text": "<p>Charms in sterling silver, gold and enamel, with birthstones, initials, animals and places. Start a bracelet or add to one.</p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",
@@ -43,59 +42,35 @@
     "faq": {
       "type": "faq",
       "blocks": {
-        "q1": {
+        "q_1": {
           "type": "question",
           "settings": {
-            "question": "A Tale of Charm Bracelets",
-            "answer": "<p>The origins of charm bracelets date back centuries, with each era leaving its mark on the evolution of this iconic jewelry piece. From medieval amulets to modern-day charms that reflect our individual stories, learn about the captivating history behind these bracelets.</p>"
+            "question": "Will a charm fit my bracelet?",
+            "answer": "<p>Pandora charms fit Pandora bracelets, and Thomas Sabo charms use their own clip. Bring the bracelet in, or tell us the brand, and we will check the fit.</p>"
           }
         },
-        "q2": {
+        "q_2": {
           "type": "question",
           "settings": {
-            "question": "The Art of Personalization",
-            "answer": "<p>Charm bracelets are, at their core, a reflection of the wearer's personality and experiences. Discover the diverse range of charms available, from classic symbols like hearts and stars to personalized options like initials and birthstones. Find inspiration for creating a charm bracelet that truly represents you.</p>"
+            "question": "How many charms fit on a bracelet?",
+            "answer": "<p>Most people wear between 8 and 15. Spread the weight evenly and use clips or spacers to stop the charms bunching at the bottom.</p>"
           }
         },
-        "q3": {
+        "q_3": {
           "type": "question",
           "settings": {
-            "question": "Choosing Your Bracelet",
-            "answer": "<p>Not all charm bracelets are created equal. Explore the various bracelet styles, including traditional link bracelets, bangles, and even modern leather straps. Learn how to select the perfect foundation for your charm collection.</p>"
-          }
-        },
-        "q4": {
-          "type": "question",
-          "settings": {
-            "question": "Building Your Story",
-            "answer": "<p>The beauty of charm bracelets lies in their ability to tell a unique story. We provide tips and ideas for curating a charm collection that reflects your life's most significant moments, passions, and dreams.</p>"
-          }
-        },
-        "q5": {
-          "type": "question",
-          "settings": {
-            "question": "Caring for Your Treasure",
-            "answer": "<p>To ensure your charm bracelet remains a timeless keepsake, we offer guidance on how to care for and maintain it. From cleaning tips to storage recommendations, we cover everything you need to know.</p>"
-          }
-        },
-        "q6": {
-          "type": "question",
-          "settings": {
-            "question": "Conclusion",
-            "answer": "<p>Charm bracelets are more than just jewelry; they're a cherished connection to our memories and aspirations. As you embark on your journey to create or expand your charm bracelet, remember that each charm carries a piece of your personal narrative. Find the perfect charms to express your unique story, passions, and dreams with a charm bracelet that's as unique as you are.</p>"
+            "question": "How do I look after it?",
+            "answer": "<p>Wipe it with a soft cloth after wearing and keep it away from perfume, pools and cleaning products. Bring it in any time for a clean and check.</p>"
           }
         }
       },
       "block_order": [
-        "q1",
-        "q2",
-        "q3",
-        "q4",
-        "q5",
-        "q6"
+        "q_1",
+        "q_2",
+        "q_3"
       ],
       "settings": {
-        "heading": "Frequently Asked Questions",
+        "heading": "Questions about charms",
         "open_first": false,
         "background": "sand",
         "image": "shopify://shop_images/001-026-09822-image-1.jpg"

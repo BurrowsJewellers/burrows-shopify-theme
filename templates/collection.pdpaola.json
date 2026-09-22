@@ -16,23 +16,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "PDPAOLA Jewellery Collection | Burrows Jewellers - Stylish & Modern Designs",
-            "level": "h2"
+            "text": "PDPAOLA: gold-plated silver from Barcelona"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<p>Discover the unique and stylish PDPAOLA jewellery collection at Burrows Jewellers. Shop necklaces, rings, earrings, and bracelets designed to add a touch of elegance and modernity to any look.</p>"
+            "text": "<p>Necklaces, rings, earrings and bracelets in 925 sterling silver with 18ct gold plating, set with zirconia and coloured stones.</p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",
@@ -43,51 +42,35 @@
     "faq": {
       "type": "faq",
       "blocks": {
-        "q1": {
+        "q_1": {
           "type": "question",
           "settings": {
-            "question": "What materials are used in PDPAOLA jewellery?",
-            "answer": "<p>PDPAOLA jewellery is crafted with high-quality materials, including sterling silver and gold plating, to ensure both durability and a luxurious finish in every piece.</p>"
+            "question": "What is it made of?",
+            "answer": "<p>Sterling silver with 18ct gold or rhodium plating, and cubic zirconia or natural stones.</p>"
           }
         },
-        "q2": {
+        "q_2": {
           "type": "question",
           "settings": {
-            "question": "Is PDPAOLA jewellery suitable for daily wear?",
-            "answer": "<p>Yes, PDPAOLA jewellery is designed with durability in mind, making it a great choice for everyday wear. However, for longevity, it’s best to avoid contact with harsh chemicals.</p>"
+            "question": "How do I look after it?",
+            "answer": "<p>Wipe it with a soft cloth after wearing and keep it away from perfume, pools and cleaning products. Bring it in any time for a clean and check.</p>"
           }
         },
-        "q3": {
+        "q_3": {
           "type": "question",
           "settings": {
-            "question": "How do I care for my PDPAOLA jewellery?",
-            "answer": "<p>To keep your PDPAOLA pieces looking their best, store them in a dry place, avoid water exposure, and clean them gently with a soft cloth as needed.</p>"
-          }
-        },
-        "q4": {
-          "type": "question",
-          "settings": {
-            "question": "Is PDPAOLA jewellery hypoallergenic?",
-            "answer": "<p>Many PDPAOLA pieces are hypoallergenic, crafted with sensitive skin in mind. If you have specific allergies, please consult with us at Burrows Jewellers to choose a suitable piece.</p>"
-          }
-        },
-        "q5": {
-          "type": "question",
-          "settings": {
-            "question": "Is PDPAOLA jewellery ideal for gifting?",
-            "answer": "<p>Absolutely! PDPAOLA’s chic, versatile designs make it a wonderful gift for those with a modern and elegant style. Plus, each item from Burrows Jewellers comes in beautiful packaging, perfect for special occasions.</p>"
+            "question": "Can you gift wrap it?",
+            "answer": "<p>Yes. Every piece leaves the store in its brand box, and we can add a card if you tell us what to write.</p>"
           }
         }
       },
       "block_order": [
-        "q1",
-        "q2",
-        "q3",
-        "q4",
-        "q5"
+        "q_1",
+        "q_2",
+        "q_3"
       ],
       "settings": {
-        "heading": "FAQ",
+        "heading": "Questions about PDPAOLA",
         "open_first": false,
         "background": "sand"
       }

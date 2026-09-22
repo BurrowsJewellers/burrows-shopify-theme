@@ -16,23 +16,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Pandora | Bridgerton Collaboration",
-            "level": "h2"
+            "text": "Pandora × Bridgerton"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<p>Explore Pandora’s Bridgerton-inspired jewellery collection, with elegant, romantic designs inspired by the Regency era - Shop the look today!<br/><br/></p>"
+            "text": "<p>Pandora's Bridgerton range: charms, rings and necklaces with Regency-style details in sterling silver and 14ct gold plating.</p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",

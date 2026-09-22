@@ -16,23 +16,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Casio Watches: Precision, Innovation, and Timeless Style",
-            "level": "h2"
+            "text": "Casio watches: G-Shock, Edifice and the classics"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<p>Casio watches are renowned for their durability, precision, and advanced technological features. From the tough, rugged Casio G-Shock designed for extreme sports enthusiasts to the elegant Casio Edifice that complements your formal attire, Casio offers a diverse range of watches to suit any lifestyle.</p><p>Our <strong>Casio Watches</strong> collection features various models, including solar-powered options, multi-functional designs, and water-resistant models that can handle any adventure. Casio's commitment to innovation ensures that every watch provides the highest level of functionality and reliability. With features like Bluetooth connectivity, stopwatch functionality, and world time zones, Casio watches are built for individuals who value performance and style.</p><p>Browse our Casio Watches collection today and find the perfect timepiece that reflects your unique personality. Whether you need a watch for daily wear or a high-performance model for outdoor activities, Casio watches are the ultimate choice for quality and affordability.</p>"
+            "text": "<p>Digital and analogue Casio watches, from the shock-resistant G-Shock to dress-style Edifice and the retro square models. All models carry the Casio warranty and we fit batteries and straps in store.</p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",
@@ -43,51 +42,35 @@
     "faq": {
       "type": "faq",
       "blocks": {
-        "q1": {
+        "q_1": {
           "type": "question",
           "settings": {
-            "question": "What makes Casio watches stand out?",
-            "answer": "<p>Casio watches are known for their durability, innovative features, and wide range of styles. With models like the G-Shock and Edifice, Casio offers timepieces for both casual and formal wear.</p>"
+            "question": "Is G-Shock really shock resistant?",
+            "answer": "<p>Yes. The case is designed so the module floats inside it, which is why G-Shocks survive drops and knocks that stop other watches.</p>"
           }
         },
-        "q2": {
+        "q_2": {
           "type": "question",
           "settings": {
-            "question": "Are Casio G-Shock watches really shock-resistant?",
-            "answer": "<p>Yes, Casio G-Shock watches are designed to be shock-resistant and are ideal for outdoor and rugged activities. They are built to withstand tough environments, making them highly durable.</p>"
+            "question": "Which Casios can I swim in?",
+            "answer": "<p>Check the water resistance on the listing. Most G-Shock models are rated to 200 metres, which covers swimming. Lower ratings cover rain and hand washing only.</p>"
           }
         },
-        "q3": {
+        "q_3": {
           "type": "question",
           "settings": {
-            "question": "What are the key features of Casio Edifice watches?",
-            "answer": "<p>Casio Edifice watches feature advanced timekeeping technology, including Bluetooth connectivity, multi-function dials, and solar-powered batteries. They are perfect for individuals looking for both style and high functionality.</p>"
-          }
-        },
-        "q4": {
-          "type": "question",
-          "settings": {
-            "question": "Are Casio watches water-resistant?",
-            "answer": "<p>Many Casio models, including G-Shock and Edifice, offer water resistance, ranging from 50 meters to 200 meters, depending on the model. This makes them suitable for swimming and other water activities.</p>"
-          }
-        },
-        "q5": {
-          "type": "question",
-          "settings": {
-            "question": "How do I care for my Casio watch?",
-            "answer": "<p>To maintain the quality of your Casio watch, clean it regularly with a soft cloth and avoid exposing it to harsh chemicals. For water-resistant models, ensure the crown is pushed in before submersion.</p>"
+            "question": "Do you replace Casio batteries?",
+            "answer": "<p>Yes, in store.</p>"
           }
         }
       },
       "block_order": [
-        "q1",
-        "q2",
-        "q3",
-        "q4",
-        "q5"
+        "q_1",
+        "q_2",
+        "q_3"
       ],
       "settings": {
-        "heading": "FAQ",
+        "heading": "Questions about Casio",
         "open_first": false,
         "background": "sand"
       }

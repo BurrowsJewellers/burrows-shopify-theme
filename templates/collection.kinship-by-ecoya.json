@@ -12,23 +12,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Kinship by Ecoya",
-            "level": "h2"
+            "text": "Kinship by Ecoya: candles and diffusers made in New Zealand"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<p>Introducing 'Kinship by Ecoya,' an exclusive range for Burrows Jewellers, made in New Zealand, that embodies the essence of connection and home. A perfect balance between the contemporary with the timeless, and the modern with heritage, to create future classics that feel right at home wherever you are. Elevate your living spaces with Kinship by Ecoya. Discover the exclusive range of natural soy wax candles, reed diffusers and bodycare with Burrows Jewellers.</p>"
+            "text": "<p>Natural soy wax candles, reed diffusers and bodycare from Ecoya's Kinship range, made in New Zealand. Gifts that do not need a size.</p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",

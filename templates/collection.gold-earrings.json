@@ -16,23 +16,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Gold Earrings",
-            "level": "h2"
+            "text": "Gold earrings in 9ct, 14ct and 18ct"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<p>Discover a stunning range of gold earrings designed to suit every occasion. Choose from classic, modern, and unique styles crafted with high-quality gold, making them the perfect accessory for any outfit.</p>"
+            "text": "<p>Studs, hoops, huggies and drops in yellow, white and rose gold. Solid gold, not plated, so they last.</p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",
@@ -43,51 +42,35 @@
     "faq": {
       "type": "faq",
       "blocks": {
-        "q1": {
+        "q_1": {
           "type": "question",
           "settings": {
-            "question": "What types of gold earrings do you offer?",
-            "answer": "<p>We offer a variety of gold earrings, including studs, hoops, drop earrings, and huggies, crafted in 9k, 14k, and 18k yellow, rose, and white gold.</p>"
+            "question": "9ct or 18ct?",
+            "answer": "<p>9ct is harder and cheaper, so it suits everyday hoops and studs. 18ct is richer in colour and better for pieces you want to keep for decades. Both are solid gold.</p>"
           }
         },
-        "q2": {
+        "q_2": {
           "type": "question",
           "settings": {
-            "question": "Are your gold earrings suitable for sensitive ears?",
-            "answer": "<p>Yes, many of our gold earrings are hypoallergenic and designed to be comfortable for those with sensitive ears.</p>"
+            "question": "Are they suitable for sensitive ears?",
+            "answer": "<p>Solid gold suits most sensitive ears. If you react to nickel, tell us and we will check the alloy of the piece.</p>"
           }
         },
-        "q3": {
+        "q_3": {
           "type": "question",
           "settings": {
-            "question": "How do I care for my gold earrings?",
-            "answer": "<p>To maintain their shine, clean your gold earrings regularly with a soft cloth and avoid exposure to harsh chemicals like perfumes and cleaning products.</p>"
-          }
-        },
-        "q4": {
-          "type": "question",
-          "settings": {
-            "question": "Do you offer gold earrings for special occasions?",
-            "answer": "<p>Absolutely! Our collection includes elegant designs perfect for weddings, anniversaries, and other special moments.</p>"
-          }
-        },
-        "q5": {
-          "type": "question",
-          "settings": {
-            "question": "Can I return or exchange my gold earrings if needed?",
-            "answer": "<p>Yes, we have a hassle-free return and exchange policy. Please refer to our return policy for details.</p>"
+            "question": "Can I return or exchange them?",
+            "answer": "<p>Yes, within our returns policy. <a href=\"/pages/shipping-and-returns\">Read the policy</a>.</p>"
           }
         }
       },
       "block_order": [
-        "q1",
-        "q2",
-        "q3",
-        "q4",
-        "q5"
+        "q_1",
+        "q_2",
+        "q_3"
       ],
       "settings": {
-        "heading": "FAQ",
+        "heading": "Questions about gold earrings",
         "open_first": false,
         "background": "sand"
       }

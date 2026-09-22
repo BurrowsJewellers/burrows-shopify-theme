@@ -16,23 +16,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Explore Our Range Of Women’s Bracelets & Bangles",
-            "level": "h2"
+            "text": "Kirstin Ash bracelets, bangles and cuffs"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<p>From minimal to statement, our bracelets, bangles, and cuffs come in all shapes and sizes. We believe that ion is key, so mix or match shapes when stacking or opt for a minimal approach with a single piece.</p><p>Designed to offer fine detailing and organic textures, our bangles and cuffs are individual, considered and easy-to-wear. Echoing nature's nuances, you will find playful design and detailing on a selection of our bolder cuffs. Layer finer bangles in gold, silver, or both.</p><p>Wear your story with an initial bracelet in the letter and metal of your choice. These singular pieces personalise and look, and layer effortlessly.</p><p>Our silver, gold, and rose gold chain bracelets honour the beauty of organic form. The designs feature metal shapes, semi-precious gemstones, and freshwater pearls - our favourite treasure from the sea. Many of the pieces are engravable - wear to wear a date, initial, or monogram for added sentimentality.<br/><br/><a href=\"https://burrowsjewellers.com.au/pages/kirstin-ash-jewellery-care-instructions\" title=\"https://burrowsjewellers.com.au/pages/kirstin-ash-jewellery-care-instructions\">Jewellery Care Instruction</a></p>"
+            "text": "<p>Fine gold and silver bracelets and bangles with organic textures, semi-precious stones and freshwater pearls. Wear one or stack several. Many pieces can be engraved with a date or initial.</p><p><a href=\"/pages/kirstin-ash-jewellery-care-instructions\">How to care for Kirstin Ash</a></p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",
