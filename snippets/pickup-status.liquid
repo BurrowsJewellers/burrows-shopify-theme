@@ -34,7 +34,7 @@
         <summary>Check availability at other stores</summary>
         <ul>
           {%- for a in stores -%}
-            <li><b>{{ a.location.name }}</b> &mdash; {% if a.available %}pickup available, {{ a.pick_up_time | downcase }}{% else %}currently unavailable{% endif %}</li>
+            <li><b>{{ a.location.name }}</b>: {% if a.available %}pickup available, {{ a.pick_up_time | downcase }}{% else %}currently unavailable{% endif %}</li>
           {%- endfor -%}
         </ul>
       </details>

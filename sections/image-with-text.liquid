@@ -19,7 +19,7 @@
         {%- for block in steps -%}
           <div class="iwt__step" {{ block.shopify_attributes }}>
             <span class="iwt__num">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
-            <div><strong>{{ block.settings.title }}</strong>{% if block.settings.text != blank %} &mdash; {{ block.settings.text }}{% endif %}</div>
+            <div><strong>{{ block.settings.title }}</strong>{% if block.settings.text != blank %}: {{ block.settings.text }}{% endif %}</div>
           </div>
         {%- endfor -%}
       </div>

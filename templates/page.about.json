@@ -22,7 +22,8 @@
         "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "About us"
+            "text": "About us",
+            "level": "h1"
           }
         }
       },

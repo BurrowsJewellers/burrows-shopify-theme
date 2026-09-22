@@ -13,7 +13,8 @@
         "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Repairs, remodelling and custom work, arranged in store"
+            "text": "Repairs, remodelling and custom work, arranged in store",
+            "level": "h1"
           }
         },
         "rt_2": {
