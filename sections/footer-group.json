@@ -5,17 +5,41 @@
     "footer": {
       "type": "footer",
       "blocks": {
-        "shop": { "type": "menu", "settings": { "heading": "Shop", "menu": "footer-shop" } },
-        "services": { "type": "menu", "settings": { "heading": "Services", "menu": "footer-services" } },
-        "information": { "type": "menu", "settings": { "heading": "Information", "menu": "footer-information" } }
+        "shop": {
+          "type": "menu",
+          "settings": {
+            "heading": "Shop",
+            "menu": "footer-shop"
+          }
+        },
+        "services": {
+          "type": "menu",
+          "settings": {
+            "heading": "Services",
+            "menu": "footer-services"
+          }
+        },
+        "information": {
+          "type": "menu",
+          "settings": {
+            "heading": "Information",
+            "menu": "footer-information"
+          }
+        }
       },
-      "block_order": ["shop", "services", "information"],
+      "block_order": [
+        "shop",
+        "services",
+        "information"
+      ],
       "settings": {
-        "blurb": "Mildura's family-owned jewellery store since 1975 — engagement rings, fine jewellery, watches and gifts, with custom design, remodelling and repairs arranged through us.",
+        "blurb": "Family-owned jewellers at 68 Langtree Avenue, Mildura, since 1975. Engagement rings, fine jewellery, watches and gifts, plus custom design, remodelling and repairs.",
         "show_payment": true,
         "payment_badges": "Visa, Mastercard, PayPal, Afterpay"
       }
     }
   },
-  "order": ["footer"]
+  "order": [
+    "footer"
+  ]
 }
