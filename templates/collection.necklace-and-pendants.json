@@ -16,23 +16,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Discover Our Exquisite Necklace Collection",
-            "level": "h2"
+            "text": "Necklaces, chains and pendants"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<p>Explore our captivating selection of necklaces, designed to enhance any style and occasion. From elegant diamond necklaces to trendy statement pieces, our collection features options crafted with precision and care. Whether you’re looking for a delicate gold necklace, a personalized pendant, or a unique handmade design, each piece in our collection is created with the highest quality materials to ensure lasting beauty. Perfect as a gift or a personal treat, our necklaces are ideal for adding a touch of sophistication and elegance to any look. Shop our collection today and find the perfect necklace that resonates with your personality and style.</p>"
+            "text": "<p>Gold and silver chains, diamond and gemstone pendants, initial necklaces and lockets. Most chains come in a choice of lengths.</p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",
@@ -43,51 +42,35 @@
     "faq": {
       "type": "faq",
       "blocks": {
-        "q1": {
+        "q_1": {
           "type": "question",
           "settings": {
-            "question": "What types of necklaces are available in your collection?",
-            "answer": "<p>We offer a wide range of necklace styles, including gold, silver, diamond, pendant, chain, and statement necklaces, suitable for various occasions and personal styles.</p>"
+            "question": "What length should I choose?",
+            "answer": "<p>40 to 45cm sits at the collarbone and suits pendants. 50cm sits just below. 60cm and longer works for layering and larger pendants.</p>"
           }
         },
-        "q2": {
+        "q_2": {
           "type": "question",
           "settings": {
-            "question": "How do I choose the right necklace length?",
-            "answer": "<p>The best necklace length depends on your style and neckline preference. Popular lengths include choker (14-16 inches), princess (18 inches), and opera (28-36 inches), each adding a unique flair to your look.</p>"
+            "question": "Can you lengthen or shorten a chain?",
+            "answer": "<p>Yes. Our workshop resizes chains and fits stronger clasps.</p>"
           }
         },
-        "q3": {
+        "q_3": {
           "type": "question",
           "settings": {
-            "question": "What materials are used in your necklaces?",
-            "answer": "<p>Our necklaces are crafted from high-quality materials, including gold, silver, and other precious metals, ensuring both beauty and durability.</p>"
-          }
-        },
-        "q4": {
-          "type": "question",
-          "settings": {
-            "question": "How should I care for my necklace?",
-            "answer": "<p>To maintain its shine, keep your necklace in a dry place, avoid exposure to chemicals, and clean it gently with a soft cloth.</p>"
-          }
-        },
-        "q5": {
-          "type": "question",
-          "settings": {
-            "question": "Can I find a necklace for a special occasion in your collection?",
-            "answer": "<p>Absolutely! Our collection includes pieces for every occasion, from daily wear to formal events, making it easy to find the perfect necklace for any moment.</p>"
+            "question": "How do I look after it?",
+            "answer": "<p>Wipe it with a soft cloth after wearing and keep it away from perfume, pools and cleaning products. Bring it in any time for a clean and check.</p>"
           }
         }
       },
       "block_order": [
-        "q1",
-        "q2",
-        "q3",
-        "q4",
-        "q5"
+        "q_1",
+        "q_2",
+        "q_3"
       ],
       "settings": {
-        "heading": "FAQ",
+        "heading": "Questions about necklaces",
         "open_first": false,
         "background": "sand"
       }

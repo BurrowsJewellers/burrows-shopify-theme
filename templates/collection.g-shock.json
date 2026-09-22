@@ -16,23 +16,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "The Ultimate Guide to G-Shock Watches: Unrivaled Toughness and Style",
-            "level": "h2"
+            "text": "G-Shock: the watch built to be dropped"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<p>When it comes to rugged, durable timepieces, G-Shock watches reign supreme. Renowned for their unparalleled toughness and iconic style, G-Shock has become a name synonymous with resilience and innovation. In this comprehensive guide, we explore the world of G-Shock watches, delving into their history, design philosophy, and the most sought-after models that have taken the world by storm.</p>"
+            "text": "<p>Casio's shock-resistant range, from the square 5600 series to full-metal and solar models. All rated to 200 metres. We fit straps and batteries in store.</p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",
@@ -43,67 +42,35 @@
     "faq": {
       "type": "faq",
       "blocks": {
-        "q1": {
+        "q_1": {
           "type": "question",
           "settings": {
-            "question": "Shop Our G-Shock Collection:",
-            "answer": "<p>Explore our extensive collection of G-Shock watches and find the perfect timepiece to accompany you on your adventures, workouts, and everyday life. As an authorized G-Shock retailer, we offer the latest models and ensure authenticity and quality.</p>"
+            "question": "Which G-Shock should I start with?",
+            "answer": "<p>The DW-5600 is the original square and the cheapest way in. If you want a bigger analogue-digital face, look at the GA-2100 range. Solar and Bluetooth models cost more and need less looking after.</p>"
           }
         },
-        "q2": {
+        "q_2": {
           "type": "question",
           "settings": {
-            "question": "A Legacy of Resilience:",
-            "answer": "<p>G-Shock, short for \"Gravitational Shock,\" was born from the vision of Kikuo Ibe, a Casio engineer who aimed to create a watch that could withstand the harshest conditions. Dive into the legacy of G-Shock's durability, from the inception of the very first shock-resistant watch to its continued evolution.</p>"
+            "question": "Can I swim and dive with it?",
+            "answer": "<p>Every G-Shock is rated to 200 metres, which covers swimming, surfing and snorkelling. Have the seal checked when the battery is changed.</p>"
           }
         },
-        "q3": {
+        "q_3": {
           "type": "question",
           "settings": {
-            "question": "The G-Shock Design Aesthetic:",
-            "answer": "<p>G-Shock watches are not just about durability; they're also style icons. Learn about the distinctive design elements that make G-Shock watches stand out, from their bold, rugged exteriors to the innovative use of materials.</p>"
-          }
-        },
-        "q4": {
-          "type": "question",
-          "settings": {
-            "question": "G-Shock for Every Lifestyle:",
-            "answer": "<p>Whether you're an adventure enthusiast, a sports fanatic, or a fashion-forward trendsetter, G-Shock offers a watch for every lifestyle. Explore the diverse range of G-Shock collections, from the iconic DW-5600 series to the premium MR-G line.</p>"
-          }
-        },
-        "q5": {
-          "type": "question",
-          "settings": {
-            "question": "Cutting-Edge Features:",
-            "answer": "<p>G-Shock watches don't just tell time; they offer a plethora of advanced features, from solar power and atomic timekeeping to Bluetooth connectivity and GPS tracking. Uncover the cutting-edge technology that makes G-Shock a frontrunner in the watch industry.</p>"
-          }
-        },
-        "q6": {
-          "type": "question",
-          "settings": {
-            "question": "Choosing Your G-Shock:",
-            "answer": "<p>With so many options available, it can be challenging to pick the perfect G-Shock watch. We provide tips and recommendations to help you select the ideal timepiece that matches your needs and style.</p>"
-          }
-        },
-        "q7": {
-          "type": "question",
-          "settings": {
-            "question": "Conclusion:",
-            "answer": "<p>G-Shock watches have transcended their functional purpose to become a symbol of resilience and style. By blending durability, innovation, and a dash of trendsetting design, G-Shock has secured its place in the world of horology. As you embark on your G-Shock journey, you're not just buying a watch; you're acquiring a piece of history, a statement of toughness, and a reflection of your unique personality.</p>"
+            "question": "Do you change G-Shock batteries?",
+            "answer": "<p>Yes, in store.</p>"
           }
         }
       },
       "block_order": [
-        "q1",
-        "q2",
-        "q3",
-        "q4",
-        "q5",
-        "q6",
-        "q7"
+        "q_1",
+        "q_2",
+        "q_3"
       ],
       "settings": {
-        "heading": "Frequently asked questions",
+        "heading": "Questions about G-Shock",
         "open_first": false,
         "background": "sand",
         "image": "shopify://shop_images/look-img11.jpg"

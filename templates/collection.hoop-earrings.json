@@ -16,23 +16,22 @@
     "text": {
       "type": "rich-text",
       "blocks": {
-        "heading": {
+        "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Stylish Hoop Earrings Collection",
-            "level": "h2"
+            "text": "Hoop earrings from 10mm sleepers to statement hoops"
           }
         },
-        "text": {
+        "rt_2": {
           "type": "text",
           "settings": {
-            "text": "<p>Explore our curated collection of hoop earrings, where elegance meets versatility. From classic gold hoops to bold, statement designs, our selection offers a wide variety of styles to suit any occasion. Whether you're looking for small, everyday hoops or large, dramatic pieces, each pair is crafted with attention to detail and high-quality materials. Perfect for adding a touch of sophistication to casual and formal looks alike, our hoop earrings are timeless and chic. Discover the ideal pair to express your unique style with our collection of beautifully designed hoop earrings.</p>"
+            "text": "<p>Plain, twisted and stone-set hoops in gold, sterling silver and stainless steel. Sleepers you can leave in, and bigger hoops for going out.</p>"
           }
         }
       },
       "block_order": [
-        "heading",
-        "text"
+        "rt_1",
+        "rt_2"
       ],
       "settings": {
         "background": "cream",
@@ -43,51 +42,35 @@
     "faq": {
       "type": "faq",
       "blocks": {
-        "q1": {
+        "q_1": {
           "type": "question",
           "settings": {
-            "question": "What types of hoop earrings are available in your collection?",
-            "answer": "<p>Our collection features a variety of hoop earrings, including classic gold hoops, silver hoops, diamond-studded hoops, and unique statement designs for a range of styles and occasions.</p>"
+            "question": "What size should I get?",
+            "answer": "<p>10 to 15mm sits close to the lobe and can be slept in. 20 to 30mm shows under hair. Anything larger is a statement piece.</p>"
           }
         },
-        "q2": {
+        "q_2": {
           "type": "question",
           "settings": {
-            "question": "Are hoop earrings comfortable for everyday wear?",
-            "answer": "<p>Yes, many of our hoop earrings are designed for everyday comfort. We offer a range of sizes, from small to large hoops, to suit your preference and lifestyle.</p>"
+            "question": "Are big hoops heavy?",
+            "answer": "<p>Hollow gold and stainless hoops weigh very little. Solid gold hoops get heavier as they get bigger, so check the weight on the listing.</p>"
           }
         },
-        "q3": {
+        "q_3": {
           "type": "question",
           "settings": {
-            "question": "How do I care for my hoop earrings?",
-            "answer": "<p>To maintain their shine, store your hoop earrings in a dry place, avoid exposure to chemicals, and gently clean them with a soft cloth after each wear.</p>"
-          }
-        },
-        "q4": {
-          "type": "question",
-          "settings": {
-            "question": "What materials are used in your hoop earrings?",
-            "answer": "<p>Our hoop earrings are crafted from high-quality materials, including gold, silver, stainless steel, and sometimes adorned with diamonds or gemstones for a luxurious touch.</p>"
-          }
-        },
-        "q5": {
-          "type": "question",
-          "settings": {
-            "question": "Are large hoop earrings heavy?",
-            "answer": "<p>While large hoop earrings can vary in weight, we offer lightweight options crafted for comfort, ensuring you can wear them throughout the day without discomfort.</p>"
+            "question": "How do I look after it?",
+            "answer": "<p>Wipe it with a soft cloth after wearing and keep it away from perfume, pools and cleaning products. Bring it in any time for a clean and check.</p>"
           }
         }
       },
       "block_order": [
-        "q1",
-        "q2",
-        "q3",
-        "q4",
-        "q5"
+        "q_1",
+        "q_2",
+        "q_3"
       ],
       "settings": {
-        "heading": "FAQ",
+        "heading": "Questions about hoops",
         "open_first": false,
         "background": "sand"
       }
