@@ -148,7 +148,7 @@
           -%}
           {%- render 'product-card', product: product, show_vendor: s.show_vendor, loading: card_loading, priority: card_priority -%}
           {%- if s.show_editorial and forloop.index == s.editorial_position -%}
-            <a class="col__editorial" href="{{ s.editorial_url | default: '#' }}">
+            <a class="col__editorial" href="{{ s.editorial_url | default: '/pages/custom-designs' }}">
               <span class="d"></span>
               <span class="t">{{ s.editorial_heading }}</span>
               <span class="s">{{ s.editorial_text }}</span>

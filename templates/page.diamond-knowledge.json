@@ -22,7 +22,8 @@
         "rt_1": {
           "type": "heading",
           "settings": {
-            "text": "Diamond knowledge: the four Cs in plain English"
+            "text": "Diamond knowledge: the four Cs in plain English",
+            "level": "h1"
           }
         },
         "rt_2": {
