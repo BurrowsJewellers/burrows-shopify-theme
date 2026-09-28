@@ -266,12 +266,23 @@
       return v.options.every(function (o, i) { return opts[i] == null || o === opts[i]; });
     });
   }
-  function setThumb(mediaId) {
+  function setThumb(mediaId, fallbackSrc) {
+    var matched = false;
     thumbs.forEach(function (t) {
       var on = String(t.getAttribute('data-media-id')) === String(mediaId);
       t.classList.toggle('on', on);
-      if (on && mainImg) { mainImg.src = t.getAttribute('data-full'); mainImg.removeAttribute('srcset'); }
+      if (on && mainImg) { matched = true; mainImg.src = t.getAttribute('data-full'); mainImg.removeAttribute('srcset'); }
     });
+    /* The thumbnail strip only carries the first 8 media, so a variant whose
+       image sits deeper (an initial bracelet has 26) never matched a thumb and
+       the main image silently stayed on the previous letter. Fall back to the
+       variant's own featured image from the product JSON. */
+    if (!matched && fallbackSrc && mainImg) {
+      var base = String(fallbackSrc).split('#')[0];
+      var sep = base.indexOf('?') > -1 ? '&' : '?';
+      mainImg.src = base + sep + 'width=1400';
+      mainImg.removeAttribute('srcset');
+    }
   }
 
   /* Links to the contact page carry the selected variant's SKU and design number,
@@ -382,7 +393,7 @@
     var label = v.available ? (addBtn && addBtn.getAttribute('data-label')) || 'Add to Cart' : 'Sold out';
     if (addBtn) { addBtn.disabled = !v.available; if (addLabel) addLabel.textContent = label; }
     if (stickyAdd) { stickyAdd.disabled = !v.available; stickyAdd.textContent = v.available ? 'Add to cart' : 'Sold out'; }
-    if (v.featured_media && v.featured_media.id) setThumb(v.featured_media.id);
+    if (v.featured_media && v.featured_media.id) setThumb(v.featured_media.id, v.featured_media.preview_image && v.featured_media.preview_image.src);
     var dn = designMap[String(v.id)] || '';
     designEls.forEach(function (el) { el.textContent = dn; });
     if (designWrap) designWrap.hidden = !dn;
