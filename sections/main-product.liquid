@@ -319,7 +319,7 @@
   .pd__mainimg img, .pd__mainimg svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   /* Compact gallery (section setting "Image size: small"): natural aspect ratio, capped width, no upscaling. */
   @media (min-width: 901px) {
-    .pd--small-img .pd__main { grid-template-columns: minmax(0, calc(var(--pd-img-max, 420px) + 90px)) 1fr; gap: 48px; }
+    .pd--small-img .pd__main { grid-template-columns: auto minmax(0, 560px); gap: 64px; justify-content: center; }
     .pd--small-img .pd__gallery { align-items: flex-start; }
     .pd--small-img .pd__mainimg { flex: 0 1 var(--pd-img-max, 420px); }
   }
