@@ -10,7 +10,11 @@
         {%- if shop.email != blank and s.show_email -%}<dt>Email</dt><dd><a href="mailto:{{ shop.email }}">{{ shop.email }}</a></dd>{%- endif -%}
         {%- if settings.store_address_line != blank -%}<dt>Visit</dt><dd>{{ settings.store_address_line }}</dd>{%- endif -%}
         {%- if s.hours != blank -%}<dt>Hours</dt><dd>{{ s.hours }}</dd>{%- endif -%}
+        {%- if s.second_store != blank -%}<dt>Also</dt><dd>{{ s.second_store }}</dd>{%- endif -%}
       </dl>
+      {%- if s.show_map -%}
+        <div class="cf__map"><iframe title="Map: {{ settings.store_address_line | default: 'Burrows Jewellers, Mildura' | escape }}" src="https://www.google.com/maps?q={{ s.map_query | default: '68 Langtree Avenue Mildura VIC 3500' | url_encode }}&output=embed" width="100%" height="240" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="border:0;display:block;margin-top:18px;"></iframe></div>
+      {%- endif -%}
       {%- if settings.booking_url != blank and s.booking_label != blank -%}
         <a class="btn btn--outline-dark" href="{{ settings.booking_url }}" target="_blank" rel="noopener">{{ s.booking_label }}</a>
       {%- endif -%}
@@ -66,6 +70,9 @@
     { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Repairs, valuations, custom design or a question about a piece: call, email or drop in to 68 Langtree Avenue. To book a time, use the booking link.</p>" },
     { "type": "checkbox", "id": "show_email", "label": "Show store email", "default": true },
     { "type": "text", "id": "hours", "label": "Hours", "default": "Mon–Fri 9–5 · Sat 9:30–1:30" },
+    { "type": "text", "id": "second_store", "label": "Second store line", "info": "e.g. Jewellery 65: 65A Langtree Avenue, Mildura" },
+    { "type": "checkbox", "id": "show_map", "label": "Show map", "default": false },
+    { "type": "text", "id": "map_query", "label": "Map search", "default": "68 Langtree Avenue Mildura VIC 3500" },
     { "type": "text", "id": "booking_label", "label": "Booking button label", "default": "Book an appointment" },
     { "type": "text", "id": "button", "label": "Submit button", "default": "Send message" },
     { "type": "text", "id": "success", "label": "Success message", "default": "Thanks. We'll reply within one business day." },
