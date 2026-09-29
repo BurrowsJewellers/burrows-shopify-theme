@@ -237,7 +237,7 @@
         "type": "textarea",
         "id": "noindex_handles",
         "label": "Pages to keep out of Google (handles, one per line)",
-        "default": "ring-builder-test\nnivoda-test\ndiamonds-feed\ngemstone-feed\nstuller-iframe\ntwm-retailer-iframe\njeweller\nmap",
+        "default": "ring-builder-test\nnivoda-test\ndiamonds-feed\ngemstone-feed\nstuller-iframe\ntwm-retailer-iframe\njeweller\nmap\nblack-friday-sale\n3-day-sale\nholiday-promotion\njourneys-of-the-heart-2023\njourneys-of-the-heart-invite\njourney-of-hearts",
         "info": "Test pages, supplier iframes and internal tools. They stay reachable by URL but carry a noindex tag."
       },
       {

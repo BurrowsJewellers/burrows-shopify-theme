@@ -19,7 +19,10 @@
         "booking_label": "Book an appointment",
         "button": "Send message",
         "success": "Thanks. We'll reply within one business day.",
-        "background": "cream"
+        "background": "cream",
+        "second_store": "Jewellery 65, our fashion jewellery store: 65A Langtree Avenue, Mildura",
+        "show_map": true,
+        "map_query": "Burrows Jewellers, 68 Langtree Avenue, Mildura VIC 3500"
       }
     }
   },

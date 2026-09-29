@@ -50,6 +50,12 @@
     endcase
   endif
   assign desc = desc | replace: '&#39;', "'" | replace: '&rsquo;', '’' | replace: '&amp;', '&' | replace: '&nbsp;', ' ' | replace: '  ', ' '
+  comment
+    Shopify's page_description defaults to the first 320 characters of the content; Google shows about 160.
+  endcomment
+  if desc.size > 160
+    assign desc = desc | truncate: 160
+  endif
 
   assign og_title = page_title | default: shop_name
   assign og_url = canonical_url | default: request.origin
