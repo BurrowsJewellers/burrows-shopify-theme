@@ -1,0 +1,69 @@
+{%- comment -%}
+  Visitor gate (Theme settings → Visitor gate). Two parts, both skipped for search-engine and
+  marketing crawlers, the theme editor, checkout and account pages, and theme previews:
+
+  1. head: automated browsers (Selenium / Puppeteer / Playwright announce themselves via
+     navigator.webdriver) get a blank document before Shopify's analytics can load, so scraper runs
+     stop counting as sessions and get no catalogue.
+  2. body: visitors whose detected country is outside the allow list see a short "we ship within
+     Australia" page instead of the store, with a link to continue if they are a real person.
+     Detection uses Shopify's own browsing_context_suggestions endpoint; the answer is cached for the
+     session so it costs one small request per visit.
+{%- endcomment -%}
+{%- if settings.gate_enabled and request.design_mode == false -%}
+  {%- assign gate_part = part | default: 'head' -%}
+  {%- assign skip = false -%}
+  {%- if request.page_type == 'password' or request.path contains '/checkouts' or request.path contains '/account' or request.path contains '/cart' -%}{%- assign skip = true -%}{%- endif -%}
+  {%- unless skip -%}
+    {%- if gate_part == 'head' -%}
+<script>
+(function () {
+  try {
+    var ua = navigator.userAgent || '';
+    if (/Googlebot|Google-InspectionTool|Storebot-Google|AdsBot-Google|Mediapartners-Google|bingbot|DuckDuckBot|Applebot|YandexBot|Baiduspider|facebookexternalhit|facebookcatalog|meta-externalagent|Pinterest|Twitterbot|LinkedInBot|Klaviyo|Shopify|Lighthouse|PageSpeed|GTmetrix|Chrome-Lighthouse/i.test(ua)) return;
+    if (navigator.webdriver === true || /HeadlessChrome|PhantomJS|Headless/i.test(ua)) {
+      if (window.stop) window.stop();
+      document.open(); document.write('<!doctype html><title></title>'); document.close();
+    }
+  } catch (e) {}
+})();
+</script>
+    {%- else -%}
+<script>
+(function () {
+  try {
+    var allow = {{ settings.gate_allow | default: 'AU,NZ' | upcase | split: ',' | json }}.map(function (c) { return c.trim(); }).filter(Boolean);
+    if (!allow.length) return;
+    var ua = navigator.userAgent || '';
+    if (/Googlebot|Google-InspectionTool|Storebot-Google|AdsBot-Google|Mediapartners-Google|bingbot|DuckDuckBot|Applebot|YandexBot|Baiduspider|facebookexternalhit|facebookcatalog|meta-externalagent|Pinterest|Twitterbot|LinkedInBot|Klaviyo|Shopify|Lighthouse|PageSpeed|GTmetrix|Chrome-Lighthouse/i.test(ua)) return;
+    if (/preview_theme_id=|_ab=|_fd=/.test(location.search)) return;
+    var store; try { store = window.sessionStorage; } catch (e) { store = null; }
+    var cached = store && store.getItem('bj_geo');
+    if (cached === 'ok') return;
+    function gate() {
+      if (store) store.setItem('bj_geo', 'gate');
+      var msg = {{ settings.gate_message | default: 'Burrows Jewellers ships within Australia.' | json }};
+      var html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Burrows Jewellers</title>'
+        + '<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f7f4ee;color:#1b1c3a;font:16px/1.6 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;text-align:center;padding:24px}main{max-width:460px}h1{font-weight:500;font-size:26px;margin:0 0 12px}p{margin:0 0 10px}a{color:#1b1c3a}small{display:block;margin-top:22px;color:#6b6b78}</style></head>'
+        + '<body><main><h1>Burrows Jewellers, Mildura</h1><p>' + msg + '</p><p>Call <a href="tel:+61350232357">03 5023 2357</a> or email <a href="mailto:admin@burrowsjewellers.com.au">admin@burrowsjewellers.com.au</a>.</p>'
+        + '<small><a href="#" id="bj-continue">Continue to the website</a></small></main>'
+        + '<script>document.getElementById("bj-continue").onclick=function(e){e.preventDefault();try{sessionStorage.setItem("bj_geo","ok")}catch(x){}location.reload()};<\/script></body></html>';
+      if (window.stop) window.stop();
+      document.open(); document.write(html); document.close();
+    }
+    if (cached === 'gate') { gate(); return; }
+    fetch('/browsing_context_suggestions.json?source=geolocation_recommendation&country%5Benabled%5D=true', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        var c = j && j.detected_values && j.detected_values.country && j.detected_values.country.handle;
+        if (!c) return;
+        c = String(c).toUpperCase();
+        if (allow.indexOf(c) === -1) gate(); else if (store) store.setItem('bj_geo', 'ok');
+      })
+      .catch(function () {});
+  } catch (e) {}
+})();
+</script>
+    {%- endif -%}
+  {%- endunless -%}
+{%- endif -%}
