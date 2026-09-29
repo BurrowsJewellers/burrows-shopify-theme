@@ -27,24 +27,24 @@
         if collection.description != blank
           assign desc = collection.description | strip_html | strip_newlines | truncate: 155
         else
-          assign desc = 'Shop ' | append: collection.title | append: ' at ' | append: shop_name | append: ', Mildura — ' | append: collection.all_products_count | append: ' pieces in store and online, with free shipping Australia-wide over $99 and Afterpay available.'
+          assign desc = 'Shop ' | append: collection.title | append: ' at ' | append: shop_name | append: ', Mildura: ' | append: collection.all_products_count | append: ' pieces in store and online. Free shipping Australia-wide over $99, Afterpay available.'
         endif
       when 'product'
         assign desc = product.description | strip_html | strip_newlines | truncate: 155
         if desc == blank
-          assign desc = product.title | append: ' from ' | append: shop_name | append: ', Mildura. Family jewellers since 1975 — free shipping Australia-wide over $99, Afterpay available.'
+          assign desc = product.title | append: ' from ' | append: shop_name | append: ', Mildura. Family jewellers since 1975. Free shipping Australia-wide over $99, Afterpay available.'
         endif
       when 'page'
         assign desc = page.content | strip_html | strip_newlines | truncate: 155
         if desc == blank
-          assign desc = page.title | append: ' — ' | append: shop_name | append: ', Mildura. Family jewellers since 1975.'
+          assign desc = page.title | append: ' at ' | append: shop_name | append: ', Mildura. Family jewellers since 1975.'
         endif
       when 'article'
         assign desc = article.excerpt_or_content | strip_html | strip_newlines | truncate: 155
       when 'blog'
-        assign desc = blog.title | append: ' from ' | append: shop_name | append: ' — jewellery news, guides and stories from our Mildura workshop.'
+        assign desc = blog.title | append: ' from ' | append: shop_name | append: ': jewellery news, guides and stories from our Mildura store.'
       when 'list-collections'
-        assign desc = 'Browse every collection at ' | append: shop_name | append: ' — engagement rings, wedding bands, fine jewellery, watches and giftware, in store in Mildura and online.'
+        assign desc = 'Browse every collection at ' | append: shop_name | append: ': engagement rings, wedding bands, fine jewellery, watches and giftware, in store in Mildura and online.'
       else
         assign desc = shop.description | default: shop_name
     endcase
