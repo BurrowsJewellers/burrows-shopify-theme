@@ -286,33 +286,5 @@
         "default": true
       }
     ]
-  },
-  {
-    "name": "Visitor gate",
-    "settings": [
-      {
-        "type": "paragraph",
-        "content": "Turns away automated browsers before analytics loads, and shows visitors outside the allowed countries a short 'we ship within Australia' page with a link to continue. Search engines and ad crawlers are never gated."
-      },
-      {
-        "type": "checkbox",
-        "id": "gate_enabled",
-        "label": "Enable visitor gate",
-        "default": true
-      },
-      {
-        "type": "text",
-        "id": "gate_allow",
-        "label": "Allowed countries (ISO codes, comma separated)",
-        "default": "AU,NZ",
-        "info": "Visitors detected outside this list see the gate page. Leave empty to gate nobody by country."
-      },
-      {
-        "type": "text",
-        "id": "gate_message",
-        "label": "Gate page message",
-        "default": "Burrows Jewellers ships within Australia."
-      }
-    ]
   }
 ]
