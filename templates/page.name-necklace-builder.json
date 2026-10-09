@@ -1,0 +1,26 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "settings": {
+        "show_title": false,
+        "show_breadcrumbs": true
+      }
+    },
+    "builder": {
+      "type": "name-necklace-builder",
+      "settings": {
+        "api_base": "https://dashboard.burrowsjewellers.com.au/name-necklace/api",
+        "fonts_base": "https://dashboard.burrowsjewellers.com.au/name-necklace/fonts",
+        "default_alloy": "ag925",
+        "cart_enabled": true,
+        "show_stl": false,
+        "contact_url": "shopify://pages/contact"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "builder"
+  ]
+}
