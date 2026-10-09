@@ -1,0 +1,301 @@
+{%- comment -%}
+  Burrows Name Necklace Builder. Step 1 name · Step 2 style · Step 3 metal · Step 4 review and add to cart.
+
+  The designer runs in the browser (assets/name-necklace-core.js, generated from the name-necklace-builder repo)
+  and asks the name necklace API for prices. Add to cart posts the design to {{ api_base }}/build, which rebuilds
+  it, writes the casting STL and makes a hidden Shopify product at the quoted price; the theme adds that variant
+  to the cart with the design details as line item properties.
+
+  Script order matters. The geometry core looks for opentype.js, clipper-lib and earcut the moment it runs, so
+  those three load (deferred, in order) before it. three.js is fetched by name-necklace.js only when the page is
+  up, because the designer works without it (the 2D editor draws the plate itself).
+
+  Fonts come from {{ fonts_base }}/<file> (served by the API with CORS), so nothing heavy is inlined here.
+{%- endcomment -%}
+{%- assign s = section.settings -%}
+{%- assign api_base = s.api_base | strip | default: 'https://dashboard.burrowsjewellers.com.au/name-necklace/api' -%}
+{%- assign fonts_base = s.fonts_base | strip | default: 'https://dashboard.burrowsjewellers.com.au/name-necklace/fonts' -%}
+{{ 'name-necklace.css' | asset_url | stylesheet_tag }}
+<section class="full-width nn" id="nameNecklace" data-name-necklace>
+  <div class="nn__inner">
+    <header class="nn__head">
+      {%- if s.eyebrow != blank -%}<div class="eyebrow">{{ s.eyebrow }}</div>{%- endif -%}
+      <h1 class="nn__title">{{ s.heading }}</h1>
+      {%- if s.intro != blank -%}<p class="nn__intro lede">{{ s.intro }}</p>{%- endif -%}
+      <ol class="nn__steps" data-nn-steps aria-label="Steps">
+        <li data-step="1" class="on"><span>1</span>Name</li>
+        <li data-step="2"><span>2</span>Style</li>
+        <li data-step="3"><span>3</span>Metal</li>
+        <li data-step="4"><span>4</span>Review</li>
+      </ol>
+    </header>
+
+    <div class="nn__app" data-nn-app aria-busy="true">
+      <div class="nn__loading" id="loading"><span class="nn__spin"></span>Loading the designer…</div>
+
+      <div class="nn__stage" id="stage">
+        <svg class="nn__overlay" id="overlay" tabindex="-1" role="img" aria-label="Front view of the nameplate. Click a letter to select it."></svg>
+        <div class="nn__stage-msg" id="stageMsg" hidden></div>
+        <div class="nn__hud nn__hud--top">
+          <div class="nn__hud-left">
+            <div class="nn__seg nn__seg--hud" role="radiogroup" aria-label="View">
+              <label><input type="radio" name="view" value="2d" checked><span>2D</span></label>
+              <label><input type="radio" name="view" value="3d"><span>3D</span></label>
+            </div>
+            <span class="nn__hint" id="hint">Click a letter to adjust it · Shift-click for more</span>
+          </div>
+          <div class="nn__hud-right">
+            <button type="button" class="nn__mini" id="undoBtn" title="Undo (Ctrl+Z)" disabled>Undo</button>
+            <button type="button" class="nn__mini" id="resetBtn">Reset</button>
+          </div>
+        </div>
+        <div class="nn__confirm nn__confirm--stage" id="resetConfirm" hidden>
+          <p class="nn__note">Clear every letter adjustment and loop move?</p>
+          <div class="nn__row">
+            <button type="button" class="nn__mini nn__mini--solid" id="resetYes">Reset letters</button>
+            <button type="button" class="nn__mini" id="resetNo">Cancel</button>
+          </div>
+        </div>
+        <div class="nn__tool-rail" id="toolRail" role="toolbar" aria-label="Letter tools">
+          <button type="button" data-tool="move" aria-pressed="true" title="Move (M): drag, or arrow keys 0.1 mm (Shift 1 mm)"><span class="tl">Move</span><kbd>M</kbd></button>
+          <button type="button" data-tool="rotate" aria-pressed="false" title="Rotate (R): drag, or arrow keys 1 degree (Shift 5)"><span class="tl">Rotate</span><kbd>R</kbd></button>
+          <button type="button" data-tool="scale" aria-pressed="false" title="Scale (S): drag, or arrow keys 1% (Shift 5%)"><span class="tl">Scale</span><kbd>S</kbd></button>
+        </div>
+        <div class="nn__hud nn__hud--bottom">
+          <span class="nn__dims" id="dims"></span>
+          <div class="nn__issues" id="issues"></div>
+        </div>
+      </div>
+
+      <form class="nn__panel" id="controls" autocomplete="off" novalidate>
+        <div class="nn__block" data-block="1">
+          <h2 class="nn__h"><span>1</span>Name</h2>
+          <div class="nn__group">
+            <label class="nn__label" for="nameIn">The name</label>
+            <div class="nn__namefield">
+              <input type="text" id="nameIn" class="nn__text" maxlength="14" spellcheck="false" autocapitalize="words" value="Charlotte">
+              <span class="nn__counter" id="counter" aria-live="polite">9/14</span>
+            </div>
+            <p class="nn__warn" id="nameWarn" role="alert" hidden></p>
+            <p class="nn__note">Up to 14 characters. Letters join into one solid piece, so it casts and wears well.</p>
+          </div>
+        </div>
+
+        <div class="nn__block" data-block="2">
+          <h2 class="nn__h"><span>2</span>Style</h2>
+          <fieldset class="nn__group">
+            <legend class="nn__label">Font</legend>
+            <div class="nn__font-list" id="fontList"></div>
+          </fieldset>
+
+          <fieldset class="nn__group">
+            <legend class="nn__label">Height</legend>
+            <div class="nn__seg" id="heightSeg">
+              <label><input type="radio" name="height" value="small"><span>Small 8</span></label>
+              <label><input type="radio" name="height" value="medium" checked><span>Medium 12</span></label>
+              <label><input type="radio" name="height" value="large"><span>Large 16</span></label>
+              <label><input type="radio" name="height" value="custom"><span>Custom</span></label>
+            </div>
+            <div class="nn__row" id="heightRow" hidden>
+              <input type="number" id="heightIn" class="nn__num" min="6" max="25" step="0.5" value="12" aria-label="Height in millimetres">
+              <span class="nn__unit">mm</span>
+              <span class="nn__readout">custom 6 to 25 mm</span>
+            </div>
+          </fieldset>
+
+          <div class="nn__group">
+            <label class="nn__label" for="curveRange">Curve</label>
+            <div class="nn__slider">
+              <input type="range" id="curveRange" min="-180" max="180" step="5" value="0" list="curveTicks">
+              <input type="number" id="curveIn" class="nn__num" min="-180" max="180" step="5" value="0" aria-label="Curve in degrees of arc">
+              <span class="nn__unit">°</span>
+            </div>
+            <datalist id="curveTicks"><option value="0"></option></datalist>
+            <p class="nn__readout" id="curveReadout"><b>Flat</b></p>
+            <p class="nn__note">Bends the name along an arc. Positive lifts the ends like a smile, as it hangs on a chain; negative makes an arch.</p>
+          </div>
+
+          <fieldset class="nn__group">
+            <legend class="nn__label">Thickness <small>mm</small></legend>
+            <div class="nn__seg" id="thickSeg"></div>
+          </fieldset>
+
+          <fieldset class="nn__group">
+            <legend class="nn__label">Finish</legend>
+            <div class="nn__seg">
+              <label><input type="radio" name="finish" value="polished" checked><span>Polished</span></label>
+              <label><input type="radio" name="finish" value="brushed"><span>Brushed</span></label>
+              <label><input type="radio" name="finish" value="satin"><span>Satin</span></label>
+            </div>
+            {%- if s.finish_note != blank -%}<p class="nn__note">{{ s.finish_note }}</p>{%- endif -%}
+          </fieldset>
+
+          <details class="nn__more" id="paneAdvanced">
+            <summary class="nn__label">More options<span class="nn__pm" aria-hidden="true"></span></summary>
+            <div class="nn__more-body">
+              <div class="nn__group">
+                <label class="nn__label" for="ovRange">Letter overlap</label>
+                <div class="nn__slider">
+                  <input type="range" id="ovRange" min="0" max="1" step="0.05" value="0.3">
+                  <input type="number" id="ovIn" class="nn__num" min="0" max="1" step="0.05" value="0.30" aria-label="Overlap in millimetres">
+                  <span class="nn__unit">mm</span>
+                </div>
+                <p class="nn__note">How far each letter overlaps the one before it, at their closest point.</p>
+              </div>
+
+              <fieldset class="nn__group">
+                <legend class="nn__label">Chain loops</legend>
+                <div class="nn__seg">
+                  <label><input type="checkbox" id="loopL" checked><span>Left loop</span></label>
+                  <label><input type="checkbox" id="loopR" checked><span>Right loop</span></label>
+                </div>
+                <div class="nn__pair">
+                  <label for="loopOuter">Outer Ø</label>
+                  <input type="number" id="loopOuter" class="nn__num" min="2.5" max="5" step="0.1" value="3.2">
+                  <span class="nn__unit">mm</span>
+                  <label for="loopHole">Hole Ø</label>
+                  <input type="number" id="loopHole" class="nn__num" min="1" max="2.5" step="0.1" value="1.4">
+                  <span class="nn__unit">mm</span>
+                </div>
+                <p class="nn__warn" id="loopWarn" role="alert" hidden></p>
+                <p class="nn__note">Drag a loop in the editor to move it. One loop dragged on its own snaps level with the other.</p>
+              </fieldset>
+
+              <fieldset class="nn__group">
+                <legend class="nn__label">Dots on i and j</legend>
+                <div class="nn__seg">
+                  <label><input type="radio" name="dots" value="keep" checked><span>Keep</span></label>
+                  <label><input type="radio" name="dots" value="remove"><span>Remove</span></label>
+                </div>
+                <p class="nn__note">A kept dot usually floats free. Drag it down until it touches its letter.</p>
+              </fieldset>
+
+              {%- if s.show_stl -%}
+              <fieldset class="nn__group">
+                <legend class="nn__label">Mesh detail (testing)</legend>
+                <div class="nn__seg">
+                  <label><input type="radio" name="detail" value="draft"><span>Draft</span></label>
+                  <label><input type="radio" name="detail" value="standard" checked><span>Standard</span></label>
+                  <label><input type="radio" name="detail" value="fine"><span>Fine</span></label>
+                </div>
+              </fieldset>
+              <fieldset class="nn__group">
+                <legend class="nn__label">STL format (testing)</legend>
+                <div class="nn__seg">
+                  <label><input type="radio" name="format" value="binary" checked><span>Binary</span></label>
+                  <label><input type="radio" name="format" value="ascii"><span>ASCII text</span></label>
+                </div>
+              </fieldset>
+              {%- endif -%}
+            </div>
+          </details>
+        </div>
+
+        <div class="nn__block" data-block="3">
+          <h2 class="nn__h"><span>3</span>Metal</h2>
+          <div class="nn__group">
+            <div class="nn__alloys" id="alloyChips" role="radiogroup" aria-label="Metal"></div>
+            <p class="nn__note" id="weightLine"></p>
+          </div>
+        </div>
+
+        <div class="nn__block nn__block--review" data-block="4">
+          <h2 class="nn__h"><span>4</span>Review</h2>
+          <div class="nn__summary" id="summary"></div>
+          <div class="nn__total">
+            <span class="nn__label">Price · AUD incl. GST</span>
+            <p class="nn__price" id="priceOut" aria-live="polite"></p>
+          </div>
+          {%- if s.lead_time != blank -%}<p class="nn__lead">{{ s.lead_time }}</p>{%- endif -%}
+          <p class="nn__warn" id="looseWarn" hidden></p>
+          <p class="nn__warn" id="thinWarn" hidden></p>
+          <div class="nn__actions" id="actions">
+            <button type="submit" class="btn btn--gold btn--lg" id="addBtn" disabled>Add to cart</button>
+            {%- if settings.booking_url != blank -%}<a class="btn btn--outline-dark btn--lg" href="{{ settings.booking_url }}" target="_blank" rel="noopener">{{ s.booking_label | default: 'Book a consultation' }}</a>{%- endif -%}
+          </div>
+          <p class="nn__status" id="status" role="status" aria-live="polite"></p>
+          <p class="nn__note" id="enquiry"><a class="nn__link" id="enquiryLink" href="{{ s.contact_url | default: '/pages/contact' }}">Prefer to ask us about it first? Send an enquiry</a>{%- if settings.store_phone_display != blank %} or call {{ settings.store_phone_display }}.{%- endif -%}</p>
+          {%- if s.show_stl -%}
+          <div class="nn__stl" id="stlTools">
+            <div class="nn__label">Testing tools</div>
+            <div class="nn__row">
+              <button type="button" class="btn btn--outline-dark" id="saveBtn">Download STL</button>
+              <button type="button" class="nn__linkbtn" id="copyJson">Copy design JSON</button>
+            </div>
+            <div class="nn__confirm" id="saveConfirm" hidden>
+              <div class="nn__row">
+                <button type="button" class="nn__mini nn__mini--solid" id="saveAnyway">Save anyway</button>
+                <button type="button" class="nn__mini" id="saveCancel">Cancel</button>
+              </div>
+            </div>
+            <p class="nn__readout" id="stats"></p>
+          </div>
+          {%- endif -%}
+        </div>
+      </form>
+    </div>
+    <noscript><p class="nn__intro">The name necklace designer needs JavaScript. Call us on {{ settings.store_phone_display }} and we will design it with you.</p></noscript>
+  </div>
+  <script type="application/json" data-nn-config>
+    {
+      "apiBase": {{ api_base | json }},
+      "fontsBase": {{ fonts_base | json }},
+      "coreUrl": {{ 'name-necklace-core.js' | asset_url | json }},
+      "cartEnabled": {{ s.cart_enabled }},
+      "showStl": {{ s.show_stl }},
+      "defaultAlloy": {{ s.default_alloy | default: 'ag925' | json }},
+      "leadTime": {{ s.lead_time | json }},
+      "contactUrl": {{ s.contact_url | default: '/pages/contact' | json }},
+      "bookingUrl": {{ settings.booking_url | json }},
+      "bookingLabel": {{ s.booking_label | json }},
+      "phone": {{ settings.store_phone_display | json }},
+      "finishNote": {{ s.finish_note | json }}
+    }
+  </script>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/earcut@2.2.4/dist/earcut.min.js" defer></script>
+<script src="{{ 'name-necklace-core.js' | asset_url }}" defer></script>
+<script src="{{ 'name-necklace.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Name necklace builder",
+  "tag": "section",
+  "class": "section-name-necklace",
+  "limit": 1,
+  "settings": [
+    { "type": "header", "content": "Copy" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Made in our workshop" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Design your name necklace" },
+    { "type": "textarea", "id": "intro", "label": "Intro", "default": "Type a name, pick a font and a metal, and see it in 3D. Each piece is cast from your design and finished by hand in Mildura." },
+    { "type": "text", "id": "lead_time", "label": "Lead time line", "default": "Made to order · about 3 weeks" },
+    { "type": "text", "id": "finish_note", "label": "Finish note", "default": "Polished, brushed or satin. Done by hand after casting." },
+
+    { "type": "header", "content": "Name necklace API" },
+    { "type": "text", "id": "api_base", "label": "API base URL", "default": "https://dashboard.burrowsjewellers.com.au/name-necklace/api" },
+    { "type": "text", "id": "fonts_base", "label": "Fonts base URL", "default": "https://dashboard.burrowsjewellers.com.au/name-necklace/fonts" },
+    { "type": "select", "id": "default_alloy", "label": "Default metal", "default": "ag925", "options": [
+      { "value": "ag925", "label": "Sterling silver" },
+      { "value": "9y", "label": "9ct yellow gold" },
+      { "value": "9w", "label": "9ct white gold" },
+      { "value": "9r", "label": "9ct rose gold" },
+      { "value": "14y", "label": "14ct yellow gold" },
+      { "value": "14w", "label": "14ct white gold" },
+      { "value": "14r", "label": "14ct rose gold" },
+      { "value": "18y", "label": "18ct yellow gold" },
+      { "value": "18w", "label": "18ct white gold" },
+      { "value": "18r", "label": "18ct rose gold" },
+      { "value": "pt950", "label": "Platinum 950" }
+    ] },
+
+    { "type": "header", "content": "Review step" },
+    { "type": "checkbox", "id": "cart_enabled", "label": "Add to cart", "default": true, "info": "Shows Add to cart when the API has its Shopify credentials; otherwise customers send an enquiry." },
+    { "type": "checkbox", "id": "show_stl", "label": "Show STL download and design JSON (testing)", "default": false },
+    { "type": "url", "id": "contact_url", "label": "Enquiry link", "info": "Defaults to the contact page" },
+    { "type": "text", "id": "booking_label", "label": "Booking button label", "default": "Book a consultation" }
+  ],
+  "presets": [ { "name": "Name necklace builder" } ]
+}
+{% endschema %}
