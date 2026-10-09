@@ -662,8 +662,8 @@ const Nameplate = (() => {
     else if (o && o.type === 'dot') label = `the dot on ${o.ch}`;
     else if (o) {
       const l = result.letters.find((x) => x.index === o.index);
-      if (o.ch === "'" || o.ch === '\\u2019') label = 'the apostrophe';
-      else if (/[\\u0300-\\u036f]/.test(o.ch.normalize('NFD')) && g.bbox.minY > (l.bbox.minY + l.bbox.maxY) / 2) label = `the accent on ${o.ch}`;
+      if (o.ch === "'" || o.ch === '’') label = 'the apostrophe';
+      else if (/[̀-ͯ]/.test(o.ch.normalize('NFD')) && g.bbox.minY > (l.bbox.minY + l.bbox.maxY) / 2) label = `the accent on ${o.ch}`;
       else label = `part of ${o.ch}`;
     }
     return { group: gi, owners, label, area: g.area };
