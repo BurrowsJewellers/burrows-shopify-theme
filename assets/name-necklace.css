@@ -127,7 +127,9 @@
 .nn__mini:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 /* Stage: the 2D editor (SVG over a WebGL canvas) and the 3D view */
-.nn__stage { user-select: none; -webkit-user-select: none; position: sticky; top: calc(var(--header-height, 90px) + 16px); height: min(72vh, 620px); min-height: 400px; overflow: hidden; background: radial-gradient(120% 90% at 50% 30%, #ffffff, #ebe6da); border: 1px solid var(--nn-line); min-width: 0; }
+.nn__stage { user-select: none; -webkit-user-select: none; position: sticky; top: calc(var(--header-height, 90px) + 16px); height: min(72vh, 620px); min-height: 400px; overflow: hidden; background: radial-gradient(120% 90% at 50% 28%, #2b3566 0%, #171d50 45%, #0b0e2a 100%); border: 1px solid rgba(255, 255, 255, .08); min-width: 0; }
+/* The stage is a dark navy display case, so silver and gold both read as metal. Everything drawn on it is light. */
+.nn__stage .nn__hint { color: rgba(255, 255, 255, .62); }
 .nn__stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
 .nn__stage canvas:active { cursor: grabbing; }
 .nn__overlay { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; outline: none; }
@@ -136,7 +138,7 @@
 .nn__overlay[data-tool="rotate"].over { cursor: alias; }
 .nn__overlay[data-tool="scale"].over { cursor: nwse-resize; }
 .nn__stage.view3d .nn__overlay { pointer-events: none; }
-.nn__stage-msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--muted); font-size: 14px; pointer-events: none; }
+.nn__stage-msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: rgba(255, 255, 255, .7); font-size: 14px; pointer-events: none; }
 .nn__hud { position: absolute; left: 14px; right: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; pointer-events: none; flex-wrap: wrap; }
 .nn__hud--top { top: 12px; }
 .nn__hud--bottom { bottom: 12px; }
@@ -160,23 +162,23 @@
 .nn__tool-rail button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 /* SVG overlay marks: dimensions, checks, selection */
-.nn .dim { stroke: var(--muted); stroke-width: 1; fill: none; }
-.nn .dim-t { fill: var(--muted); font-family: var(--font-body); font-size: 11px; }
-.nn .ruler-t { fill: var(--muted); font-family: var(--font-body); font-size: 9.5px; }
+.nn .dim { stroke: rgba(255, 255, 255, .5); stroke-width: 1; fill: none; }
+.nn .dim-t { fill: rgba(255, 255, 255, .78); font-family: var(--font-body); font-size: 11px; }
+.nn .ruler-t { fill: rgba(255, 255, 255, .6); font-family: var(--font-body); font-size: 9.5px; }
 .nn .ov-fill { fill: url(#metalFill); stroke: rgba(0, 0, 0, .3); stroke-width: 0.6; }
-.nn .ov-box { fill: none; stroke: var(--nn-line); stroke-width: 1; }
-.nn .ov-loose { fill: url(#warnHatch); stroke: var(--nn-warn); stroke-width: 1.4; }
-.nn .ov-loose-edge { fill: none; stroke: var(--nn-warn-soft); stroke-width: 3.6; }
-.nn .ov-thin { fill: var(--nn-warn); stroke: var(--nn-warn-soft); stroke-width: 1.6; paint-order: stroke; stroke-linejoin: round; }
-.nn .hatch-a { fill: var(--nn-warn); }
-.nn .hatch-b { fill: var(--nn-warn-soft); }
-.nn .ov-hover { fill: none; stroke: var(--gold-dark); stroke-opacity: .6; stroke-width: 1; }
-.nn .ov-sel { fill: rgba(var(--gold-rgb), .12); stroke: var(--gold-dark); stroke-width: 1.6; stroke-linejoin: round; }
-.nn .ov-selbox { fill: none; stroke: var(--gold-dark); stroke-width: 1; stroke-dasharray: 4 3; }
+.nn .ov-box { fill: none; stroke: rgba(255, 255, 255, .16); stroke-width: 1; }
+.nn .ov-loose { fill: url(#warnHatch); stroke: #f3b23f; stroke-width: 1.4; }
+.nn .ov-loose-edge { fill: none; stroke: rgba(11, 14, 42, .7); stroke-width: 3.6; }
+.nn .ov-thin { fill: #f3b23f; stroke: rgba(11, 14, 42, .75); stroke-width: 1.6; paint-order: stroke; stroke-linejoin: round; }
+.nn .hatch-a { fill: #f3b23f; }
+.nn .hatch-b { fill: rgba(243, 178, 63, .25); }
+.nn .ov-hover { fill: none; stroke: #fff; stroke-opacity: .7; stroke-width: 1; }
+.nn .ov-sel { fill: rgba(var(--gold-rgb), .18); stroke: var(--gold); stroke-width: 1.6; stroke-linejoin: round; }
+.nn .ov-selbox { fill: none; stroke: var(--gold); stroke-width: 1; stroke-dasharray: 4 3; }
 .nn .ov-pivot { fill: var(--gold-dark); }
-.nn .ov-guide { fill: none; stroke: var(--gold-dark); stroke-width: 1; stroke-dasharray: 5 4; }
+.nn .ov-guide { fill: none; stroke: var(--gold); stroke-width: 1; stroke-dasharray: 5 4; }
 .nn .ov-guide.level { stroke-dasharray: none; stroke-width: 1.4; }
-.nn .ov-guide-t { fill: var(--gold-dark); font: 500 11.5px var(--font-body); paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+.nn .ov-guide-t { fill: var(--gold); font: 500 11.5px var(--font-body); paint-order: stroke; stroke: #0b0e2a; stroke-width: 3px; stroke-linejoin: round; }
 
 @media (max-width: 1023px) {
   .nn { padding: 28px var(--gutter-mobile) var(--section-pad-mobile); }
