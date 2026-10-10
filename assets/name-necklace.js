@@ -263,7 +263,7 @@
       return { x: view.cx + (e.clientX - r.left - W / 2) / view.s, y: view.cy - (e.clientY - r.top - H / 2) / view.s };
     };
 
-    const noPreview = { ok: false, set() {}, setMetal() {}, setFinish() {}, setView() {}, frame2d() {}, frame3d() {}, refit3d() {} };
+    const noPreview = { ok: false, set() {}, setMetal() {}, setFinish() {}, setView() {}, frame2d() {}, frame3d() {}, refit3d() {}, snapshot() { return ''; } };
     let preview = noPreview;
     // three.js arrives after the page is up (it is the biggest download); until then the overlay draws the plate.
     function createPreview() {
@@ -393,6 +393,30 @@
           persp.lookAt(cx, cy, box.T / 2);
         },
         refit3d() { framed3d = false; if (active === persp) api.frame3d(); },
+        // A square picture of the plate, face on, for the product in the cart. Rendered into the same canvas at
+        // a fixed size (the CSS keeps it stretched to the stage, so nothing moves on screen), copied out at once,
+        // then the normal size is put back. Returns a JPEG data URL, or '' if anything is missing.
+        snapshot(px = 1000, bg = '#ece3d2') {
+          if (!box) return '';
+          try {
+            const w = box.maxX - box.minX, h = box.maxY - box.minY;
+            const cx = (box.minX + box.maxX) / 2, cy = (box.minY + box.maxY) / 2;
+            const span = Math.max(w, h * 1.4, 8) * 1.15;
+            const cam = new THREE.OrthographicCamera(-span / 2, span / 2, span / 2, -span / 2, 0.1, 1000);
+            cam.position.set(cx, cy, 200); cam.lookAt(cx, cy, 0); cam.updateProjectionMatrix();
+            const fi = front.intensity, ki = key.intensity, fp = front.position.clone(), pr = renderer.getPixelRatio();
+            front.position.set(cx - w * 0.28, cy + w * 0.2, w * 0.55); front.intensity = 1; key.intensity = 0.55;
+            renderer.setPixelRatio(1); renderer.setSize(px, px, false);
+            renderer.render(scene, cam);
+            const out = document.createElement('canvas'); out.width = px; out.height = px;
+            const g = out.getContext('2d');
+            g.fillStyle = bg; g.fillRect(0, 0, px, px);
+            g.drawImage(renderer.domElement, 0, 0, px, px);
+            front.position.copy(fp); front.intensity = fi; key.intensity = ki;
+            renderer.setPixelRatio(pr); resize(); renderer.render(scene, active);
+            return out.toDataURL('image/jpeg', 0.88);
+          } catch (e) { try { resize(); } catch (e2) { /* ignore */ } return ''; }
+        },
       };
       if (window.ResizeObserver) new ResizeObserver(() => { resize(); fitIfNeeded(); renderOverlay(); }).observe(stage);
       else window.addEventListener('resize', () => { resize(); renderOverlay(); });
@@ -889,20 +913,28 @@
       return String(cfg.contactUrl || '/pages/contact') + '?' + q.toString() + '#contact';
     };
     const stlAbsolute = (u) => (/^https?:\/\//i.test(u) ? u : apiBase + String(u).replace(/^\/api(?=\/)/, ''));
+    const previewPicture = () => (preview && preview.ok ? preview.snapshot(1000, (getComputedStyle(root).getPropertyValue('--sand') || '').trim() || '#ece3d2') : '');
     async function addToCart() {
       if (!result || buildError || adding) return;
       if (cartState === 'off') { location.href = enquiryHref(); return; }
       if (result.loose.length) { $('looseWarn').hidden = false; $('looseWarn').scrollIntoView({ block: 'center', behavior: 'smooth' }); say('Join up the loose pieces first.', true); return; }
       adding = true; say(''); renderSaveState();
       let st = 0, j = {};
+      // The picture of the design goes with the build so the hidden product (and so the cart) has an image.
+      let picture = '';
+      try { picture = previewPicture(); } catch (e) { picture = ''; }
       try {
-        const res = await fetch(apiBase + '/build', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ design: JSON.parse(N.designJSON(design)), alloy: alloy.key }) });
+        const payload = { design: JSON.parse(N.designJSON(design)), alloy: alloy.key };
+        if (picture && picture.length < 800000) payload.preview = picture;
+        const res = await fetch(apiBase + '/build', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
         st = res.status; j = await res.json().catch(() => ({}));
       } catch (e) { st = 0; }
       if (st === 200 && j.variant_id) {
         const props = {
           'Build': j.build, 'Name': design.text, 'Font': fontName(), 'Height': `${design.height} mm`, 'Thickness': `${design.thickness.toFixed(1)} mm`,
-          'Metal': j.alloyName || alloy.name, 'Finish': cap(design.finish || 'polished'), 'Lead time': cfg.leadTime || '', 'STL': stlAbsolute(j.stl_url || ''),
+          'Metal': j.alloyName || alloy.name, 'Finish': cap(design.finish || 'polished'), 'Lead time': cfg.leadTime || '',
+          // Underscore: Shopify keeps the link off the cart, checkout and customer emails; staff see it on the order.
+          '_STL': stlAbsolute(j.stl_url || ''),
         };
         if (!props['Lead time']) delete props['Lead time'];
         try {
