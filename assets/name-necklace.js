@@ -285,7 +285,9 @@
       const c = document.createElement('canvas'); c.width = 512; c.height = 256;
       const g = c.getContext('2d');
       const grd = g.createLinearGradient(0, 0, 0, 256);
-      grd.addColorStop(0, '#ffffff'); grd.addColorStop(0.42, '#c3c9c6'); grd.addColorStop(0.52, '#5f6664'); grd.addColorStop(1, '#202423');
+      // Brighter around the horizon than the ring tool: the 2D view looks straight at the face, which reflects
+      // the middle of this map, so a dark horizon made silver look grey on the navy stage.
+      grd.addColorStop(0, '#ffffff'); grd.addColorStop(0.4, '#dfe4e2'); grd.addColorStop(0.5, '#aab1ae'); grd.addColorStop(0.62, '#6a716f'); grd.addColorStop(1, '#202423');
       g.fillStyle = grd; g.fillRect(0, 0, 512, 256);
       g.fillStyle = 'rgba(255,255,255,0.95)'; g.fillRect(40, 50, 110, 46); g.fillRect(290, 36, 150, 34);
       g.fillStyle = 'rgba(255,255,255,0.55)'; g.fillRect(190, 150, 70, 18); g.fillRect(450, 120, 40, 60);
@@ -298,7 +300,7 @@
       // Front light for the 2D view: a soft hotspot upper left, so the flat face reads as polished metal.
       const front = new THREE.PointLight(0xffffff, 0, 0, 2); scene.add(front);
 
-      const COLORS = { yellow: 0xF0B550, rose: 0xE8A080, white: 0xD8DCDE };
+      const COLORS = { yellow: 0xF0B550, rose: 0xE8A080, white: 0xE3E7EA };
       const mat = new THREE.MeshStandardMaterial({ color: COLORS.yellow, metalness: 1, roughness: 0.28 });
       // Brushed: fine streaks along the length of the name, drawn on a canvas and used as roughness and bump.
       // r128 has no anisotropic metal, so the streaks carry the look. Satin is an even, soft roughness.
@@ -396,7 +398,7 @@
         // A square picture of the plate, face on, for the product in the cart. Rendered into the same canvas at
         // a fixed size (the CSS keeps it stretched to the stage, so nothing moves on screen), copied out at once,
         // then the normal size is put back. Returns a JPEG data URL, or '' if anything is missing.
-        snapshot(px = 1000, bg = '#ece3d2') {
+        snapshot(px = 1000, bgInner = '#2b3566', bgOuter = '#0b0e2a') {
           if (!box) return '';
           try {
             const w = box.maxX - box.minX, h = box.maxY - box.minY;
@@ -410,7 +412,10 @@
             renderer.render(scene, cam);
             const out = document.createElement('canvas'); out.width = px; out.height = px;
             const g = out.getContext('2d');
-            g.fillStyle = bg; g.fillRect(0, 0, px, px);
+            // Same navy display case as the stage, lit from the top like the page.
+            const grd = g.createRadialGradient(px / 2, px * 0.3, px * 0.05, px / 2, px * 0.3, px * 0.95);
+            grd.addColorStop(0, bgInner); grd.addColorStop(0.45, '#171d50'); grd.addColorStop(1, bgOuter);
+            g.fillStyle = grd; g.fillRect(0, 0, px, px);
             g.drawImage(renderer.domElement, 0, 0, px, px);
             front.position.copy(fp); front.intensity = fi; key.intensity = ki;
             renderer.setPixelRatio(pr); resize(); renderer.render(scene, active);
@@ -913,7 +918,7 @@
       return String(cfg.contactUrl || '/pages/contact') + '?' + q.toString() + '#contact';
     };
     const stlAbsolute = (u) => (/^https?:\/\//i.test(u) ? u : apiBase + String(u).replace(/^\/api(?=\/)/, ''));
-    const previewPicture = () => (preview && preview.ok ? preview.snapshot(1000, (getComputedStyle(root).getPropertyValue('--sand') || '').trim() || '#ece3d2') : '');
+    const previewPicture = () => (preview && preview.ok ? preview.snapshot(1000) : '');
     async function addToCart() {
       if (!result || buildError || adding) return;
       if (cartState === 'off') { location.href = enquiryHref(); return; }
