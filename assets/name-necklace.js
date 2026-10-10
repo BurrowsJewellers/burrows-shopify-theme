@@ -891,9 +891,9 @@
     // quoted price. The theme adds that variant with the design details as line item properties.
     const addBtn = $('addBtn'), status = $('status');
     let cartState = cfg.cartEnabled ? 'checking' : 'off'; // 'checking' | 'on' | 'off'
-    let adding = false;
+    let adding = false, picturesOn = false; // picturesOn: the server takes a design picture with the build
     if (cfg.cartEnabled) {
-      fetch(apiBase + '/health').then((r) => r.json()).then((j) => { cartState = j && j.cart ? 'on' : 'off'; renderSaveState(); }).catch(() => { cartState = 'on'; renderSaveState(); }); // unsure: let /build decide
+      fetch(apiBase + '/health').then((r) => r.json()).then((j) => { cartState = j && j.cart ? 'on' : 'off'; picturesOn = !!(j && j.pictures); renderSaveState(); }).catch(() => { cartState = 'on'; renderSaveState(); }); // unsure: let /build decide
     }
     function say(text, isErr) { status.textContent = text || ''; status.classList.toggle('err', !!isErr); }
     function renderSaveState() {
@@ -922,7 +922,7 @@
       let st = 0, j = {};
       // The picture of the design goes with the build so the hidden product (and so the cart) has an image.
       let picture = '';
-      try { picture = previewPicture(); } catch (e) { picture = ''; }
+      if (picturesOn) { try { picture = previewPicture(); } catch (e) { picture = ''; } }
       try {
         const payload = { design: JSON.parse(N.designJSON(design)), alloy: alloy.key };
         if (picture && picture.length < 800000) payload.preview = picture;
