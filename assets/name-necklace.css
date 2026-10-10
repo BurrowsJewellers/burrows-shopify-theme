@@ -85,9 +85,18 @@
 .nn__more-body { display: flex; flex-direction: column; gap: 22px; padding: 4px 0 22px; }
 
 /* Step 3: metal chips, grouped by carat */
-.nn__alloys { display: flex; flex-direction: column; gap: 10px; }
-.nn__alloy-row { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: 10px; }
-.nn__alloy-row .g { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.nn__alloys { display: flex; flex-direction: column; gap: 14px; }
+/* Metal: five tiles with a metal swatch; gold purity appears underneath once a gold is picked. */
+.nn__metal-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.nn__tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; min-height: 86px; padding: 12px 6px 10px; border: 1px solid rgba(var(--gold-dark-rgb), .35); background: #fff; font: inherit; font-size: 12.5px; line-height: 1.2; color: var(--body); text-align: center; cursor: pointer; font-family: var(--font-body); }
+.nn__tile i { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, .85) 0, var(--sw) 38%, var(--sw2) 100%); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .1), 0 1px 2px rgba(0, 0, 0, .15); flex: none; }
+.nn__tile:hover { border-color: var(--gold); }
+.nn__tile:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.nn__tile.on { background: var(--ink); border-color: var(--ink); color: var(--cream); font-weight: 500; }
+.nn__tile.on i { box-shadow: 0 0 0 2px var(--ink), 0 0 0 3.5px var(--gold); }
+.nn__purity { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.nn__purity-l { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.nn__purity-note { font-size: 12.5px; color: var(--muted); }
 .nn__chips { display: flex; gap: 8px; flex-wrap: wrap; }
 .nn__chip { min-width: 44px; height: 44px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(var(--gold-dark-rgb), .35); background: transparent; font: inherit; font-size: 13.5px; color: var(--body); cursor: pointer; font-family: var(--font-body); }
 .nn__chip i { width: 12px; height: 12px; border-radius: 50%; background: var(--sw, #ccc); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12); flex: none; }
@@ -195,7 +204,7 @@
   .nn__steps li { font-size: 0; gap: 0; }
   .nn__steps li span { font-size: 12px; }
   .nn__steps li.on { font-size: 11px; gap: 8px; }
-  .nn__alloy-row { grid-template-columns: 1fr; gap: 6px; }
+  .nn__metal-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 520px) {
   .nn__stage { height: 300px; }

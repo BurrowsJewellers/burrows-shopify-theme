@@ -222,29 +222,46 @@
     }));
     root.querySelectorAll('[data-block]').forEach((b) => b.addEventListener('focusin', () => setStep(+b.dataset.block)));
 
-    /* ---------- metal (alloy chips) ---------- */
-    // One row per group: sterling silver, 9ct, 14ct, 18ct, platinum. Yellow / white / rose sit together on a row.
+    /* ---------- metal (alloy picker) ---------- */
+    // Two small choices instead of eleven buttons: the metal (silver, yellow / white / rose gold, platinum), then
+    // the gold purity (9ct / 14ct / 18ct) which only appears once a gold is chosen.
     const colourOf = (a) => (a.colour === 'Rose' ? 'rose' : a.colour === 'Yellow' ? 'yellow' : 'white');
     const SWATCH = { yellow: '#E7B85A', rose: '#DFA084', white: '#CDD1D2' };
+    const METALS = [
+      { id: 'silver', label: 'Sterling silver', sw: ['#E3E6E8', '#9EA5A9'], key: 'ag925' },
+      { id: 'yellow', label: 'Yellow gold', sw: ['#F1CB7A', '#B88A2E'], colour: 'Yellow' },
+      { id: 'white', label: 'White gold', sw: ['#DEE2E4', '#98A0A5'], colour: 'White' },
+      { id: 'rose', label: 'Rose gold', sw: ['#EBB59B', '#B46F4E'], colour: 'Rose' },
+      { id: 'platinum', label: 'Platinum', sw: ['#D7DCDF', '#86909A'], key: 'pt950' },
+    ].filter((m) => m.key ? Alloys.byKey(m.key) : Alloys.ALLOYS.some((a) => a.colour === m.colour));
+    const PURITIES = [...new Set(Alloys.ALLOYS.filter((a) => a.colour).map((a) => a.group))]; // 9ct, 14ct, 18ct
+    const PURITY_NOTE = { '9ct': 'Hard-wearing, best value', '14ct': 'Richer colour, still tough', '18ct': 'Richest colour, softer' };
     const chipsEl = $('alloyChips');
-    {
-      const order = ['Sterling silver', '9ct', '14ct', '18ct', 'Platinum 950'];
-      const groups = order.filter((g) => Alloys.ALLOYS.some((a) => a.group === g)).concat([...new Set(Alloys.ALLOYS.map((a) => a.group))].filter((g) => !order.includes(g)));
-      for (const g of groups) {
-        const list = Alloys.ALLOYS.filter((a) => a.group === g);
-        const row = document.createElement('div');
-        row.className = 'nn__alloy-row';
-        const many = list.length > 1;
-        row.innerHTML = `<span class="g">${esc(many ? g + ' gold' : g)}</span><div class="nn__chips">${list.map((a) => `<button type="button" class="nn__chip" role="radio" aria-checked="false" data-alloy="${a.key}" style="--sw:${SWATCH[colourOf(a)]}"><i aria-hidden="true"></i>${esc(many ? a.colour : a.name)}</button>`).join('')}</div>`;
-        chipsEl.appendChild(row);
-      }
-      chipsEl.querySelectorAll('.nn__chip').forEach((b) => b.addEventListener('click', () => setAlloy(b.dataset.alloy)));
-    }
+    let purity = PURITIES.includes('9ct') ? '9ct' : PURITIES[0];
+    const metalOf = (a) => (a.key === 'ag925' ? 'silver' : a.key === 'pt950' ? 'platinum' : colourOf(a));
+    const goldKey = (colour, group) => { const a = Alloys.ALLOYS.find((x) => x.colour === colour && x.group === group); return a ? a.key : null; };
+    chipsEl.innerHTML = `<div class="nn__metal-tiles" role="radiogroup" aria-label="Metal">${METALS.map((m) => `<button type="button" class="nn__tile" role="radio" aria-checked="false" data-metal="${m.id}" style="--sw:${m.sw[0]};--sw2:${m.sw[1]}"><i aria-hidden="true"></i><span>${esc(m.label)}</span></button>`).join('')}</div>
+      <div class="nn__purity" data-purity hidden><span class="nn__purity-l">Gold purity</span><div class="nn__chips" role="radiogroup" aria-label="Gold purity">${PURITIES.map((g) => `<button type="button" class="nn__chip" role="radio" aria-checked="false" data-purity-key="${esc(g)}">${esc(g)}</button>`).join('')}</div><span class="nn__purity-note" data-purity-note></span></div>`;
+    chipsEl.querySelectorAll('.nn__tile').forEach((b) => b.addEventListener('click', () => {
+      const m = METALS.find((x) => x.id === b.dataset.metal);
+      if (!m) return;
+      setAlloy(m.key || goldKey(m.colour, purity) || goldKey(m.colour, PURITIES[0]));
+    }));
+    chipsEl.querySelectorAll('[data-purity-key]').forEach((b) => b.addEventListener('click', () => {
+      purity = b.dataset.purityKey;
+      if (alloy.colour) setAlloy(goldKey(alloy.colour, purity) || alloy.key);
+    }));
     function setAlloy(key) {
       const a = Alloys.byKey(key);
       if (!a) return;
       alloy = a;
-      chipsEl.querySelectorAll('.nn__chip').forEach((b) => { const on = b.dataset.alloy === key; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
+      if (a.colour) purity = a.group;
+      const metal = metalOf(a);
+      chipsEl.querySelectorAll('.nn__tile').forEach((b) => { const on = b.dataset.metal === metal; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
+      const pur = chipsEl.querySelector('[data-purity]');
+      pur.hidden = !a.colour;
+      chipsEl.querySelectorAll('[data-purity-key]').forEach((b) => { const on = b.dataset.purityKey === purity; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
+      chipsEl.querySelector('[data-purity-note]').textContent = a.colour ? (PURITY_NOTE[purity] || '') : '';
       settings.metal = colourOf(a);
       preview.setMetal(settings.metal);
       if (!preview.ok) renderOverlay();
