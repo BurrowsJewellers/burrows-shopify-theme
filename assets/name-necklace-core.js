@@ -137,7 +137,10 @@ const Nameplate = (() => {
   const IO = typeof StlIO !== 'undefined' ? StlIO : require('../../shared/stl-io.js');
 
   // Limits to confirm with the casting house or laser cutter.
-  const MIN_FEATURE = 0.5;     // mm: strokes narrower than this are flagged
+  const MIN_FEATURE = 0.6;     // mm: strokes narrower than this are flagged (and what reinforcement widens them to)
+  const REINFORCE_STEP = 0.1;  // mm: each reinforcement pass widens the thin parts by this much per side
+  const REINFORCE_PASSES = 8;  // enough for a hairline to reach MIN_FEATURE
+  const REINFORCE_SMOOTH = 0.06; // mm: closing radius that rounds off the steps where widened parts meet the stroke
   const MIN_LOOP_WALL = 0.6;   // mm: (outer - hole) / 2
   const LOOP_MIN_JOIN = 0.1;   // mm: a loop always overlaps the outline by at least this, so overlap 0 can't leave it touching at a point
   const MIN_JOIN_AREA = 0.002; // mm²: two neighbouring letters sharing less than this don't count as joined
@@ -171,7 +174,7 @@ const Nameplate = (() => {
     return {
       version: 1, text: 'Charlotte', font: 'greatvibes', height: 12, thickness: 1.2, overlap: 0.3,
       loops: { outer: 3.2, hole: 1.4, left: { on: true, dx: 0, dy: 0 }, right: { on: true, dx: 0, dy: 0 } },
-      dots: 'keep', curve: 0, finish: 'polished', letters: [],
+      dots: 'keep', curve: 0, finish: 'polished', reinforce: false, letters: [],
     };
   }
   const isSpace = (ch) => /\s/.test(ch);
@@ -615,7 +618,17 @@ const Nameplate = (() => {
       lp.holePath = circle(lp.cx, lp.cy, lp.hole / 2, tol);
     }
     // Union the discs with the text, then subtract the holes so nothing can fill them.
-    const tree = clip(text.concat(loops.map((lp) => toInt(lp.outerPath))), loops.map((lp) => toInt(lp.holePath)), CL.ClipType.ctDifference, { tree: true, strict: true });
+    let tree = clip(text.concat(loops.map((lp) => toInt(lp.outerPath))), loops.map((lp) => toInt(lp.holePath)), CL.ClipType.ctDifference, { tree: true, strict: true });
+
+    // 9b. Reinforcement, when the design asks for it: thin parts are widened, then the loop holes are cut again
+    // so a widened stroke can never close one.
+    let reinforced = null;
+    if (design.reinforce) {
+      const all = treeGroups(tree).filter((g) => g.area > 1e-9).flatMap((g) => [g.outer, ...g.holes]);
+      const r = reinforceThin(all, tol);
+      reinforced = { passes: r.passes, addedArea: r.addedArea };
+      if (r.passes) tree = clip(r.paths, loops.map((lp) => toInt(lp.holePath)), CL.ClipType.ctDifference, { tree: true, strict: true });
+    }
 
     // 10. Pieces.
     const groups = treeGroups(tree).filter((g) => g.area > 1e-9);
@@ -631,7 +644,7 @@ const Nameplate = (() => {
       letters: letters.map((l) => ({ index: l.index, ch: l.ch, angle: l.angle || 0, paths: l.paths.concat(l.dotPaths), body: l.paths, dotPaths: l.dotPaths, bbox: bboxOf(l.paths.concat(l.dotPaths)), adj: l.adj })),
       pairs, loops, loopError: loopErr, groups, pieces: groups.length, area, bbox,
       width: bbox.maxX - bbox.minX, height: bbox.maxY - bbox.minY,
-      loose: [], thin: [], thinArea: 0,
+      loose: [], thin: [], thinArea: 0, reinforced,
     };
 
     // 11. Checks.
@@ -684,22 +697,45 @@ const Nameplate = (() => {
   // Morphological opening: shrink by w/2, grow back by w/2. What the opening loses is narrower than w.
   // A small extra growth hides polygonisation slivers. Leftovers smaller than a quarter of a w x w square are
   // corner nicks, pointed terminals and small steps where letters meet, not strokes, so they are ignored.
-  function thinCheck(groups, tol) {
+  // Works on integer paths (outers and holes together); returns the thin parts as integer groups.
+  function thinParts(all, tol) {
     const w = MIN_FEATURE * SCALE, slack = 0.02 * SCALE;
-    const all = groups.flatMap((g) => [g.outer, ...g.holes]);
-    if (!all.length) return { thin: [], thinArea: 0 };
+    if (!all.length) return [];
     const arcTol = Math.max(tol * 0.5, 0.002) * SCALE;
     const opened = offsetInt(offsetInt(all, -w / 2, arcTol), w / 2 + slack, arcTol);
     const diff = clip(all, opened, CL.ClipType.ctDifference, { tree: true });
     const minArea = 0.25 * MIN_FEATURE * MIN_FEATURE;
+    return treeGroups(diff).filter((g) => g.area >= minArea);
+  }
+  function thinCheck(groups, tol) {
     const thin = [];
     let thinArea = 0;
-    for (const g of treeGroups(diff)) {
-      if (g.area < minArea) continue;
+    for (const g of thinParts(groups.flatMap((g) => [g.outer, ...g.holes]), tol)) {
       thinArea += g.area;
       thin.push([toFloat(g.outer), ...g.holes.map(toFloat)]);
     }
     return { thin, thinArea };
+  }
+
+  // Reinforcement (design.reinforce): widen only the parts under MIN_FEATURE, a little at a time, until nothing
+  // is thinner than the casting minimum. Body strokes keep their shape; hairline joins come up to MIN_FEATURE.
+  // A final closing rounds off the small steps where a widened part meets its stroke. Returns integer paths.
+  function reinforceThin(all, tol) {
+    const arcTol = Math.max(tol * 0.5, 0.002) * SCALE;
+    const areaOf = (paths) => paths.reduce((a, p) => a + intArea(p), 0) / (SCALE * SCALE);
+    const before = areaOf(all);
+    let paths = all, passes = 0, thin = thinParts(paths, tol);
+    while (thin.length && passes < REINFORCE_PASSES) {
+      const grown = offsetInt(thin.flatMap((g) => [g.outer, ...g.holes]), REINFORCE_STEP * SCALE, arcTol);
+      paths = unionInt(paths.concat(grown));
+      thin = thinParts(paths, tol);
+      passes++;
+    }
+    if (passes) {
+      const r = REINFORCE_SMOOTH * SCALE;
+      paths = offsetInt(offsetInt(paths, r, arcTol), -r, arcTol);
+    }
+    return { paths, passes, addedArea: Math.max(0, areaOf(paths) - before) };
   }
 
   /* ---------- mesh ---------- */
@@ -854,12 +890,12 @@ const Nameplate = (() => {
     const letters = Array.from(design.text).map((_, i) => Object.assign(defaultLetter(), (design.letters || [])[i]));
     return JSON.stringify({
       version: design.version || 1, text: design.text, font: design.font, height: design.height, thickness: design.thickness,
-      overlap: design.overlap, curve: design.curve || 0, finish: design.finish || 'polished', dots: design.dots, loops: design.loops, letters,
+      overlap: design.overlap, curve: design.curve || 0, finish: design.finish || 'polished', reinforce: !!design.reinforce, dots: design.dots, loops: design.loops, letters,
     });
   }
 
   return {
-    MIN_FEATURE, MIN_LOOP_WALL, LOOP_MIN_JOIN, SCALE, MAX_CHARS, SCANLINES, HEIGHTS, HEIGHT_RANGE, THICKNESSES, OVERLAP_RANGE,
+    MIN_FEATURE, REINFORCE_STEP, MIN_LOOP_WALL, LOOP_MIN_JOIN, SCALE, MAX_CHARS, SCANLINES, HEIGHTS, HEIGHT_RANGE, THICKNESSES, OVERLAP_RANGE,
     LOOP_OUTER_RANGE, LOOP_HOLE_RANGE, SCALE_RANGE, CURVE_RANGE, DETAIL, FONTS,
     fontMeta, defaultDesign, defaultLetter, build, buildMesh, buildDisplay, loopWallError, hitTest, retainLetters,
     fileBase, designJSON, minGap, extentsAt, touchArea, flatten,
