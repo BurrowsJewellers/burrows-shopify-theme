@@ -37,23 +37,14 @@
         <svg class="nn__overlay" id="overlay" tabindex="-1" role="img" aria-label="Front view of the nameplate. Click a letter to select it."></svg>
         <div class="nn__stage-msg" id="stageMsg" hidden></div>
         <div class="nn__size" id="sizeView" hidden>
-          <svg class="nn__size-svg" id="sizeSvg" role="img" aria-label="The nameplate shown at real-world size"></svg>
-          <div class="nn__calib" id="calib" hidden>
-            <p class="nn__calib-t">Match the card to your screen</p>
-            <div class="nn__calib-card" id="calibCard"><span>Hold a bank card against the screen and drag until the outline matches it</span></div>
-            <input type="range" id="calibRange" min="250" max="800" step="1" aria-label="Screen scale">
-            <div class="nn__row">
-              <button type="button" class="nn__mini nn__mini--solid" id="calibOk">Looks right</button>
-              <button type="button" class="nn__mini" id="calibSkip">Skip</button>
-            </div>
-          </div>
+          <svg class="nn__size-svg" id="sizeSvg" role="img" aria-label="The nameplate shown to scale on a neck"></svg>
         </div>
         <div class="nn__hud nn__hud--top">
           <div class="nn__hud-left">
             <div class="nn__seg nn__seg--hud" role="radiogroup" aria-label="View">
               <label><input type="radio" name="view" value="2d" checked><span>2D</span></label>
               <label><input type="radio" name="view" value="3d"><span>3D</span></label>
-              <label><input type="radio" name="view" value="size"><span>Real size</span></label>
+              <label><input type="radio" name="view" value="size"><span>On a neck</span></label>
             </div>
             <span class="nn__hint" id="hint">Click a letter to adjust it · Shift-click for more</span>
           </div>
@@ -263,7 +254,9 @@
       "bookingUrl": {{ settings.booking_url | json }},
       "bookingLabel": {{ s.booking_label | json }},
       "phone": {{ settings.store_phone_display | json }},
-      "finishNote": {{ s.finish_note | json }}
+      "finishNote": {{ s.finish_note | json }},
+      "neckImage": {% if s.neck_image %}{{ s.neck_image | image_url: width: 1600 | json }}{% else %}null{% endif %},
+      "neck": { "widthMm": {{ s.neck_width_mm | default: 105 }}, "left": [{{ s.neck_left_x | default: 35 }}, {{ s.neck_left_y | default: 38 }}], "right": [{{ s.neck_right_x | default: 65 }}, {{ s.neck_right_y | default: 38 }}], "notch": [{{ s.neck_notch_x | default: 50 }}, {{ s.neck_notch_y | default: 52 }}] }
     }
   </script>
 </section>
@@ -303,6 +296,16 @@
       { "value": "18r", "label": "18ct rose gold" },
       { "value": "pt950", "label": "Platinum 950" }
     ] },
+
+    { "type": "header", "content": "On a neck photo" },
+    { "type": "image_picker", "id": "neck_image", "label": "Neck photo", "info": "Front-on, shoulders and collarbones visible, no jewellery. Leave empty for the line drawing." },
+    { "type": "number", "id": "neck_width_mm", "label": "Real distance between the two chain points (mm)", "default": 105, "info": "Where the chain comes over each shoulder, as it would be measured on the person." },
+    { "type": "number", "id": "neck_left_x", "label": "Left chain point, x (% of photo width)", "default": 35 },
+    { "type": "number", "id": "neck_left_y", "label": "Left chain point, y (% of photo height)", "default": 38 },
+    { "type": "number", "id": "neck_right_x", "label": "Right chain point, x (%)", "default": 65 },
+    { "type": "number", "id": "neck_right_y", "label": "Right chain point, y (%)", "default": 38 },
+    { "type": "number", "id": "neck_notch_x", "label": "Collarbone notch, x (%)", "default": 50 },
+    { "type": "number", "id": "neck_notch_y", "label": "Collarbone notch, y (%)", "default": 52 },
 
     { "type": "header", "content": "Review step" },
     { "type": "checkbox", "id": "cart_enabled", "label": "Add to cart", "default": true, "info": "Shows Add to cart when the API has its Shopify credentials; otherwise customers send an enquiry." },
