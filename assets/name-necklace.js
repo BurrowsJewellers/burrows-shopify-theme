@@ -852,7 +852,7 @@
       stage.classList.toggle('view3d', v === '3d');
       stage.classList.toggle('viewsize', v === 'size');
       $('toolRail').hidden = v !== '2d'; // in 3D the rail would sit over the model; the hint says how to edit instead
-      $('hint').textContent = v === '3d' ? 'Drag to turn · scroll to zoom · switch to 2D to edit letters' : v === 'size' ? 'How big it really is' : 'Click a letter to adjust it · Shift-click for more';
+      $('hint').textContent = v === '3d' ? 'Drag to turn · scroll to zoom · switch to 2D to edit letters' : v === 'size' ? 'How it sits, to scale' : 'Click a letter to adjust it · Shift-click for more';
       $('sizeView').hidden = v !== 'size';
       $('sizeBar').hidden = v !== 'size';
       $('issues').hidden = v === 'size';
@@ -863,18 +863,15 @@
     }
     radios('view').forEach((el) => el.addEventListener('change', () => setView(el.value)));
 
-    /* ---------- real size: coins, card, actual size, on a neck ---------- */
-    // Everything here is drawn in millimetres and scaled to the stage, so the nameplate and the references are
-    // always to the same scale. "Actual size" needs the screen's pixels per mm, which browsers don't know, so
-    // the customer matches a bank-card outline once and we remember it on this device.
-    const COIN_5C = 19.41, COIN_1D = 25.0, CARD_W = 85.6, CARD_H = 53.98, CARD_R = 3.18;
-    const sizeSvg = $('sizeSvg'), sizeBar = $('sizeBar'), calib = $('calib');
-    let sizeMode = 'coins', chainCm = 45, calibShown = false;
-    const pxmmKey = 'nn-pxmm';
-    let pxmm = 0;
-    try { pxmm = parseFloat(localStorage.getItem(pxmmKey)) || 0; } catch (e) { pxmm = 0; }
-    // Without calibration: a phone is about 6 CSS px per mm, a laptop or monitor about 4.
-    const guessPxmm = () => (window.matchMedia && window.matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 500 ? 6.0 : 3.9);
+    /* ---------- on a neck: the plate to scale on a neckline ---------- */
+    // Everything is drawn in millimetres and scaled to the stage. With a photo configured in the section
+    // (cfg.neckImage plus the two points where the chain comes over the shoulders and the collarbone notch, as
+    // percentages of the photo), the real distance between the chain points sets the scale; otherwise a line
+    // drawing of a neckline is used. The chain length sets how far below the notch the plate hangs: 40 cm sits
+    // at the base of the neck, 45 cm just below the collarbones, 50 cm a little lower.
+    const sizeSvg = $('sizeSvg'), sizeBar = $('sizeBar');
+    let chainCm = 45;
+    const DROP_MM = { 40: 4, 45: 24, 50: 46 };
     const platePath = () => {
       if (!result) return '';
       const b = result.bbox, cx = (b.minX + b.maxX) / 2, cy = (b.minY + b.maxY) / 2;
@@ -882,16 +879,15 @@
     };
     const metalDefs = () => {
       const st = { yellow: ['#F6DFA6', '#E2B35A', '#B9893A'], rose: ['#F5D2C2', '#DFA084', '#B47258'], white: ['#F4F6F7', '#CDD1D2', '#9CA3A6'] }[settings.metal] || ['#F4F6F7', '#CDD1D2', '#9CA3A6'];
-      return `<defs><linearGradient id="nnMetal" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="${st[0]}"/><stop offset="0.55" stop-color="${st[1]}"/><stop offset="1" stop-color="${st[2]}"/></linearGradient></defs>`;
+      return `<defs><linearGradient id="nnMetal" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="${st[0]}"/><stop offset="0.55" stop-color="${st[1]}"/><stop offset="1" stop-color="${st[2]}"/></linearGradient><filter id="nnShadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="0.6" stdDeviation="0.5" flood-color="#000" flood-opacity=".45"/></filter></defs>`;
     };
-    const plateAt = (x, y, sc) => `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${sc})"><path d="${platePath()}" fill="url(#nnMetal)" fill-rule="evenodd"/></g>`;
-    const label = (x, y, text, anchor = 'middle') => `<text class="sz-l" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}">${esc(text)}</text>`;
-    const coin = (x, y, d, sc, text, fill) => `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})"><circle r="${(d / 2 * sc).toFixed(1)}" fill="${fill}" stroke="rgba(255,255,255,.35)"/><circle r="${(d / 2 * sc - 3).toFixed(1)}" fill="none" stroke="rgba(0,0,0,.18)"/>${label(0, d / 2 * sc + 16, text)}</g>`;
-    const card = (x, y, sc, w = CARD_W, h = CARD_H) => `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})"><rect width="${(w * sc).toFixed(1)}" height="${(h * sc).toFixed(1)}" rx="${(CARD_R * sc).toFixed(1)}" fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.55)"/><rect y="${(8 * sc).toFixed(1)}" width="${(w * sc).toFixed(1)}" height="${(7 * sc).toFixed(1)}" fill="rgba(255,255,255,.22)"/></g>`;
-    // Line illustration of a neckline, in mm (figure centre x = 160). The chain comes from behind the neck at
-    // the point where the neck meets the shoulder, and the chain length sets how far down the chest the plate sits:
-    // 40 cm at the base of the neck, 45 cm just below the collarbones, 50 cm a little lower.
-    const NECK = { x0: 50, y0: 0, w: 220, h: 190, anchors: [[113, 77], [207, 77]], drop: { 40: 108, 45: 128, 50: 150 } };
+    const label = (x, y, text) => `<text class="sz-l" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle">${esc(text)}</text>`;
+    // Chain from an anchor (ax, ay) to a loop (lx, ly), all in the same units: a gentle hanging curve, drawn as a
+    // dark line under a light one so it reads on skin as well as on navy.
+    const chainPath = (ax, ay, lx, ly, out) => { const d = ly - ay; return `M${ax} ${ay} C${ax + out * 2} ${ay + d * 0.45} ${lx - out * 4} ${ly - d * 0.35} ${lx} ${ly}`; };
+    const chainSvg = (d, w) => `<path d="${d}" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="${(w * 1.9).toFixed(2)}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#e6eaec" stroke-width="${w.toFixed(2)}" stroke-dasharray="${(w * 1.3).toFixed(2)} ${(w * 0.9).toFixed(2)}" stroke-linecap="round"/>`;
+    // Line illustration of a neckline, in mm (figure centre x = 160, notch at y = 104).
+    const NECK = { x0: 50, y0: 0, w: 220, h: 190, anchors: [[113, 77], [207, 77]], notch: [160, 104] };
     const neckArt = () => `<g fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
       <path d="M112 0 C118 14 134 26 160 27 C186 26 202 14 208 0"/>
       <path d="M126 22 C126 44 124 62 114 76 C98 94 62 98 30 114 C14 122 6 132 4 156 L4 240"/>
@@ -899,87 +895,48 @@
       <path d="M154 104 C132 98 104 94 80 100" stroke-opacity=".5"/>
       <path d="M166 104 C188 98 216 94 240 100" stroke-opacity=".5"/>
       <path d="M156 103 C158 107 162 107 164 103" stroke-opacity=".4"/></g>`;
+    // The photo, if any: loaded once so its proportions are known.
+    const photo = { url: cfg.neckImage || '', w: 0, h: 0, failed: false };
+    if (photo.url) { const im = new Image(); im.onload = () => { photo.w = im.naturalWidth; photo.h = im.naturalHeight; if (settings.view === 'size') renderSize(); }; im.onerror = () => { photo.failed = true; if (settings.view === 'size') renderSize(); }; im.src = photo.url; }
     function renderSize() {
       if (!result || !sizeSvg) return;
       const { W, H } = stageSize();
       if (!W || !H) return;
       sizeSvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-      const pw = result.width, ph = result.height, pad = 24;
-      // Keep clear of the HUD rows, which wrap onto more lines on a phone.
+      const pw = result.width, pad = 24;
       const hudT = stage.querySelector('.nn__hud--top'), hudB = stage.querySelector('.nn__hud--bottom');
       const top = (hudT ? hudT.offsetHeight : 40) + 24, bottom = (hudB ? hudB.offsetHeight : 40) + 24;
+      const capY = H - bottom - 30;
       let s = metalDefs();
-      if (sizeMode === 'coins') {
-        // The plate above a row of coins, all at one scale that fits the stage.
-        const rowW = COIN_5C + 14 + COIN_1D, contentW = Math.max(pw, rowW), contentH = ph + 10 + COIN_1D + 8;
-        const sc = Math.min((W - pad * 2) / contentW, (H - top - bottom - 40) / contentH, 9);
-        const y0 = top + (H - top - bottom - contentH * sc) / 2;
-        s += label(W / 2, y0 - 10, `${pw.toFixed(1)} × ${ph.toFixed(1)} mm`);
-        s += plateAt(W / 2, y0 + ph / 2 * sc, sc);
-        const cy = y0 + (ph + 10 + COIN_1D / 2) * sc;
-        const x5 = W / 2 - (rowW / 2 - COIN_5C / 2) * sc, x1 = W / 2 + (rowW / 2 - COIN_1D / 2) * sc;
-        s += coin(x5, cy, COIN_5C, sc, '5 cent · 19.4 mm', '#c9ced2') + coin(x1, cy, COIN_1D, sc, '$1 coin · 25 mm', '#d9b86a');
-      } else if (sizeMode === 'card') {
-        // The plate lying on a bank card.
-        const sc = Math.min((W - pad * 2) / Math.max(CARD_W, pw), (H - top - bottom - 30) / CARD_H, 9);
-        const x = W / 2 - CARD_W / 2 * sc, y = top + (H - top - bottom - CARD_H * sc) / 2;
-        s += card(x, y, sc);
-        s += plateAt(W / 2, y + CARD_H * 0.62 * sc, sc);
-        s += label(W / 2, y - 10, `${pw.toFixed(1)} × ${ph.toFixed(1)} mm on a bank card (85.6 × 54 mm)`);
-      } else if (sizeMode === 'actual') {
-        const sc = pxmm || guessPxmm();
-        // While the calibration panel is open the plate sits low so the panel does not cover it.
-        const y = calib.hidden ? H / 2 : Math.max(H / 2, H - bottom - ph / 2 * sc - 24);
-        s += plateAt(W / 2, y, sc);
-        s += label(W / 2, y - ph / 2 * sc - 14, pxmm ? 'Actual size on this screen · hold the phone up to your neck' : 'Approximate size · match a bank card for exact');
-        if (!pxmm && !calibShown) { calibShown = true; openCalib(); return renderSize(); }
+      const nk = cfg.neck || {};
+      if (photo.url && photo.w && !photo.failed) {
+        // Fit the photo in the stage (whole photo visible), then everything is placed in stage pixels.
+        const sc = Math.min(W / photo.w, H / photo.h), iw = photo.w * sc, ih = photo.h * sc, ix = (W - iw) / 2, iy = (H - ih) / 2;
+        const pt = (p) => [ix + (p[0] / 100) * iw, iy + (p[1] / 100) * ih];
+        const L = pt(nk.left || [35, 38]), R = pt(nk.right || [65, 38]), Nn = pt(nk.notch || [50, 52]);
+        const pxmm = Math.hypot(R[0] - L[0], R[1] - L[1]) / (nk.widthMm || 105);
+        const py = Nn[1] + (DROP_MM[chainCm] || DROP_MM[45]) * pxmm, px = Nn[0];
+        const lx = px - (pw / 2 - 1.6) * pxmm, rx = px + (pw / 2 - 1.6) * pxmm;
+        s += `<image href="${esc(photo.url)}" x="${ix.toFixed(1)}" y="${iy.toFixed(1)}" width="${iw.toFixed(1)}" height="${ih.toFixed(1)}" preserveAspectRatio="none"/>`;
+        s += `<rect x="0" y="${(H - 110).toFixed(0)}" width="${W}" height="110" fill="url(#nnFade)"/>`;
+        s = s.replace('</defs>', `<linearGradient id="nnFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0e2a" stop-opacity="0"/><stop offset="1" stop-color="#0b0e2a" stop-opacity=".85"/></linearGradient></defs>`);
+        s += chainSvg(chainPath(L[0], L[1], lx, py, -pxmm), 1.1 * pxmm) + chainSvg(chainPath(R[0], R[1], rx, py, pxmm), 1.1 * pxmm);
+        s += `<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) scale(${pxmm.toFixed(4)})" filter="url(#nnShadow)"><path d="${platePath()}" fill="url(#nnMetal)" fill-rule="evenodd"/></g>`;
       } else {
-        // On a neck: the illustration scaled to the stage, the plate at the chain's drop.
-        const capY = H - bottom - 30;
         const sc = Math.min((W - pad * 2) / NECK.w, (capY - 16 - top) / NECK.h);
         const ox = (W - NECK.w * sc) / 2 - NECK.x0 * sc, oy = top - NECK.y0 * sc;
-        const py = NECK.drop[chainCm] || NECK.drop[45];
-        const [a, b] = NECK.anchors, lx = 160 - pw / 2 + 1.6, rx = 160 + pw / 2 - 1.6, d = py - a[1];
+        const py = NECK.notch[1] + (DROP_MM[chainCm] || DROP_MM[45]);
+        const [a, b] = NECK.anchors, lx = 160 - pw / 2 + 1.6, rx = 160 + pw / 2 - 1.6;
         s += `<g transform="translate(${ox.toFixed(1)},${oy.toFixed(1)}) scale(${sc})">${neckArt()}`;
-        s += `<path d="M${a[0]} ${a[1]} C${a[0] - 2} ${a[1] + d * 0.45} ${lx - 4} ${py - d * 0.35} ${lx} ${py}" fill="none" stroke="#dfe4e7" stroke-width="1.2" stroke-dasharray="1.5 1.1"/>`;
-        s += `<path d="M${b[0]} ${b[1]} C${b[0] + 2} ${b[1] + d * 0.45} ${rx + 4} ${py - d * 0.35} ${rx} ${py}" fill="none" stroke="#dfe4e7" stroke-width="1.2" stroke-dasharray="1.5 1.1"/>`;
+        s += chainSvg(chainPath(a[0], a[1], lx, py, -1), 1.1) + chainSvg(chainPath(b[0], b[1], rx, py, 1), 1.1);
         s += `<g transform="translate(160,${py})"><path d="${platePath()}" fill="url(#nnMetal)" fill-rule="evenodd"/></g></g>`;
-        s += label(W / 2, capY, `On a ${chainCm} cm chain · average build · shown to scale`);
       }
+      s += label(W / 2, capY, `On a ${chainCm} cm chain · shown to scale`);
       sizeSvg.innerHTML = s;
-      renderSizeBar();
-    }
-    function renderSizeBar() {
-      const modes = [['coins', 'Coins'], ['card', 'Bank card'], ['actual', 'Actual size'], ['neck', 'On a neck']];
-      let h = modes.map(([k, t]) => `<button type="button" class="nn__sz${sizeMode === k ? ' on' : ''}" data-size-mode="${k}">${t}</button>`).join('');
-      if (sizeMode === 'neck') h += `<span class="nn__sz-sep"></span>` + [40, 45, 50].map((c) => `<button type="button" class="nn__sz${chainCm === c ? ' on' : ''}" data-chain="${c}">${c} cm</button>`).join('');
-      if (sizeMode === 'actual' && pxmm) h += `<span class="nn__sz-sep"></span><button type="button" class="nn__sz" data-calib="1">Re-match card</button>`;
-      sizeBar.innerHTML = h;
+      sizeBar.innerHTML = `<span class="nn__sz-l">Chain</span>` + [40, 45, 50].map((c) => `<button type="button" class="nn__sz${chainCm === c ? ' on' : ''}" data-chain="${c}">${c} cm</button>`).join('');
     }
     window.addEventListener('resize', () => { if (settings.view === 'size') renderSize(); });
-    sizeBar.addEventListener('click', (e) => {
-      const b = e.target.closest('button'); if (!b) return;
-      if (b.dataset.sizeMode) { sizeMode = b.dataset.sizeMode; closeCalib(); renderSize(); }
-      else if (b.dataset.chain) { chainCm = +b.dataset.chain; renderSize(); }
-      else if (b.dataset.calib) openCalib();
-    });
-    // Calibration: a card outline at the current scale; the slider changes the scale until it matches a real card.
-    let calibLive = 0;
-    // The card outline at the live scale. A phone is narrower than a card, so there it stands upright and only
-    // its width has to match (the bottom of the outline is simply cut off).
-    function drawCalibCard() {
-      const sc = calibLive || pxmm || guessPxmm(), c = $('calibCard'), { W, H } = stageSize();
-      const upright = CARD_W * sc + 60 > W;
-      const w = (upright ? CARD_H : CARD_W) * sc, h = Math.min((upright ? CARD_W : CARD_H) * sc, Math.max(60, H - 190));
-      c.style.width = w.toFixed(1) + 'px'; c.style.height = h.toFixed(1) + 'px';
-      c.querySelector('span').textContent = upright ? 'Stand a bank card upright on the screen and drag until the width matches' : 'Hold a bank card against the screen and drag until the outline matches it';
-    }
-    function openCalib() { calibLive = pxmm || guessPxmm(); $('calibRange').value = Math.round(calibLive * 100); drawCalibCard(); calib.hidden = false; }
-    sizeBar.addEventListener('click', (e) => { if (e.target.closest('[data-calib]')) renderSize(); });
-    function closeCalib() { if (!calib.hidden) { calib.hidden = true; if (settings.view === 'size') renderSize(); } }
-    $('calibRange').addEventListener('input', () => { calibLive = (+$('calibRange').value) / 100; drawCalibCard(); });
-    $('calibOk').addEventListener('click', () => { pxmm = calibLive; try { localStorage.setItem(pxmmKey, String(pxmm)); } catch (e) { /* private mode */ } closeCalib(); renderSize(); });
-    $('calibSkip').addEventListener('click', () => { closeCalib(); });
+    sizeBar.addEventListener('click', (e) => { const b = e.target.closest('button[data-chain]'); if (!b) return; chainCm = +b.dataset.chain; renderSize(); });
 
     document.addEventListener('keydown', (e) => {
       const inField = editable(e.target);
