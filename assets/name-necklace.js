@@ -265,6 +265,7 @@
       settings.metal = colourOf(a);
       preview.setMetal(settings.metal);
       if (!preview.ok) renderOverlay();
+      if (settings.view === 'size') renderSize();
       renderStats();
       renderSummary();
       priceChanged();
@@ -879,13 +880,32 @@
     };
     const metalDefs = () => {
       const st = { yellow: ['#F6DFA6', '#E2B35A', '#B9893A'], rose: ['#F5D2C2', '#DFA084', '#B47258'], white: ['#F4F6F7', '#CDD1D2', '#9CA3A6'] }[settings.metal] || ['#F4F6F7', '#CDD1D2', '#9CA3A6'];
-      return `<defs><linearGradient id="nnMetal" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="${st[0]}"/><stop offset="0.55" stop-color="${st[1]}"/><stop offset="1" stop-color="${st[2]}"/></linearGradient><filter id="nnShadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="0.6" stdDeviation="0.5" flood-color="#000" flood-opacity=".45"/></filter></defs>`;
+      return `<defs><linearGradient id="nnMetal" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="${st[0]}"/><stop offset="0.55" stop-color="${st[1]}"/><stop offset="1" stop-color="${st[2]}"/></linearGradient>
+        <radialGradient id="nnLink" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="${st[0]}"/><stop offset="0.5" stop-color="${st[1]}"/><stop offset="1" stop-color="${st[2]}"/></radialGradient>
+        <filter id="nnShadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="0.6" stdDeviation="0.5" flood-color="#000" flood-opacity=".45"/></filter>
+        <filter id="nnChainShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0.4" stdDeviation="0.35" flood-color="#000" flood-opacity=".4"/></filter></defs>`;
     };
     const label = (x, y, text) => `<text class="sz-l" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle">${esc(text)}</text>`;
     // Chain from an anchor (ax, ay) to a loop (lx, ly), all in the same units: a gentle hanging curve, drawn as a
     // dark line under a light one so it reads on skin as well as on navy.
-    const chainPath = (ax, ay, lx, ly, out) => { const d = ly - ay; return `M${ax} ${ay} C${ax + out * 2} ${ay + d * 0.45} ${lx - out * 4} ${ly - d * 0.35} ${lx} ${ly}`; };
-    const chainSvg = (d, w) => `<path d="${d}" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="${(w * 1.9).toFixed(2)}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#e6eaec" stroke-width="${w.toFixed(2)}" stroke-dasharray="${(w * 1.3).toFixed(2)} ${(w * 0.9).toFixed(2)}" stroke-linecap="round"/>`;
+    // A cable chain: small oval links laid along the hanging curve, every second one turned on its edge, in the
+    // chosen metal. pxmm scales the link size (1.6 mm links, 1.0 mm wide) to the drawing's units.
+    const chainCurve = (ax, ay, lx, ly, out) => { const d = ly - ay; return [[ax, ay], [ax + out * 2, ay + d * 0.45], [lx - out * 4, ly - d * 0.35], [lx, ly]]; };
+    const bez = (P, t) => { const u = 1 - t; return [u * u * u * P[0][0] + 3 * u * u * t * P[1][0] + 3 * u * t * t * P[2][0] + t * t * t * P[3][0], u * u * u * P[0][1] + 3 * u * u * t * P[1][1] + 3 * u * t * t * P[2][1] + t * t * t * P[3][1]]; };
+    const chainSvg = (P, pxmm) => {
+      const pitch = 1.35 * pxmm, rx = 0.8 * pxmm, ry = 0.5 * pxmm, edge = 0.2 * pxmm, sw = Math.max(0.35, 0.12 * pxmm);
+      // walk the curve at even spacing
+      const pts = []; let prev = bez(P, 0), acc = 0; pts.push({ p: prev, t: 0 });
+      for (let i = 1; i <= 400; i++) { const t = i / 400, q = bez(P, t); acc += Math.hypot(q[0] - prev[0], q[1] - prev[1]); prev = q; if (acc >= pitch) { pts.push({ p: q, t }); acc = 0; } }
+      let out = `<g filter="url(#nnChainShadow)">`;
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[Math.max(0, i - 1)].p, b = pts[Math.min(pts.length - 1, i + 1)].p, c = pts[i].p;
+        const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+        const flat = i % 2 === 0;
+        out += `<ellipse cx="${c[0].toFixed(2)}" cy="${c[1].toFixed(2)}" rx="${rx.toFixed(2)}" ry="${(flat ? ry : edge).toFixed(2)}" transform="rotate(${ang.toFixed(1)} ${c[0].toFixed(2)} ${c[1].toFixed(2)})" fill="${flat ? 'none' : 'url(#nnLink)'}" stroke="url(#nnLink)" stroke-width="${(flat ? sw * 1.6 : sw).toFixed(2)}"/>`;
+      }
+      return out + '</g>';
+    };
     // Line illustration of a neckline, in mm (figure centre x = 160, notch at y = 104).
     const NECK = { x0: 50, y0: 0, w: 220, h: 190, anchors: [[113, 77], [207, 77]], notch: [160, 104] };
     const neckArt = () => `<g fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
@@ -910,8 +930,12 @@
       let s = metalDefs();
       const nk = cfg.neck || {};
       if (photo.url && photo.w && !photo.failed) {
-        // Fit the photo in the stage (whole photo visible), then everything is placed in stage pixels.
-        const sc = Math.min(W / photo.w, H / photo.h), iw = photo.w * sc, ih = photo.h * sc, ix = (W - iw) / 2, iy = (H - ih) / 2;
+        // Fill the stage with the photo (no bars), positioned so the notch sits a little above centre and the
+        // plate has room below it; then everything is placed in stage pixels.
+        const sc = Math.max(W / photo.w, H / photo.h), iw = photo.w * sc, ih = photo.h * sc;
+        const nn0 = nk.notch || [50, 52];
+        const ix = Math.min(0, Math.max(W - iw, W / 2 - (nn0[0] / 100) * iw));
+        const iy = Math.min(0, Math.max(H - ih, H * 0.42 - (nn0[1] / 100) * ih));
         const pt = (p) => [ix + (p[0] / 100) * iw, iy + (p[1] / 100) * ih];
         const L = pt(nk.left || [35, 38]), R = pt(nk.right || [65, 38]), Nn = pt(nk.notch || [50, 52]);
         const pxmm = Math.hypot(R[0] - L[0], R[1] - L[1]) / (nk.widthMm || 105);
@@ -920,7 +944,7 @@
         s += `<image href="${esc(photo.url)}" x="${ix.toFixed(1)}" y="${iy.toFixed(1)}" width="${iw.toFixed(1)}" height="${ih.toFixed(1)}" preserveAspectRatio="none"/>`;
         s += `<rect x="0" y="${(H - 110).toFixed(0)}" width="${W}" height="110" fill="url(#nnFade)"/>`;
         s = s.replace('</defs>', `<linearGradient id="nnFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0e2a" stop-opacity="0"/><stop offset="1" stop-color="#0b0e2a" stop-opacity=".85"/></linearGradient></defs>`);
-        s += chainSvg(chainPath(L[0], L[1], lx, py, -pxmm), 1.1 * pxmm) + chainSvg(chainPath(R[0], R[1], rx, py, pxmm), 1.1 * pxmm);
+        s += chainSvg(chainCurve(L[0], L[1], lx, py, -pxmm), pxmm) + chainSvg(chainCurve(R[0], R[1], rx, py, pxmm), pxmm);
         s += `<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) scale(${pxmm.toFixed(4)})" filter="url(#nnShadow)"><path d="${platePath()}" fill="url(#nnMetal)" fill-rule="evenodd"/></g>`;
       } else {
         const sc = Math.min((W - pad * 2) / NECK.w, (capY - 16 - top) / NECK.h);
@@ -928,7 +952,7 @@
         const py = NECK.notch[1] + (DROP_MM[chainCm] || DROP_MM[45]);
         const [a, b] = NECK.anchors, lx = 160 - pw / 2 + 1.6, rx = 160 + pw / 2 - 1.6;
         s += `<g transform="translate(${ox.toFixed(1)},${oy.toFixed(1)}) scale(${sc})">${neckArt()}`;
-        s += chainSvg(chainPath(a[0], a[1], lx, py, -1), 1.1) + chainSvg(chainPath(b[0], b[1], rx, py, 1), 1.1);
+        s += chainSvg(chainCurve(a[0], a[1], lx, py, -1), 1) + chainSvg(chainCurve(b[0], b[1], rx, py, 1), 1);
         s += `<g transform="translate(160,${py})"><path d="${platePath()}" fill="url(#nnMetal)" fill-rule="evenodd"/></g></g>`;
       }
       s += label(W / 2, capY, `On a ${chainCm} cm chain · shown to scale`);
