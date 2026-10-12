@@ -16,14 +16,14 @@
         "cart_enabled": true,
         "show_stl": false,
         "contact_url": "shopify://pages/contact",
-        "neck_image": "shopify://shop_images/name-necklace-neck-2.jpg",
-        "neck_width_mm": 103,
-        "neck_left_x": 27.0,
-        "neck_left_y": 38.4,
-        "neck_right_x": 75.5,
-        "neck_right_y": 38.4,
-        "neck_notch_x": 51.4,
-        "neck_notch_y": 44.8
+        "neck_image": "shopify://shop_images/name-necklace-neck-3.jpg",
+        "neck_width_mm": 98,
+        "neck_left_x": 28.2,
+        "neck_left_y": 34.7,
+        "neck_right_x": 69.1,
+        "neck_right_y": 34.7,
+        "neck_notch_x": 46.4,
+        "neck_notch_y": 47.1
       }
     }
   },
