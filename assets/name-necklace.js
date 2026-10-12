@@ -882,7 +882,7 @@
       const st = { yellow: ['#F6DFA6', '#E2B35A', '#B9893A'], rose: ['#F5D2C2', '#DFA084', '#B47258'], white: ['#F4F6F7', '#CDD1D2', '#9CA3A6'] }[settings.metal] || ['#F4F6F7', '#CDD1D2', '#9CA3A6'];
       return `<defs><linearGradient id="nnMetal" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="${st[0]}"/><stop offset="0.55" stop-color="${st[1]}"/><stop offset="1" stop-color="${st[2]}"/></linearGradient>
         <radialGradient id="nnLink" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="${st[0]}"/><stop offset="0.5" stop-color="${st[1]}"/><stop offset="1" stop-color="${st[2]}"/></radialGradient>
-        <filter id="nnShadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="0.6" stdDeviation="0.5" flood-color="#000" flood-opacity=".45"/></filter>
+        <filter id="nnShadow" x="-20%" y="-20%" width="140%" height="180%"><feDropShadow dx="0.15" dy="0.9" stdDeviation="0.6" flood-color="#000" flood-opacity=".5"/></filter>
         <filter id="nnChainShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0.4" stdDeviation="0.35" flood-color="#000" flood-opacity=".4"/></filter></defs>`;
     };
     const label = (x, y, text) => `<text class="sz-l" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle">${esc(text)}</text>`;
@@ -902,7 +902,9 @@
         const a = pts[Math.max(0, i - 1)].p, b = pts[Math.min(pts.length - 1, i + 1)].p, c = pts[i].p;
         const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
         const flat = i % 2 === 0;
-        out += `<ellipse cx="${c[0].toFixed(2)}" cy="${c[1].toFixed(2)}" rx="${rx.toFixed(2)}" ry="${(flat ? ry : edge).toFixed(2)}" transform="rotate(${ang.toFixed(1)} ${c[0].toFixed(2)} ${c[1].toFixed(2)})" fill="${flat ? 'none' : 'url(#nnLink)'}" stroke="url(#nnLink)" stroke-width="${(flat ? sw * 1.6 : sw).toFixed(2)}"/>`;
+        // The first links fade in: the chain is coming round from behind the neck.
+        const op = Math.min(1, (i + 1) / 7);
+        out += `<ellipse cx="${c[0].toFixed(2)}" cy="${c[1].toFixed(2)}" rx="${rx.toFixed(2)}" ry="${(flat ? ry : edge).toFixed(2)}" transform="rotate(${ang.toFixed(1)} ${c[0].toFixed(2)} ${c[1].toFixed(2)})" fill="${flat ? 'none' : 'url(#nnLink)'}" stroke="url(#nnLink)" stroke-width="${(flat ? sw * 1.6 : sw).toFixed(2)}"${op < 1 ? ` opacity="${op.toFixed(2)}"` : ''}/>`;
       }
       return out + '</g>';
     };
