@@ -888,14 +888,17 @@
     const label = (x, y, text, anchor = 'middle') => `<text class="sz-l" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}">${esc(text)}</text>`;
     const coin = (x, y, d, sc, text, fill) => `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})"><circle r="${(d / 2 * sc).toFixed(1)}" fill="${fill}" stroke="rgba(255,255,255,.35)"/><circle r="${(d / 2 * sc - 3).toFixed(1)}" fill="none" stroke="rgba(0,0,0,.18)"/>${label(0, d / 2 * sc + 16, text)}</g>`;
     const card = (x, y, sc, w = CARD_W, h = CARD_H) => `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})"><rect width="${(w * sc).toFixed(1)}" height="${(h * sc).toFixed(1)}" rx="${(CARD_R * sc).toFixed(1)}" fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.55)"/><rect y="${(8 * sc).toFixed(1)}" width="${(w * sc).toFixed(1)}" height="${(7 * sc).toFixed(1)}" fill="rgba(255,255,255,.22)"/></g>`;
-    // Line illustration of a neckline, in mm. Chain length moves the plate down the chest.
-    const NECK = { w: 320, h: 250, anchors: [[114, 72], [206, 72]], drop: { 40: 140, 45: 165, 50: 190 } };
-    const neckArt = () => `<g fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.2" stroke-linecap="round" vector-effect="non-scaling-stroke">
-      <path d="M118 0 C116 30 112 48 100 62 C84 80 50 86 14 104 C4 110 0 118 0 130 L0 250"/>
-      <path d="M202 0 C204 30 208 48 220 62 C236 80 270 86 306 104 C316 110 320 118 320 130 L320 250"/>
-      <path d="M100 62 C110 80 128 88 160 90 C192 88 210 80 220 62" stroke-opacity=".7"/>
-      <path d="M58 96 C84 100 122 104 150 112" stroke-opacity=".45"/><path d="M262 96 C236 100 198 104 170 112" stroke-opacity=".45"/>
-      <path d="M160 90 L160 104" stroke-opacity=".4"/></g>`;
+    // Line illustration of a neckline, in mm (figure centre x = 160). The chain comes from behind the neck at
+    // the point where the neck meets the shoulder, and the chain length sets how far down the chest the plate sits:
+    // 40 cm at the base of the neck, 45 cm just below the collarbones, 50 cm a little lower.
+    const NECK = { x0: 50, y0: 0, w: 220, h: 190, anchors: [[113, 77], [207, 77]], drop: { 40: 108, 45: 128, 50: 150 } };
+    const neckArt = () => `<g fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M112 0 C118 14 134 26 160 27 C186 26 202 14 208 0"/>
+      <path d="M126 22 C126 44 124 62 114 76 C98 94 62 98 30 114 C14 122 6 132 4 156 L4 240"/>
+      <path d="M194 22 C194 44 196 62 206 76 C222 94 258 98 290 114 C306 122 314 132 316 156 L316 240"/>
+      <path d="M154 104 C132 98 104 94 80 100" stroke-opacity=".5"/>
+      <path d="M166 104 C188 98 216 94 240 100" stroke-opacity=".5"/>
+      <path d="M156 103 C158 107 162 107 164 103" stroke-opacity=".4"/></g>`;
     function renderSize() {
       if (!result || !sizeSvg) return;
       const { W, H } = stageSize();
@@ -933,13 +936,13 @@
       } else {
         // On a neck: the illustration scaled to the stage, the plate at the chain's drop.
         const capY = H - bottom - 30;
-        const sc = Math.min((W - pad * 2) / NECK.w, (capY - 16 - 50) / NECK.h);
-        const ox = (W - NECK.w * sc) / 2, oy = 50;
+        const sc = Math.min((W - pad * 2) / NECK.w, (capY - 16 - top) / NECK.h);
+        const ox = (W - NECK.w * sc) / 2 - NECK.x0 * sc, oy = top - NECK.y0 * sc;
         const py = NECK.drop[chainCm] || NECK.drop[45];
-        const [a, b] = NECK.anchors, lx = 160 - pw / 2 + 1.6, rx = 160 + pw / 2 - 1.6;
+        const [a, b] = NECK.anchors, lx = 160 - pw / 2 + 1.6, rx = 160 + pw / 2 - 1.6, d = py - a[1];
         s += `<g transform="translate(${ox.toFixed(1)},${oy.toFixed(1)}) scale(${sc})">${neckArt()}`;
-        s += `<path d="M${a[0]} ${a[1]} C${a[0] + 6} ${a[1] + 38} ${lx - 10} ${py - 30} ${lx} ${py}" fill="none" stroke="#d6dde0" stroke-width="1.1" stroke-dasharray="1.6 1.1"/>`;
-        s += `<path d="M${b[0]} ${b[1]} C${b[0] - 6} ${b[1] + 38} ${rx + 10} ${py - 30} ${rx} ${py}" fill="none" stroke="#d6dde0" stroke-width="1.1" stroke-dasharray="1.6 1.1"/>`;
+        s += `<path d="M${a[0]} ${a[1]} C${a[0] - 2} ${a[1] + d * 0.45} ${lx - 4} ${py - d * 0.35} ${lx} ${py}" fill="none" stroke="#dfe4e7" stroke-width="1.2" stroke-dasharray="1.5 1.1"/>`;
+        s += `<path d="M${b[0]} ${b[1]} C${b[0] + 2} ${b[1] + d * 0.45} ${rx + 4} ${py - d * 0.35} ${rx} ${py}" fill="none" stroke="#dfe4e7" stroke-width="1.2" stroke-dasharray="1.5 1.1"/>`;
         s += `<g transform="translate(160,${py})"><path d="${platePath()}" fill="url(#nnMetal)" fill-rule="evenodd"/></g></g>`;
         s += label(W / 2, capY, `On a ${chainCm} cm chain · average build · shown to scale`);
       }
