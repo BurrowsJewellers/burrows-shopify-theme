@@ -150,6 +150,21 @@
 .nn__overlay[data-tool="rotate"].over { cursor: alias; }
 .nn__overlay[data-tool="scale"].over { cursor: nwse-resize; }
 .nn__stage.view3d .nn__overlay { pointer-events: none; }
+/* Real size view: the plate and everyday references drawn to one scale in an SVG over the stage */
+.nn__stage.viewsize canvas, .nn__stage.viewsize .nn__overlay { visibility: hidden; }
+.nn__size { position: absolute; inset: 0; }
+.nn__size-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.nn .sz-l { fill: rgba(255, 255, 255, .78); font-family: var(--font-body); font-size: 12px; }
+.nn__sizebar { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; align-items: center; margin-left: auto; }
+.nn__sz { appearance: none; border: 1px solid rgba(255, 255, 255, .5); border-radius: 999px; padding: 5px 11px; background: rgba(255, 255, 255, .08); color: #fff; font: inherit; font-size: 12.5px; font-family: var(--font-body); cursor: pointer; }
+.nn__sz:hover { border-color: #fff; }
+.nn__sz.on { background: var(--gold); border-color: var(--gold); color: var(--navy); font-weight: 500; }
+.nn__sz:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.nn__sz-sep { width: 1px; height: 18px; background: rgba(255, 255, 255, .3); margin: 0 4px; }
+.nn__calib { position: absolute; left: 14px; top: 56px; max-width: calc(100% - 28px); padding: 12px 14px; background: #fff; border: 1px solid var(--nn-line); box-shadow: 0 10px 30px rgba(var(--navy-rgb), .25); display: grid; gap: 10px; z-index: 2; }
+.nn__calib-t { margin: 0; font-size: 13.5px; font-weight: 500; color: var(--ink); }
+.nn__calib-card { box-sizing: border-box; border: 2px dashed var(--gold-dark); border-radius: 8px; display: flex; align-items: flex-end; padding: 6px 8px; color: var(--muted); font-size: 11px; line-height: 1.3; max-width: 100%; overflow: hidden; }
+.nn__calib input[type="range"] { width: 100%; accent-color: var(--gold); }
 .nn__stage-msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: rgba(255, 255, 255, .7); font-size: 14px; pointer-events: none; }
 .nn__hud { position: absolute; left: 14px; right: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; pointer-events: none; flex-wrap: wrap; }
 .nn__hud--top { top: 12px; }
@@ -207,6 +222,14 @@
   .nn__tool-rail button { min-width: 0; height: 34px; }
   .nn__tool-rail button .tl { display: none; }
   .nn__dims { font-size: 11px; padding: 4px 7px; }
+  .nn__seg--hud { flex-wrap: nowrap; }
+  .nn__seg--hud label { flex: 0 0 auto; }
+  .nn__seg--hud span { padding: 0 9px; white-space: nowrap; }
+  .nn__stage.viewsize { height: 460px; }
+  .nn__stage.viewsize .nn__dims { display: none; }
+  .nn__sizebar { justify-content: flex-start; margin-left: 0; width: 100%; }
+  .nn__sz { font-size: 12px; padding: 4px 9px; }
+  .nn__calib { left: 6px; right: 6px; top: 52px; max-width: none; padding: 10px; }
   .nn__steps li + li::before { width: 16px; margin: 0 8px; }
   .nn__steps li { font-size: 0; gap: 0; }
   .nn__steps li span { font-size: 12px; }
@@ -215,6 +238,8 @@
 }
 @media (max-width: 520px) {
   .nn__stage { height: 300px; }
+  .nn__stage.viewsize { height: 440px; }
+  .nn__seg--hud label { flex: 0 0 auto; }
   .nn__block--review { padding: 18px; }
   .nn__actions .btn { flex-basis: 100%; }
   .nn__seg label { flex: 1 1 calc(50% - 8px); }
