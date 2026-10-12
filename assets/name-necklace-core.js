@@ -140,7 +140,7 @@ const Nameplate = (() => {
   const MIN_FEATURE = 0.6;     // mm: strokes narrower than this are flagged (and what reinforcement widens them to)
   const REINFORCE_STEP = 0.1;  // mm: each reinforcement pass widens the thin parts by this much per side
   const REINFORCE_PASSES = 8;  // enough for a hairline to reach MIN_FEATURE
-  const REINFORCE_SMOOTH = 0.06; // mm: closing radius that rounds off the steps where widened parts meet the stroke
+  const REINFORCE_SMOOTH = 0.04; // mm: closing radius that rounds off the joins after widening
   const MIN_LOOP_WALL = 0.6;   // mm: (outer - hole) / 2
   const LOOP_MIN_JOIN = 0.1;   // mm: a loop always overlaps the outline by at least this, so overlap 0 can't leave it touching at a point
   const MIN_JOIN_AREA = 0.002; // mm²: two neighbouring letters sharing less than this don't count as joined
@@ -717,24 +717,115 @@ const Nameplate = (() => {
     return { thin, thinArea };
   }
 
-  // Reinforcement (design.reinforce): widen only the parts under MIN_FEATURE, a little at a time, until nothing
-  // is thinner than the casting minimum. Body strokes keep their shape; hairline joins come up to MIN_FEATURE.
-  // A final closing rounds off the small steps where a widened part meets its stroke. Returns integer paths.
+  // Reinforcement (design.reinforce): a variable offset. At every point of the outline the local stroke width is
+  // measured with a short inward ray; where it is under MIN_FEATURE the point moves outward by half the
+  // shortfall, and that amount is widened a little and faded along the edge so the widened part blends into
+  // the stroke. Edges stay parallel curves of the original, so the result is smooth; hairline terminals end in
+  // a small round. A thin-part check afterwards catches anything the rays missed (oblique junctions) and
+  // widens it the plain way, and a tiny closing rounds off the joins. Returns integer paths.
   function reinforceThin(all, tol) {
+    const w = MIN_FEATURE, maxSeg = 0.08, margin = 0.02, grow = 0.2, fade = 0.4;
     const arcTol = Math.max(tol * 0.5, 0.002) * SCALE;
     const areaOf = (paths) => paths.reduce((a, p) => a + intArea(p), 0) / (SCALE * SCALE);
     const before = areaOf(all);
-    let paths = all, passes = 0, thin = thinParts(paths, tol);
+    // Only the parts the thin check flags are widened: the rays also see sharp corners and serifs as "thin",
+    // and those are fine to cast. A point counts when it sits within reach of a flagged part.
+    const flagged = thinParts(all, tol);
+    if (!flagged.length) return { paths: all, passes: 0, addedArea: 0 };
+    const mask = offsetInt(flagged.flatMap((g) => [g.outer, ...g.holes]), 0.25 * SCALE, arcTol);
+    const inMask = (x, y) => { const pt = { X: Math.round(x * SCALE), Y: Math.round(y * SCALE) }; for (const m of mask) if (CL.Clipper.PointInPolygon(pt, m) !== 0) return true; return false; };
+    // Dense float rings: the fade needs points along every edge, not only at the corners.
+    const rings = all.map((p) => {
+      const pts = [];
+      for (let i = 0; i < p.length; i++) {
+        const a = p[i], b = p[(i + 1) % p.length];
+        const ax = a.X / SCALE, ay = a.Y / SCALE, bx = b.X / SCALE, by = b.Y / SCALE;
+        const n = Math.max(1, Math.ceil(Math.hypot(bx - ax, by - ay) / maxSeg));
+        for (let k = 0; k < n; k++) pts.push([ax + (bx - ax) * k / n, ay + (by - ay) * k / n]);
+      }
+      return pts;
+    });
+    // Edges in a grid of w-sized cells: a ray only needs the edges within w of its start.
+    const cell = w, grid = new Map();
+    const gkey = (gx, gy) => gx * 1e6 + gy;
+    rings.forEach((pts, ri) => pts.forEach((p, i) => {
+      const q = pts[(i + 1) % pts.length];
+      const e = { x1: p[0], y1: p[1], x2: q[0], y2: q[1], ri, i };
+      const x0 = Math.floor(Math.min(p[0], q[0]) / cell), x1 = Math.floor(Math.max(p[0], q[0]) / cell);
+      const y0 = Math.floor(Math.min(p[1], q[1]) / cell), y1 = Math.floor(Math.max(p[1], q[1]) / cell);
+      for (let gx = x0; gx <= x1; gx++) for (let gy = y0; gy <= y1; gy++) { const k = gkey(gx, gy); let arr = grid.get(k); if (!arr) grid.set(k, arr = []); arr.push(e); }
+    }));
+    const nearEdges = (x, y) => {
+      const out = [], gx = Math.floor(x / cell), gy = Math.floor(y / cell);
+      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) { const arr = grid.get(gkey(gx + dx, gy + dy)); if (arr) for (const e of arr) out.push(e); }
+      return out;
+    };
+    const hit = (px, py, dx, dy, e) => {
+      const ex = e.x2 - e.x1, ey = e.y2 - e.y1, den = dx * ey - dy * ex;
+      if (Math.abs(den) < 1e-12) return Infinity;
+      const wx = e.x1 - px, wy = e.y1 - py;
+      const s = (wx * ey - wy * ex) / den, u = (wx * dy - wy * dx) / den;
+      return s > 1e-6 && u >= -1e-9 && u <= 1 + 1e-9 ? s : Infinity;
+    };
+    const FAN = [-0.35, 0, 0.35];
+    const moved = [];
+    let movedCount = 0;
+    rings.forEach((pts, ri) => {
+      const n = pts.length, nx = new Float64Array(n), ny = new Float64Array(n), delta = new Float64Array(n), seg = new Float64Array(n);
+      for (let i = 0; i < n; i++) {
+        const a = pts[(i + n - 1) % n], p = pts[i], b = pts[(i + 1) % n];
+        // Material is on the left of every ring (outers CCW, holes CW), so outward is to the right.
+        const e1x = p[0] - a[0], e1y = p[1] - a[1], e2x = b[0] - p[0], e2y = b[1] - p[1];
+        const l1 = Math.hypot(e1x, e1y) || 1, l2 = Math.hypot(e2x, e2y) || 1;
+        seg[i] = l2;
+        const n1x = e1y / l1, n1y = -e1x / l1, n2x = e2y / l2, n2y = -e2x / l2;
+        let vx = n1x + n2x, vy = n1y + n2y;
+        const vl = Math.hypot(vx, vy);
+        if (vl < 1e-9) { vx = n2x; vy = n2y; } else { vx /= vl; vy /= vl; }
+        nx[i] = vx; ny[i] = vy;
+        let t = Infinity;
+        const near = nearEdges(p[0], p[1]);
+        for (const ang of FAN) {
+          const c = Math.cos(ang), sn = Math.sin(ang), dx = -(vx * c - vy * sn), dy = -(vx * sn + vy * c);
+          for (const e of near) {
+            if (e.ri === ri && (e.i === i || e.i === (i + n - 1) % n)) continue;
+            const h = hit(p[0], p[1], dx, dy, e);
+            if (h < t) t = h;
+          }
+        }
+        delta[i] = t < w && inMask(p[0], p[1]) ? (w - t) / 2 + margin : 0;
+      }
+      // Along the ring: extend the thin zone a little (max), then fade it (average).
+      const filt = (src, radius, useMax) => {
+        const dst = new Float64Array(n);
+        for (let i = 0; i < n; i++) {
+          let acc = src[i], cnt = 1, d = 0;
+          for (let k = 1; k < n; k++) { d += seg[(i + k - 1) % n]; if (d > radius) break; const v = src[(i + k) % n]; if (useMax) acc = Math.max(acc, v); else { acc += v; cnt++; } }
+          d = 0;
+          for (let k = 1; k < n; k++) { d += seg[(i - k + n) % n]; if (d > radius) break; const v = src[(i - k + n) % n]; if (useMax) acc = Math.max(acc, v); else { acc += v; cnt++; } }
+          dst[i] = useMax ? acc : acc / cnt;
+        }
+        return dst;
+      };
+      const d2 = filt(filt(delta, grow, true), fade, false);
+      const ring = [];
+      for (let i = 0; i < n; i++) {
+        const d = Math.min(d2[i], w);
+        if (d > 0) movedCount++;
+        ring.push({ X: Math.round((pts[i][0] + nx[i] * d) * SCALE), Y: Math.round((pts[i][1] + ny[i] * d) * SCALE) });
+      }
+      moved.push(ring);
+    });
+    if (!movedCount) return { paths: all, passes: 0, addedArea: 0 };
+    let paths = CL.Clipper.CleanPolygons(unionInt(all.concat(moved)), 0.004 * SCALE).filter((p) => p.length > 2);
+    let passes = 1, thin = thinParts(paths, tol);
     while (thin.length && passes < REINFORCE_PASSES) {
-      const grown = offsetInt(thin.flatMap((g) => [g.outer, ...g.holes]), REINFORCE_STEP * SCALE, arcTol);
-      paths = unionInt(paths.concat(grown));
+      paths = unionInt(paths.concat(offsetInt(thin.flatMap((g) => [g.outer, ...g.holes]), REINFORCE_STEP * SCALE, arcTol)));
       thin = thinParts(paths, tol);
       passes++;
     }
-    if (passes) {
-      const r = REINFORCE_SMOOTH * SCALE;
-      paths = offsetInt(offsetInt(paths, r, arcTol), -r, arcTol);
-    }
+    const r = REINFORCE_SMOOTH * SCALE;
+    paths = offsetInt(offsetInt(paths, r, arcTol), -r, arcTol);
     return { paths, passes, addedArea: Math.max(0, areaOf(paths) - before) };
   }
 
