@@ -902,7 +902,9 @@
     // dark line under a light one so it reads on skin as well as on navy.
     // A cable chain: small oval links laid along the hanging curve, every second one turned on its edge, in the
     // chosen metal. pxmm scales the link size (1.6 mm links, 1.0 mm wide) to the drawing's units.
-    const chainCurve = (ax, ay, lx, ly, out) => { const d = ly - ay; return [[ax, ay], [ax + out * 2, ay + d * 0.45], [lx - out * 4, ly - d * 0.35], [lx, ly]]; };
+    // The chain leaves the anchor (the neck's edge) heading straight down, as if coming round from behind, then
+    // sweeps in to the loop.
+    const chainCurve = (ax, ay, lx, ly, out) => { const d = ly - ay; return [[ax, ay], [ax + out * 0.3, ay + d * 0.42], [lx - out * 4, ly - d * 0.35], [lx, ly]]; };
     const bez = (P, t) => { const u = 1 - t; return [u * u * u * P[0][0] + 3 * u * u * t * P[1][0] + 3 * u * t * t * P[2][0] + t * t * t * P[3][0], u * u * u * P[0][1] + 3 * u * u * t * P[1][1] + 3 * u * t * t * P[2][1] + t * t * t * P[3][1]]; };
     const chainSvg = (P, pxmm, onSkin) => {
       const pitch = 1.2 * pxmm, rx = 0.68 * pxmm, ry = 0.42 * pxmm, edge = 0.17 * pxmm, sw = Math.max(0.3, 0.11 * pxmm);
