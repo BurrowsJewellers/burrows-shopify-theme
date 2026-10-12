@@ -878,13 +878,25 @@
       const b = result.bbox, cx = (b.minX + b.maxX) / 2, cy = (b.minY + b.maxY) / 2;
       return result.groups.flatMap((g) => [g.outer, ...g.holes]).map((p) => 'M' + p.map((q) => (q.X / N.SCALE - cx).toFixed(3) + ',' + (cy - q.Y / N.SCALE).toFixed(3)).join('L') + 'Z').join('');
     };
-    const metalDefs = () => {
-      const st = { yellow: ['#F6DFA6', '#E2B35A', '#B9893A'], rose: ['#F5D2C2', '#DFA084', '#B47258'], white: ['#F4F6F7', '#CDD1D2', '#9CA3A6'] }[settings.metal] || ['#F4F6F7', '#CDD1D2', '#9CA3A6'];
-      return `<defs><linearGradient id="nnMetal" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="${st[0]}"/><stop offset="0.55" stop-color="${st[1]}"/><stop offset="1" stop-color="${st[2]}"/></linearGradient>
-        <radialGradient id="nnLink" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="${st[0]}"/><stop offset="0.5" stop-color="${st[1]}"/><stop offset="1" stop-color="${st[2]}"/></radialGradient>
-        <filter id="nnShadow" x="-20%" y="-20%" width="140%" height="180%"><feDropShadow dx="0.15" dy="0.9" stdDeviation="0.6" flood-color="#000" flood-opacity=".5"/></filter>
-        <filter id="nnChainShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0.4" stdDeviation="0.35" flood-color="#000" flood-opacity=".4"/></filter></defs>`;
+    // Metal colours: a polished face (light, mid, highlight, mid, dark) and the darker tone of the plate's edge.
+    const METAL_STOPS = {
+      yellow: { face: ['#FBEBB8', '#E6BB5E', '#FFF1C4', '#D9A94A', '#A9792E'], edge: '#8E6424', link: ['#FFF3CC', '#E3B757', '#9E7029'] },
+      rose: { face: ['#FAE0D2', '#E4A88C', '#FFEBE0', '#D89474', '#A9684E'], edge: '#8F5640', link: ['#FFEEE4', '#E2A287', '#9C6349'] },
+      white: { face: ['#FBFCFC', '#D3D7D9', '#FFFFFF', '#C2C7CA', '#8F979B'], edge: '#788085', link: ['#FFFFFF', '#D6DADC', '#8E969A'] },
     };
+    const metalDefs = () => {
+      const m = METAL_STOPS[settings.metal] || METAL_STOPS.white, f = m.face;
+      return `<defs><linearGradient id="nnMetal" x1="0" y1="0" x2="0.55" y2="1"><stop offset="0" stop-color="${f[0]}"/><stop offset="0.32" stop-color="${f[1]}"/><stop offset="0.5" stop-color="${f[2]}"/><stop offset="0.68" stop-color="${f[3]}"/><stop offset="1" stop-color="${f[4]}"/></linearGradient>
+        <radialGradient id="nnLink" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="${m.link[0]}"/><stop offset="0.5" stop-color="${m.link[1]}"/><stop offset="1" stop-color="${m.link[2]}"/></radialGradient>
+        <filter id="nnContact" x="-30%" y="-30%" width="160%" height="180%"><feGaussianBlur stdDeviation="0.22"/></filter>
+        <filter id="nnAmbient" x="-40%" y="-40%" width="180%" height="220%"><feGaussianBlur stdDeviation="1.1"/></filter>
+        <filter id="nnSoft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="0.07"/></filter>
+        <filter id="nnChainBlur" x="-20%" y="-20%" width="140%" height="160%"><feGaussianBlur stdDeviation="0.5"/></filter></defs>`;
+    };
+    // The plate on skin: a warm shadow that darkens the photo (multiply) instead of painting grey over it - a
+    // tight contact shadow plus a wide faint one - then the plate's edge a touch below, then the polished face.
+    const plateOnSkin = (d) => `<g style="mix-blend-mode:multiply"><path d="${d}" fill="#6b3a24" fill-rule="evenodd" opacity=".28" transform="translate(0.35,1.1)" filter="url(#nnAmbient)"/><path d="${d}" fill="#5a2e1c" fill-rule="evenodd" opacity=".4" transform="translate(0.12,0.38)" filter="url(#nnContact)"/></g>
+      <g filter="url(#nnSoft)"><path d="${d}" fill="${(METAL_STOPS[settings.metal] || METAL_STOPS.white).edge}" fill-rule="evenodd" transform="translate(0.1,0.28)"/><path d="${d}" fill="url(#nnMetal)" fill-rule="evenodd"/></g>`;
     const label = (x, y, text) => `<text class="sz-l" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle">${esc(text)}</text>`;
     // Chain from an anchor (ax, ay) to a loop (lx, ly), all in the same units: a gentle hanging curve, drawn as a
     // dark line under a light one so it reads on skin as well as on navy.
@@ -892,19 +904,22 @@
     // chosen metal. pxmm scales the link size (1.6 mm links, 1.0 mm wide) to the drawing's units.
     const chainCurve = (ax, ay, lx, ly, out) => { const d = ly - ay; return [[ax, ay], [ax + out * 2, ay + d * 0.45], [lx - out * 4, ly - d * 0.35], [lx, ly]]; };
     const bez = (P, t) => { const u = 1 - t; return [u * u * u * P[0][0] + 3 * u * u * t * P[1][0] + 3 * u * t * t * P[2][0] + t * t * t * P[3][0], u * u * u * P[0][1] + 3 * u * u * t * P[1][1] + 3 * u * t * t * P[2][1] + t * t * t * P[3][1]]; };
-    const chainSvg = (P, pxmm) => {
-      const pitch = 1.35 * pxmm, rx = 0.8 * pxmm, ry = 0.5 * pxmm, edge = 0.2 * pxmm, sw = Math.max(0.35, 0.12 * pxmm);
+    const chainSvg = (P, pxmm, onSkin) => {
+      const pitch = 1.2 * pxmm, rx = 0.68 * pxmm, ry = 0.42 * pxmm, edge = 0.17 * pxmm, sw = Math.max(0.3, 0.11 * pxmm);
       // walk the curve at even spacing
       const pts = []; let prev = bez(P, 0), acc = 0; pts.push({ p: prev, t: 0 });
       for (let i = 1; i <= 400; i++) { const t = i / 400, q = bez(P, t); acc += Math.hypot(q[0] - prev[0], q[1] - prev[1]); prev = q; if (acc >= pitch) { pts.push({ p: q, t }); acc = 0; } }
-      let out = `<g filter="url(#nnChainShadow)">`;
+      const path = `M${P[0][0].toFixed(2)},${P[0][1].toFixed(2)}C${P.slice(1).map((q) => q[0].toFixed(2) + ',' + q[1].toFixed(2)).join(' ')}`;
+      // One soft warm shadow under the whole chain (fading in with it), rather than a hard one under every link.
+      let out = onSkin ? `<g style="mix-blend-mode:multiply"><path d="${path}" fill="none" stroke="#5a2e1c" stroke-width="${(0.9 * pxmm).toFixed(2)}" stroke-linecap="round" opacity=".3" transform="translate(${(0.15 * pxmm).toFixed(2)},${(0.55 * pxmm).toFixed(2)})" filter="url(#nnChainBlur)"/></g>` : '';
+      out += '<g>';
       for (let i = 0; i < pts.length; i++) {
         const a = pts[Math.max(0, i - 1)].p, b = pts[Math.min(pts.length - 1, i + 1)].p, c = pts[i].p;
         const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
         const flat = i % 2 === 0;
         // The first links fade in: the chain is coming round from behind the neck.
         const op = Math.min(1, (i + 1) / 7);
-        out += `<ellipse cx="${c[0].toFixed(2)}" cy="${c[1].toFixed(2)}" rx="${rx.toFixed(2)}" ry="${(flat ? ry : edge).toFixed(2)}" transform="rotate(${ang.toFixed(1)} ${c[0].toFixed(2)} ${c[1].toFixed(2)})" fill="${flat ? 'none' : 'url(#nnLink)'}" stroke="url(#nnLink)" stroke-width="${(flat ? sw * 1.6 : sw).toFixed(2)}"${op < 1 ? ` opacity="${op.toFixed(2)}"` : ''}/>`;
+        out += `<ellipse cx="${c[0].toFixed(2)}" cy="${c[1].toFixed(2)}" rx="${rx.toFixed(2)}" ry="${(flat ? ry : edge).toFixed(2)}" transform="rotate(${ang.toFixed(1)} ${c[0].toFixed(2)} ${c[1].toFixed(2)})" fill="${flat ? 'none' : 'url(#nnLink)'}" stroke="url(#nnLink)" stroke-width="${(flat ? sw * 1.5 : sw).toFixed(2)}"${op < 1 ? ` opacity="${op.toFixed(2)}"` : ''}/>`;
       }
       return out + '</g>';
     };
@@ -946,8 +961,8 @@
         s += `<image href="${esc(photo.url)}" x="${ix.toFixed(1)}" y="${iy.toFixed(1)}" width="${iw.toFixed(1)}" height="${ih.toFixed(1)}" preserveAspectRatio="none"/>`;
         s += `<rect x="0" y="${(H - 110).toFixed(0)}" width="${W}" height="110" fill="url(#nnFade)"/>`;
         s = s.replace('</defs>', `<linearGradient id="nnFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0e2a" stop-opacity="0"/><stop offset="1" stop-color="#0b0e2a" stop-opacity=".85"/></linearGradient></defs>`);
-        s += chainSvg(chainCurve(L[0], L[1], lx, py, -pxmm), pxmm) + chainSvg(chainCurve(R[0], R[1], rx, py, pxmm), pxmm);
-        s += `<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) scale(${pxmm.toFixed(4)})" filter="url(#nnShadow)"><path d="${platePath()}" fill="url(#nnMetal)" fill-rule="evenodd"/></g>`;
+        s += chainSvg(chainCurve(L[0], L[1], lx, py, -pxmm), pxmm, true) + chainSvg(chainCurve(R[0], R[1], rx, py, pxmm), pxmm, true);
+        s += `<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) scale(${pxmm.toFixed(4)})">${plateOnSkin(platePath())}</g>`;
       } else {
         const sc = Math.min((W - pad * 2) / NECK.w, (capY - 16 - top) / NECK.h);
         const ox = (W - NECK.w * sc) / 2 - NECK.x0 * sc, oy = top - NECK.y0 * sc;
