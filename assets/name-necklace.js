@@ -645,8 +645,20 @@
         issues.appendChild(b);
       }
       looseWarn.hidden = !loose;
+      thinWarn.classList.remove('ok');
       if (result.thin.length) {
-        thinWarn.textContent = `Some strokes are thinner than ${N.MIN_FEATURE} mm. They may not fill when cast; try a heavier font or a bigger height.`;
+        thinWarn.textContent = '';
+        const msg = document.createElement('span');
+        msg.textContent = design.reinforce
+          ? `Some strokes are still thinner than ${N.MIN_FEATURE} mm after reinforcing. Try a heavier font or a bigger height. `
+          : `Some strokes are thinner than ${N.MIN_FEATURE} mm and may not fill when cast. Reinforce them (adds a little metal where the joins are thin), or try a heavier font or a bigger height. `;
+        thinWarn.appendChild(msg);
+        if (!design.reinforce) {
+          const rb = document.createElement('button');
+          rb.type = 'button'; rb.className = 'nn__mini nn__mini--solid nn__warn-btn'; rb.textContent = 'Reinforce thin joints';
+          rb.addEventListener('click', () => setReinforce(true));
+          thinWarn.appendChild(rb);
+        }
         const b = document.createElement('button');
         b.type = 'button'; b.className = 'nn__issue'; b.textContent = 'Thin strokes';
         b.title = 'Select the letters with thin strokes';
@@ -662,7 +674,29 @@
         });
         issues.appendChild(b);
       }
-      thinWarn.hidden = !result.thin.length;
+      if (!result.thin.length && design.reinforce && result.reinforced && result.reinforced.passes > 0) {
+        // Reinforced and nothing left under the minimum: say so, with a way back.
+        thinWarn.textContent = '';
+        thinWarn.classList.add('ok');
+        const msg = document.createElement('span');
+        const grams = alloy ? (result.reinforced.addedArea * design.thickness / 1000) * alloy.density : 0;
+        msg.textContent = `Thin joints reinforced to ${N.MIN_FEATURE} mm so the piece casts and wears well${grams >= 0.05 ? ` (about ${grams.toFixed(1)} g more metal)` : ''}. `;
+        thinWarn.appendChild(msg);
+        const ub = document.createElement('button');
+        ub.type = 'button'; ub.className = 'nn__warn-link'; ub.textContent = 'Remove reinforcement';
+        ub.addEventListener('click', () => setReinforce(false));
+        thinWarn.appendChild(ub);
+        thinWarn.hidden = false;
+      } else {
+        thinWarn.hidden = !result.thin.length;
+      }
+    }
+    function setReinforce(on) {
+      if (!!design.reinforce === !!on) return;
+      pushUndo();
+      design.reinforce = !!on;
+      try { say(''); } catch (e) { /* before the cart section is ready */ }
+      schedule();
     }
     function selectOwners(owners) {
       const out = [];
@@ -696,6 +730,7 @@
         ['Thickness', `${design.thickness.toFixed(1)} mm`], ['Curve', curveText()], ['Chain loops', loopsText()],
         ['Metal', alloy.name], ['Finish', cap(design.finish || 'polished')],
       ];
+      if (design.reinforce && result && result.reinforced && result.reinforced.passes > 0) rows.push(['Thin joints', `Reinforced to ${N.MIN_FEATURE} mm`]);
       $('summary').innerHTML = rows.map(([k, v]) => `<div class="nn__summary-row"><span>${esc(k)}</span><span>${esc(v)}</span></div>`).join('');
     }
 
@@ -940,6 +975,7 @@
       if (!result || buildError || adding) return;
       if (cartState === 'off') { location.href = enquiryHref(); return; }
       if (result.loose.length) { $('looseWarn').hidden = false; $('looseWarn').scrollIntoView({ block: 'center', behavior: 'smooth' }); say('Join up the loose pieces first.', true); return; }
+      if (result.thin.length) { $('thinWarn').hidden = false; $('thinWarn').scrollIntoView({ block: 'center', behavior: 'smooth' }); say(design.reinforce ? 'Some strokes are still too thin to cast.' : 'Reinforce the thin joints first.', true); return; }
       adding = true; say(''); renderSaveState();
       let st = 0, j = {};
       // The picture of the design goes with the build so the hidden product (and so the cart) has an image.
@@ -954,11 +990,13 @@
       if (st === 200 && j.variant_id) {
         const props = {
           'Build': j.build, 'Name': design.text, 'Font': fontName(), 'Height': `${design.height} mm`, 'Thickness': `${design.thickness.toFixed(1)} mm`,
-          'Metal': j.alloyName || alloy.name, 'Finish': cap(design.finish || 'polished'), 'Lead time': cfg.leadTime || '',
+          'Metal': j.alloyName || alloy.name, 'Finish': cap(design.finish || 'polished'),
+          'Thin joints': design.reinforce && result.reinforced && result.reinforced.passes > 0 ? `Reinforced to ${N.MIN_FEATURE} mm` : '', 'Lead time': cfg.leadTime || '',
           // Underscore: Shopify keeps the link off the cart, checkout and customer emails; staff see it on the order.
           '_STL': stlAbsolute(j.stl_url || ''),
         };
         if (!props['Lead time']) delete props['Lead time'];
+        if (!props['Thin joints']) delete props['Thin joints'];
         try {
           const r = await fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: [{ id: j.variant_id, quantity: 1, properties: props }] }) });
           if (!r.ok) throw new Error('cart ' + r.status);
@@ -971,7 +1009,8 @@
         }
       }
       adding = false; renderSaveState();
-      if (st === 422 && j.code === 'loose') { const w = $('looseWarn'); w.textContent = j.error || w.textContent; w.hidden = false; w.scrollIntoView({ block: 'center', behavior: 'smooth' }); say('Join up the loose pieces first.', true); }
+      if (st === 422 && j.code === 'thin') { const w = $('thinWarn'); w.hidden = false; w.scrollIntoView({ block: 'center', behavior: 'smooth' }); say(j.error || 'Reinforce the thin joints first.', true); }
+      else if (st === 422 && j.code === 'loose') { const w = $('looseWarn'); w.textContent = j.error || w.textContent; w.hidden = false; w.scrollIntoView({ block: 'center', behavior: 'smooth' }); say('Join up the loose pieces first.', true); }
       else if (st === 422) { const w = $('nameWarn'); w.textContent = j.error || 'This design could not be made. Check the name and try again.'; w.hidden = false; w.scrollIntoView({ block: 'center', behavior: 'smooth' }); say('Check the name.', true); }
       else if (st === 501) { cartState = 'off'; renderSaveState(); status.innerHTML = `Online ordering isn't switched on yet. <a class="nn__link" href="${esc(enquiryHref())}">Send us an enquiry</a> and we will quote it for you.`; status.classList.add('err'); }
       else if (st === 429) say('Please wait a moment and try again.', true);

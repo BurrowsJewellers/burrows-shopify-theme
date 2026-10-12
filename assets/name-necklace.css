@@ -33,6 +33,9 @@
 .nn__row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .nn__unit { font-size: 12.5px; color: var(--muted); }
 .nn__warn { margin: 0; padding: 10px 12px; background: var(--nn-warn-soft); color: var(--nn-warn); font-size: 13.5px; line-height: 1.5; border-left: 2px solid var(--nn-warn); }
+.nn__warn.ok { background: #e8efe8; color: #2f5e3d; border-left-color: #2f5e3d; }
+.nn__warn-btn { margin-top: 8px; display: inline-flex; }
+.nn__warn-link { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
 .nn__link { color: var(--gold-dark); border-bottom: 1px solid var(--gold-2); font-size: 13px; }
 .nn__linkbtn { appearance: none; border: 0; background: none; padding: 0; color: var(--gold-dark); font: inherit; font-size: 13px; border-bottom: 1px solid var(--gold-2); cursor: pointer; font-family: var(--font-body); }
 .nn__linkbtn:focus-visible, .nn__text:focus-visible, .nn__num:focus-visible, .nn input[type="range"]:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
