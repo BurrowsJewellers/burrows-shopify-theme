@@ -659,8 +659,15 @@
           rb.addEventListener('click', () => setReinforce(true));
           thinWarn.appendChild(rb);
         }
+        if (!design.reinforce) {
+          const sb = document.createElement('button');
+          sb.type = 'button'; sb.className = 'nn__issue nn__issue--solid'; sb.textContent = 'Reinforce thin joints';
+          sb.title = `Widen the strokes under ${N.MIN_FEATURE} mm so the piece casts`;
+          sb.addEventListener('click', () => setReinforce(true));
+          issues.appendChild(sb);
+        }
         const b = document.createElement('button');
-        b.type = 'button'; b.className = 'nn__issue'; b.textContent = 'Thin strokes';
+        b.type = 'button'; b.className = 'nn__issue'; b.textContent = 'Show thin strokes';
         b.title = 'Select the letters with thin strokes';
         b.addEventListener('click', () => {
           const hits = [];
@@ -675,7 +682,15 @@
         issues.appendChild(b);
       }
       if (!result.thin.length && design.reinforce && result.reinforced && result.reinforced.passes > 0) {
-        // Reinforced and nothing left under the minimum: say so, with a way back.
+        // Reinforced and nothing left under the minimum: say so on the stage and in the review, with a way back.
+        const okChip = document.createElement('span');
+        okChip.className = 'nn__issue nn__issue--ok';
+        okChip.textContent = `Thin joints reinforced · `;
+        const rm = document.createElement('button');
+        rm.type = 'button'; rm.className = 'nn__warn-link'; rm.textContent = 'Remove';
+        rm.addEventListener('click', () => setReinforce(false));
+        okChip.appendChild(rm);
+        issues.appendChild(okChip);
         thinWarn.textContent = '';
         thinWarn.classList.add('ok');
         const msg = document.createElement('span');
