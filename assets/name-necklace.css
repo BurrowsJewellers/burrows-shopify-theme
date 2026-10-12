@@ -83,7 +83,7 @@
 .nn__more > summary { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 15px 0; cursor: pointer; color: var(--ink); }
 .nn__more > summary::-webkit-details-marker { display: none; }
 .nn__more .nn__pm { color: var(--gold-dark); font-size: 15px; }
-.nn__more[open] .nn__pm::after { content: '\\2212'; }
+.nn__more[open] .nn__pm::after { content: '\2212'; }
 .nn__more:not([open]) .nn__pm::after { content: '+'; }
 .nn__more-body { display: flex; flex-direction: column; gap: 22px; padding: 4px 0 22px; }
 
