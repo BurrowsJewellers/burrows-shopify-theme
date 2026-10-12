@@ -164,9 +164,13 @@
 .nn__seg--hud input:focus-visible + span { outline-color: #fff; }
 .nn__hint { font-size: 12px; color: var(--muted); }
 .nn__dims { font-size: 12.5px; color: var(--ink); background: rgba(255, 255, 255, .85); border: 1px solid var(--nn-line); padding: 5px 9px; font-variant-numeric: tabular-nums; }
-.nn__issues { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.nn__issues { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
 .nn__issue { appearance: none; border: 1px solid var(--nn-warn); border-radius: 999px; padding: 5px 11px; background: var(--nn-warn-soft); color: var(--nn-warn); font: inherit; font-size: 12.5px; font-weight: 500; font-family: var(--font-body); cursor: pointer; }
 .nn__issue:focus-visible { outline: 2px solid var(--nn-warn); outline-offset: 2px; }
+.nn__issue--solid { background: var(--gold); border-color: var(--gold); color: var(--navy); font-weight: 500; }
+.nn__issue--solid:hover { background: #e0bc4a; }
+.nn__issue--ok { background: #e8efe8; border-color: #2f5e3d; color: #2f5e3d; cursor: default; display: inline-flex; align-items: center; gap: 4px; }
+.nn__issue--ok .nn__warn-link { font-size: 12.5px; font-weight: 500; }
 .nn__confirm--stage { position: absolute; left: 14px; top: 56px; padding: 12px 14px; background: #fff; border: 1px solid var(--nn-line); box-shadow: 0 10px 30px rgba(var(--navy-rgb), .12); z-index: 2; }
 .nn__tool-rail { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); display: grid; gap: 3px; padding: 4px; background: rgba(255, 255, 255, .9); border: 1px solid var(--nn-line); }
 .nn__tool-rail button { height: 36px; min-width: 96px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 10px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-family: var(--font-body); cursor: pointer; }
