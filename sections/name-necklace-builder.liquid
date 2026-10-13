@@ -25,8 +25,9 @@
       <ol class="nn__steps" data-nn-steps aria-label="Steps">
         <li data-step="1" class="on"><span>1</span>Name</li>
         <li data-step="2"><span>2</span>Style</li>
-        <li data-step="3"><span>3</span>Metal</li>
-        <li data-step="4"><span>4</span>Review</li>
+        <li data-step="3"><span>3</span>Chain</li>
+        <li data-step="4"><span>4</span>Metal</li>
+        <li data-step="5"><span>5</span>Review</li>
       </ol>
     </header>
 
@@ -42,11 +43,11 @@
         <div class="nn__hud nn__hud--top">
           <div class="nn__hud-left">
             <div class="nn__seg nn__seg--hud" role="radiogroup" aria-label="View">
-              <label><input type="radio" name="view" value="2d" checked><span>2D</span></label>
+              <label><input type="radio" name="view" value="2d"><span>2D</span></label>
               <label><input type="radio" name="view" value="3d"><span>3D</span></label>
-              <label><input type="radio" name="view" value="size"><span>On a neck</span></label>
+              <label><input type="radio" name="view" value="size" checked><span>On a neck</span></label>
             </div>
-            <span class="nn__hint" id="hint">Click a letter to adjust it · Shift-click for more</span>
+            <span class="nn__hint" id="hint">Shown to scale · 2D to adjust letters</span>
           </div>
           <div class="nn__hud-right">
             <button type="button" class="nn__mini" id="undoBtn" title="Undo (Ctrl+Z)" disabled>Undo</button>
@@ -111,13 +112,13 @@
           <div class="nn__group">
             <label class="nn__label" for="curveRange">Curve</label>
             <div class="nn__slider">
-              <input type="range" id="curveRange" min="-180" max="180" step="5" value="0" list="curveTicks">
-              <input type="number" id="curveIn" class="nn__num" min="-180" max="180" step="5" value="0" aria-label="Curve in degrees of arc">
+              <input type="range" id="curveRange" min="0" max="180" step="5" value="70" list="curveTicks">
+              <input type="number" id="curveIn" class="nn__num" min="0" max="180" step="5" value="70" aria-label="Curve in degrees of arc">
               <span class="nn__unit">°</span>
             </div>
-            <datalist id="curveTicks"><option value="0"></option></datalist>
-            <p class="nn__readout" id="curveReadout"><b>Flat</b></p>
-            <p class="nn__note">Bends the name along an arc. Positive lifts the ends like a smile, as it hangs on a chain; negative makes an arch.</p>
+            <datalist id="curveTicks"><option value="0"></option><option value="70"></option></datalist>
+            <p class="nn__readout" id="curveReadout"><b>70°</b></p>
+            <p class="nn__note">Bends the name along an arc so the ends lift as it hangs on the chain. 0 is flat.</p>
           </div>
 
           <fieldset class="nn__group">
@@ -125,19 +126,19 @@
             <div class="nn__seg" id="thickSeg"></div>
           </fieldset>
 
-          <fieldset class="nn__group">
-            <legend class="nn__label">Finish</legend>
-            <div class="nn__seg">
-              <label><input type="radio" name="finish" value="polished" checked><span>Polished</span></label>
-              <label><input type="radio" name="finish" value="brushed"><span>Brushed</span></label>
-              <label><input type="radio" name="finish" value="satin"><span>Satin</span></label>
-            </div>
-            {%- if s.finish_note != blank -%}<p class="nn__note">{{ s.finish_note }}</p>{%- endif -%}
-          </fieldset>
-
           <details class="nn__more" id="paneAdvanced">
             <summary class="nn__label">More options<span class="nn__pm" aria-hidden="true"></span></summary>
             <div class="nn__more-body">
+              <fieldset class="nn__group">
+                <legend class="nn__label">Finish</legend>
+                <div class="nn__seg">
+                  <label><input type="radio" name="finish" value="polished" checked><span>Polished</span></label>
+                  <label><input type="radio" name="finish" value="brushed"><span>Brushed</span></label>
+                  <label><input type="radio" name="finish" value="satin"><span>Satin</span></label>
+                </div>
+                {%- if s.finish_note != blank -%}<p class="nn__note">{{ s.finish_note }}</p>{%- endif -%}
+              </fieldset>
+
               <div class="nn__group">
                 <label class="nn__label" for="ovRange">Letter overlap</label>
                 <div class="nn__slider">
@@ -197,15 +198,33 @@
         </div>
 
         <div class="nn__block" data-block="3">
-          <h2 class="nn__h"><span>3</span>Metal</h2>
+          <h2 class="nn__h"><span>3</span>Chain</h2>
+          <fieldset class="nn__group">
+            <legend class="nn__label">Chain style</legend>
+            <div class="nn__chain-tiles" id="chainStyles" role="radiogroup" aria-label="Chain style"></div>
+            <p class="nn__note">Every necklace comes with its chain. Prices are for the length and metal below.</p>
+          </fieldset>
+          <fieldset class="nn__group">
+            <legend class="nn__label">Chain length</legend>
+            <div class="nn__chips" id="chainLengths" role="radiogroup" aria-label="Chain length"></div>
+            <p class="nn__note">40 cm sits at the base of the neck, 45 cm just below the collarbones, 50 cm a little lower. See it on the neck view above.</p>
+          </fieldset>
+          <div class="nn__group">
+            <span class="nn__label">Chain metal</span>
+            <div class="nn__alloys" id="chainAlloyChips"></div>
+          </div>
+        </div>
+
+        <div class="nn__block" data-block="4">
+          <h2 class="nn__h"><span>4</span>Nameplate metal</h2>
           <div class="nn__group">
             <div class="nn__alloys" id="alloyChips" role="radiogroup" aria-label="Metal"></div>
             <p class="nn__note" id="weightLine"></p>
           </div>
         </div>
 
-        <div class="nn__block nn__block--review" data-block="4">
-          <h2 class="nn__h"><span>4</span>Review</h2>
+        <div class="nn__block nn__block--review" data-block="5">
+          <h2 class="nn__h"><span>5</span>Review</h2>
           <div class="nn__summary" id="summary"></div>
           <div class="nn__total">
             <span class="nn__label">Price · AUD incl. GST</span>
