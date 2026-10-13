@@ -1,4 +1,4 @@
-/* GENERATED from the name-necklace-builder repo (shared/stl-io.js + shared/alloys.js + name-necklace-maker/src/nameplate.js, as build.js assembles them). Do not hand-edit; rebuild from that repo. */
+/* GENERATED from the name-necklace-builder repo (shared/stl-io.js + shared/alloys.js + shared/chains.js + name-necklace-maker/src/nameplate.js, as build.js assembles them). Do not hand-edit; rebuild from that repo. */
 /* StlIO: STL and ZIP writers (the same file as in BurrowsJewellers/ring-builder). No DOM. Units: millimetres. */
 const StlIO = (() => {
   function signedVolume(pos, idx) {
@@ -128,6 +128,39 @@ const Alloys = (() => {
   return { TROY_OUNCE_G, ALLOYS, byKey, weightGrams };
 })();
 if (typeof module !== 'undefined') module.exports = Alloys;
+
+/* Chains offered with a name necklace. Not secret: the page uses them for the drawing and the weight, the price
+   server for the cost. One fine gauge per style; the weight per centimetre comes from the link geometry (wire
+   diameter, link outside size) and the alloy's density, so a chain is priced the same way as the plate: metal
+   weight x cost per gram x markup. Check the figures against a real chain off the shelf and correct the link
+   sizes here if they drift.
+     width  the chain's width as the trade names it ("1.2 mm cable")
+     wire   the wire diameter
+     link   the link's outside length and width (a belcher link is round)
+     pitch  how far the chain advances per link: links interlock, so it is the link length less two wire widths */
+const Chains = (() => {
+  const STYLES = [
+    { key: 'cable', name: 'Cable', width: 1.2, wire: 0.30, link: [2.2, 1.2], note: 'Fine oval links, the classic for a nameplate' },
+    { key: 'belcher', name: 'Belcher', width: 1.5, wire: 0.40, link: [1.5, 1.5], note: 'Round links, a little heavier' },
+    { key: 'curb', name: 'Curb', width: 1.8, wire: 0.45, link: [2.6, 1.8], note: 'Flat twisted links that lie close' },
+  ];
+  const LENGTHS_CM = [40, 45, 50];
+  const DEFAULT = { style: 'cable', lengthCm: 45 };
+  // Alloys a chain comes in: every cast alloy except platinum.
+  const EXCLUDED_ALLOYS = ['pt950'];
+  const byKey = (key) => STYLES.find((s) => s.key === key) || null;
+  // Ramanujan's approximation of an ellipse's perimeter, here the wire's centre line.
+  const perimeter = (a, b) => Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
+  // Wire volume in one link, mm³.
+  const linkVolume = (s) => perimeter((s.link[0] - s.wire) / 2, (s.link[1] - s.wire) / 2) * Math.PI * (s.wire / 2) ** 2;
+  const pitch = (s) => s.link[0] - 2 * s.wire;
+  const volumePerCm = (s) => linkVolume(s) * (10 / pitch(s));
+  // Grams of a length of chain in an alloy (alloy as in alloys.js, with a density in g/cm³).
+  const weightGrams = (style, lengthCm, alloy) => (volumePerCm(style) * lengthCm / 1000) * alloy.density;
+  const chainAlloys = (alloys) => alloys.filter((a) => !EXCLUDED_ALLOYS.includes(a.key));
+  return { STYLES, LENGTHS_CM, DEFAULT, EXCLUDED_ALLOYS, byKey, linkVolume, pitch, volumePerCm, weightGrams, chainAlloys };
+})();
+if (typeof module !== 'undefined') module.exports = Chains;
 
 /* Nameplate: name necklace geometry. Font -> outline -> union -> loops -> checks -> mesh.
    No DOM, runs in Node too. Units: millimetres, y up. Clipper works in integers at SCALE units per mm. */
