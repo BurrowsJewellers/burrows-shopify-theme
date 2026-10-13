@@ -39,7 +39,7 @@
       .then(() => (typeof Nameplate !== 'undefined' || !cfg.coreUrl ? null : loadScript(cfg.coreUrl)));
     const three = libs.then(() => ensure('three')).then(() => ensure('orbit')).then(() => true, () => false);
     libs.then(() => {
-      if (typeof Nameplate === 'undefined' || typeof Alloys === 'undefined') throw new Error('core');
+      if (typeof Nameplate === 'undefined' || typeof Alloys === 'undefined' || typeof Chains === 'undefined') throw new Error('core');
       return loadFonts(cfg);
     }).then((fonts) => start(root, cfg, fonts, three)).catch((err) => {
       console.warn('Name necklace builder:', err);
@@ -78,8 +78,10 @@
     const apiBase = String(cfg.apiBase || '').replace(/\/$/, '');
 
     /* ---------- state ---------- */
+    const DEFAULT_CURVE = 70; // degrees: the name lifts at the ends, as it hangs on a chain
     let design = N.defaultDesign();
-    const settings = { detail: 'standard', format: 'binary', view: '2d', tool: 'move', metal: 'yellow' };
+    design.curve = DEFAULT_CURVE;
+    const settings = { detail: 'standard', format: 'binary', view: 'size', tool: 'move', metal: 'yellow' };
     let alloy = Alloys.byKey(cfg.defaultAlloy) || Alloys.byKey('ag925') || Alloys.ALLOYS[0];
     let selection = [];   // { type: 'letter', index } | { type: 'dot', index } (an i/j dot) | { type: 'loop', side }
     let result = null, mesh = null, buildError = null, hover = null;
@@ -184,9 +186,9 @@
     $('ovRange').addEventListener('input', () => { $('ovIn').value = (+$('ovRange').value).toFixed(2); setOverlap(+$('ovRange').value); });
     $('ovIn').addEventListener('input', () => { const v = parseFloat($('ovIn').value); if (Number.isFinite(v)) { $('ovRange').value = clamp(v, 0, 1); setOverlap(v); } });
     $('ovIn').addEventListener('change', () => { $('ovIn').value = design.overlap.toFixed(2); });
-    const setCurve = (v) => { pushUndo('curve'); design.curve = Math.round(clamp(v, N.CURVE_RANGE[0], N.CURVE_RANGE[1])); schedule({ fit: true }); };
+    const setCurve = (v) => { pushUndo('curve'); design.curve = Math.round(clamp(v, 0, N.CURVE_RANGE[1])); schedule({ fit: true }); };
     $('curveRange').addEventListener('input', () => { $('curveIn').value = $('curveRange').value; setCurve(+$('curveRange').value); });
-    $('curveIn').addEventListener('input', () => { const v = parseFloat($('curveIn').value); if (Number.isFinite(v)) { $('curveRange').value = clamp(v, -180, 180); setCurve(v); } });
+    $('curveIn').addEventListener('input', () => { const v = parseFloat($('curveIn').value); if (Number.isFinite(v)) { $('curveRange').value = clamp(v, 0, 180); setCurve(v); } });
     $('curveIn').addEventListener('change', () => { $('curveIn').value = design.curve || 0; });
     radios('thickness').forEach((el) => el.addEventListener('change', () => { pushUndo(); design.thickness = +el.value; schedule(); }));
     $('loopL').addEventListener('change', () => { pushUndo(); design.loops.left.on = $('loopL').checked; schedule({ fit: true }); });
@@ -236,32 +238,39 @@
     ].filter((m) => m.key ? Alloys.byKey(m.key) : Alloys.ALLOYS.some((a) => a.colour === m.colour));
     const PURITIES = [...new Set(Alloys.ALLOYS.filter((a) => a.colour).map((a) => a.group))]; // 9ct, 14ct, 18ct
     const PURITY_NOTE = { '9ct': 'Hard-wearing, best value', '14ct': 'Richer colour, still tough', '18ct': 'Richest colour, softer' };
-    const chipsEl = $('alloyChips');
-    let purity = PURITIES.includes('9ct') ? '9ct' : PURITIES[0];
     const metalOf = (a) => (a.key === 'ag925' ? 'silver' : a.key === 'pt950' ? 'platinum' : colourOf(a));
     const goldKey = (colour, group) => { const a = Alloys.ALLOYS.find((x) => x.colour === colour && x.group === group); return a ? a.key : null; };
-    chipsEl.innerHTML = `<div class="nn__metal-tiles" role="radiogroup" aria-label="Metal">${METALS.map((m) => `<button type="button" class="nn__tile" role="radio" aria-checked="false" data-metal="${m.id}" style="--sw:${m.sw[0]};--sw2:${m.sw[1]}"><i aria-hidden="true"></i><span>${esc(m.label)}</span></button>`).join('')}</div>
-      <div class="nn__purity" data-purity hidden><span class="nn__purity-l">Gold purity</span><div class="nn__chips" role="radiogroup" aria-label="Gold purity">${PURITIES.map((g) => `<button type="button" class="nn__chip" role="radio" aria-checked="false" data-purity-key="${esc(g)}">${esc(g)}</button>`).join('')}</div><span class="nn__purity-note" data-purity-note></span></div>`;
-    chipsEl.querySelectorAll('.nn__tile').forEach((b) => b.addEventListener('click', () => {
-      const m = METALS.find((x) => x.id === b.dataset.metal);
-      if (!m) return;
-      setAlloy(m.key || goldKey(m.colour, purity) || goldKey(m.colour, PURITIES[0]));
-    }));
-    chipsEl.querySelectorAll('[data-purity-key]').forEach((b) => b.addEventListener('click', () => {
-      purity = b.dataset.purityKey;
-      if (alloy.colour) setAlloy(goldKey(alloy.colour, purity) || alloy.key);
-    }));
-    function setAlloy(key) {
-      const a = Alloys.byKey(key);
-      if (!a) return;
+    // One picker (metal tiles + gold purity) for a container; onChange(alloy) when the choice changes.
+    function makeMetalPicker(el, { exclude = [], onChange, label = 'Metal' }) {
+      const metals = METALS.filter((m) => !(m.key && exclude.includes(m.key)));
+      let purity = PURITIES.includes('9ct') ? '9ct' : PURITIES[0], current = null;
+      el.innerHTML = `<div class="nn__metal-tiles" role="radiogroup" aria-label="${esc(label)}">${metals.map((m) => `<button type="button" class="nn__tile" role="radio" aria-checked="false" data-metal="${m.id}" style="--sw:${m.sw[0]};--sw2:${m.sw[1]}"><i aria-hidden="true"></i><span>${esc(m.label)}</span></button>`).join('')}</div>
+        <div class="nn__purity" data-purity hidden><span class="nn__purity-l">Gold purity</span><div class="nn__chips" role="radiogroup" aria-label="Gold purity">${PURITIES.map((g) => `<button type="button" class="nn__chip" role="radio" aria-checked="false" data-purity-key="${esc(g)}">${esc(g)}</button>`).join('')}</div><span class="nn__purity-note" data-purity-note></span></div>`;
+      el.querySelectorAll('.nn__tile').forEach((b) => b.addEventListener('click', () => {
+        const m = metals.find((x) => x.id === b.dataset.metal);
+        if (m) set(m.key || goldKey(m.colour, purity) || goldKey(m.colour, PURITIES[0]));
+      }));
+      el.querySelectorAll('[data-purity-key]').forEach((b) => b.addEventListener('click', () => {
+        purity = b.dataset.purityKey;
+        if (current && current.colour) set(goldKey(current.colour, purity) || current.key);
+      }));
+      function set(key, silent) {
+        const a = Alloys.byKey(key);
+        if (!a || exclude.includes(a.key)) return;
+        current = a;
+        if (a.colour) purity = a.group;
+        const metal = metalOf(a);
+        el.querySelectorAll('.nn__tile').forEach((b) => { const on = b.dataset.metal === metal; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
+        el.querySelector('[data-purity]').hidden = !a.colour;
+        el.querySelectorAll('[data-purity-key]').forEach((b) => { const on = b.dataset.purityKey === purity; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
+        el.querySelector('[data-purity-note]').textContent = a.colour ? (PURITY_NOTE[purity] || '') : '';
+        if (!silent) onChange(a);
+      }
+      return { set, get alloy() { return current; } };
+    }
+    const platePicker = makeMetalPicker($('alloyChips'), { label: 'Nameplate metal', onChange: (a) => applyAlloy(a) });
+    function applyAlloy(a) {
       alloy = a;
-      if (a.colour) purity = a.group;
-      const metal = metalOf(a);
-      chipsEl.querySelectorAll('.nn__tile').forEach((b) => { const on = b.dataset.metal === metal; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
-      const pur = chipsEl.querySelector('[data-purity]');
-      pur.hidden = !a.colour;
-      chipsEl.querySelectorAll('[data-purity-key]').forEach((b) => { const on = b.dataset.purityKey === purity; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
-      chipsEl.querySelector('[data-purity-note]').textContent = a.colour ? (PURITY_NOTE[purity] || '') : '';
       settings.metal = colourOf(a);
       preview.setMetal(settings.metal);
       if (!preview.ok) renderOverlay();
@@ -269,6 +278,41 @@
       renderStats();
       renderSummary();
       priceChanged();
+    }
+    const setAlloy = (key) => platePicker.set(key);
+
+    /* ---------- chain ---------- */
+    // Every necklace comes with a chain: a style (cable, belcher, curb), a length and its own metal (no platinum).
+    // The server prices it on its weight like the plate; chainPrices (from the last quote) labels the style tiles.
+    const chain = { style: Chains.byKey(Chains.DEFAULT.style), lengthCm: Chains.DEFAULT.lengthCm, alloy: Alloys.byKey('ag925') || Alloys.ALLOYS[0] };
+    let chainPrices = null;
+    const chainStylesEl = $('chainStyles'), chainLengthsEl = $('chainLengths');
+    const chainMetal = () => metalOf(chain.alloy);
+    const chainText = () => `${chain.lengthCm} cm ${chain.style.name.toLowerCase()} chain, ${chain.alloy.name}`;
+    function chainChanged() {
+      renderChainTiles();
+      renderChainLengths();
+      if (settings.view === 'size') renderSize();
+      renderSummary();
+      priceChanged();
+    }
+    const chainPicker = makeMetalPicker($('chainAlloyChips'), { exclude: Chains.EXCLUDED_ALLOYS, label: 'Chain metal', onChange: (a) => { chain.alloy = a; chainChanged(); } });
+    function setChainStyle(key) { const st = Chains.byKey(key); if (!st || st === chain.style) return; chain.style = st; chainChanged(); }
+    function setChainLength(cm) { if (!Chains.LENGTHS_CM.includes(cm) || cm === chain.lengthCm) return; chain.lengthCm = cm; chainChanged(); }
+    // A straight run of links across a tile, spaced at the style's pitch (6.5 px per mm), with a gentle sag.
+    const tileRun = (st) => { const pts = [], step = Chains.pitch(st) * 6.5; for (let x = 6; x <= 114; x += step) pts.push([x, 13 + 2.2 * Math.sin((x / 120) * Math.PI)]); return pts; };
+    function renderChainTiles() {
+      chainStylesEl.innerHTML = Chains.STYLES.map((st) => {
+        const p = chainPrices && chainPrices[st.key];
+        return `<button type="button" class="nn__ctile${st === chain.style ? ' on' : ''}" role="radio" aria-checked="${st === chain.style}" data-chain-style="${st.key}" title="${esc(st.note)}">
+          <svg viewBox="0 0 120 26" aria-hidden="true">${linkDefs('t' + st.key, chainMetal())}${linkRun(st, tileRun(st), 6.5, 'url(#nnLink-t' + st.key + ')', 0.55)}</svg>
+          <span class="nn__ctile-n">${esc(st.name)}</span><small>${st.width.toFixed(1)} mm${p ? ' · ' + money(p) : ''}</small></button>`;
+      }).join('');
+      chainStylesEl.querySelectorAll('[data-chain-style]').forEach((b) => b.addEventListener('click', () => setChainStyle(b.dataset.chainStyle)));
+    }
+    function renderChainLengths() {
+      chainLengthsEl.innerHTML = Chains.LENGTHS_CM.map((cm) => `<button type="button" class="nn__chip${cm === chain.lengthCm ? ' on' : ''}" role="radio" aria-checked="${cm === chain.lengthCm}" data-chain-cm="${cm}">${cm} cm</button>`).join('');
+      chainLengthsEl.querySelectorAll('[data-chain-cm]').forEach((b) => b.addEventListener('click', () => setChainLength(+b.dataset.chainCm)));
     }
 
     /* ---------- preview (three.js) ---------- */
@@ -615,7 +659,7 @@
       preview.set(N.buildDisplay(r, design.thickness), design.thickness);
       if (doFit) { fit(); if (preview.refit3d) preview.refit3d(); } else if (!drag) fitIfNeeded();
       const c = r.curve, cr = $('curveReadout');
-      cr.innerHTML = !c.degrees ? '<b>Flat</b>' : `<b>${Math.abs(c.degrees)}°</b> ${c.degrees > 0 ? 'smile' : 'arch'}`;
+      cr.innerHTML = !c.degrees ? '<b>Flat</b>' : `<b>${Math.abs(c.degrees)}°</b>`;
       if (c.limited) cr.innerHTML += ` · limited to ${c.maxDegrees}° for a name this short, so the letters don't fold`;
       $('dims').textContent = `Width ${r.width.toFixed(2)} · Height ${r.height.toFixed(2)} · Thickness ${design.thickness.toFixed(2)} mm`;
       renderOverlay();
@@ -737,7 +781,7 @@
 
     /* ---------- review summary ---------- */
     const fontName = () => N.fontMeta(design.font).name;
-    const curveText = () => { const c = result && result.curve.degrees; return !c ? 'Straight' : `${Math.abs(c)}° ${c > 0 ? 'smile' : 'arch'}`; };
+    const curveText = () => { const c = result && result.curve.degrees; return !c ? 'Straight' : `${Math.abs(c)}° curve`; };
     const loopsText = () => { const L = design.loops; return L.left.on && L.right.on ? 'Left and right' : L.left.on ? 'Left only' : L.right.on ? 'Right only' : 'None'; };
     const cap = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
     function renderSummary() {
@@ -745,7 +789,7 @@
         ['Name', design.text], ['Font', fontName()],
         ['Size', result ? `${result.width.toFixed(1)} × ${result.height.toFixed(1)} mm` : `${design.height} mm high`],
         ['Thickness', `${design.thickness.toFixed(1)} mm`], ['Curve', curveText()], ['Chain loops', loopsText()],
-        ['Metal', alloy.name], ['Finish', cap(design.finish || 'polished')],
+        ['Metal', alloy.name], ['Chain', chainText()], ['Finish', cap(design.finish || 'polished')],
       ];
       if (design.reinforce && result && result.reinforced && result.reinforced.passes > 0) rows.push(['Thin joints', `Reinforced to ${N.MIN_FEATURE} mm`]);
       $('summary').innerHTML = rows.map(([k, v]) => `<div class="nn__summary-row"><span>${esc(k)}</span><span>${esc(v)}</span></div>`).join('');
@@ -853,7 +897,7 @@
       stage.classList.toggle('view3d', v === '3d');
       stage.classList.toggle('viewsize', v === 'size');
       $('toolRail').hidden = v !== '2d'; // in 3D the rail would sit over the model; the hint says how to edit instead
-      $('hint').textContent = v === '3d' ? 'Drag to turn · scroll to zoom · switch to 2D to edit letters' : v === 'size' ? 'How it sits, to scale' : 'Click a letter to adjust it · Shift-click for more';
+      $('hint').textContent = v === '3d' ? 'Drag to turn · scroll to zoom · switch to 2D to edit letters' : v === 'size' ? 'Shown to scale · 2D to adjust letters' : 'Click a letter to adjust it · Shift-click for more';
       $('sizeView').hidden = v !== 'size';
       $('sizeBar').hidden = v !== 'size';
       $('issues').hidden = v === 'size';
@@ -863,6 +907,8 @@
       renderOverlay();
     }
     radios('view').forEach((el) => el.addEventListener('change', () => setView(el.value)));
+    // Overlap, loops and dots need the letter editor: opening More options brings up the 2D view.
+    $('paneAdvanced').addEventListener('toggle', () => { if ($('paneAdvanced').open && settings.view !== '2d') setView('2d'); });
 
     /* ---------- on a neck: the plate to scale on a neckline ---------- */
     // Everything is drawn in millimetres and scaled to the stage. With a photo configured in the section
@@ -871,7 +917,6 @@
     // drawing of a neckline is used. The chain length sets how far below the notch the plate hangs: 40 cm sits
     // at the base of the neck, 45 cm just below the collarbones, 50 cm a little lower.
     const sizeSvg = $('sizeSvg'), sizeBar = $('sizeBar');
-    let chainCm = 45;
     const DROP_MM = { 40: 4, 45: 24, 50: 46 };
     const platePath = () => {
       if (!result) return '';
@@ -884,14 +929,15 @@
       rose: { face: ['#FAE0D2', '#E4A88C', '#FFEBE0', '#D89474', '#A9684E'], edge: '#8F5640', link: ['#FFEEE4', '#E2A287', '#9C6349'] },
       white: { face: ['#FBFCFC', '#D3D7D9', '#FFFFFF', '#C2C7CA', '#8F979B'], edge: '#788085', link: ['#FFFFFF', '#D6DADC', '#8E969A'] },
     };
+    // Gradients for a chain's links in a metal (ids suffixed so tiles and the neck view can each have their own).
+    const linkDefs = (id, metal) => { const m = METAL_STOPS[metal] || METAL_STOPS.white; return `<defs><radialGradient id="nnLink-${id}" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="${m.link[0]}"/><stop offset="0.5" stop-color="${m.link[1]}"/><stop offset="1" stop-color="${m.link[2]}"/></radialGradient></defs>`; };
     const metalDefs = () => {
       const m = METAL_STOPS[settings.metal] || METAL_STOPS.white, f = m.face;
       return `<defs><linearGradient id="nnMetal" x1="0" y1="0" x2="0.55" y2="1"><stop offset="0" stop-color="${f[0]}"/><stop offset="0.32" stop-color="${f[1]}"/><stop offset="0.5" stop-color="${f[2]}"/><stop offset="0.68" stop-color="${f[3]}"/><stop offset="1" stop-color="${f[4]}"/></linearGradient>
-        <radialGradient id="nnLink" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="${m.link[0]}"/><stop offset="0.5" stop-color="${m.link[1]}"/><stop offset="1" stop-color="${m.link[2]}"/></radialGradient>
         <filter id="nnContact" x="-30%" y="-30%" width="160%" height="180%"><feGaussianBlur stdDeviation="0.22"/></filter>
         <filter id="nnAmbient" x="-40%" y="-40%" width="180%" height="220%"><feGaussianBlur stdDeviation="1.1"/></filter>
         <filter id="nnSoft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="0.07"/></filter>
-        <filter id="nnChainBlur" x="-20%" y="-20%" width="140%" height="160%"><feGaussianBlur stdDeviation="0.5"/></filter></defs>`;
+        <filter id="nnChainBlur" x="-20%" y="-20%" width="140%" height="160%"><feGaussianBlur stdDeviation="0.5"/></filter></defs>` + linkDefs('neck', chainMetal());
     };
     // The plate on skin: a warm shadow that darkens the photo (multiply) instead of painting grey over it - a
     // tight contact shadow plus a wide faint one - then the plate's edge a touch below, then the polished face.
@@ -906,24 +952,37 @@
     // sweeps in to the loop.
     const chainCurve = (ax, ay, lx, ly, out) => { const d = ly - ay; return [[ax, ay], [ax + out * 0.3, ay + d * 0.42], [lx - out * 4, ly - d * 0.35], [lx, ly]]; };
     const bez = (P, t) => { const u = 1 - t; return [u * u * u * P[0][0] + 3 * u * u * t * P[1][0] + 3 * u * t * t * P[2][0] + t * t * t * P[3][0], u * u * u * P[0][1] + 3 * u * u * t * P[1][1] + 3 * u * t * t * P[2][1] + t * t * t * P[3][1]]; };
+    // The links of one chain style laid along a list of points (already spaced at the pitch), in the drawing's
+    // units per mm. Cable: oval links, every second one on its edge. Belcher: round links the same way. Curb: every
+    // link twisted to lie flat, so a row of overlapping ovals with a slight alternate tilt.
+    const linkRun = (st, pts, pxmm, fill, swMin, fadeFrom) => {
+      const edge = 0.5 * st.wire * pxmm * 0.85, sw = Math.max(swMin, st.wire * pxmm * 0.38);
+      let out = '';
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)], c = pts[i];
+        const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+        const op = fadeFrom ? Math.min(1, (i + 1) / fadeFrom) : 1;
+        const at = `transform="rotate(${ang.toFixed(1)} ${c[0].toFixed(2)} ${c[1].toFixed(2)})"${op < 1 ? ` opacity="${op.toFixed(2)}"` : ''}`;
+        if (st.key === 'curb') {
+          const rx = (st.link[0] / 2) * pxmm, ry = (st.link[1] / 2) * pxmm * 0.72, tilt = i % 2 ? 14 : -14;
+          out += `<ellipse cx="${c[0].toFixed(2)}" cy="${c[1].toFixed(2)}" rx="${rx.toFixed(2)}" ry="${ry.toFixed(2)}" transform="rotate(${(ang + tilt).toFixed(1)} ${c[0].toFixed(2)} ${c[1].toFixed(2)})" fill="none" stroke="${fill}" stroke-width="${(sw * 1.9).toFixed(2)}"${op < 1 ? ` opacity="${op.toFixed(2)}"` : ''}/>`;
+        } else {
+          const flat = i % 2 === 0, rx = ((st.link[0] - st.wire) / 2) * pxmm, ry = ((st.link[1] - st.wire) / 2) * pxmm;
+          out += `<ellipse cx="${c[0].toFixed(2)}" cy="${c[1].toFixed(2)}" rx="${rx.toFixed(2)}" ry="${(flat ? ry : edge).toFixed(2)}" ${at} fill="${flat ? 'none' : fill}" stroke="${fill}" stroke-width="${(flat ? sw * 1.5 : sw).toFixed(2)}"/>`;
+        }
+      }
+      return out;
+    };
     const chainSvg = (P, pxmm, onSkin) => {
-      const pitch = 1.2 * pxmm, rx = 0.68 * pxmm, ry = 0.42 * pxmm, edge = 0.17 * pxmm, sw = Math.max(0.3, 0.11 * pxmm);
+      const st = chain.style, pitch = Chains.pitch(st) * pxmm;
       // walk the curve at even spacing
-      const pts = []; let prev = bez(P, 0), acc = 0; pts.push({ p: prev, t: 0 });
-      for (let i = 1; i <= 400; i++) { const t = i / 400, q = bez(P, t); acc += Math.hypot(q[0] - prev[0], q[1] - prev[1]); prev = q; if (acc >= pitch) { pts.push({ p: q, t }); acc = 0; } }
+      const pts = []; let prev = bez(P, 0), acc = 0; pts.push(prev);
+      for (let i = 1; i <= 400; i++) { const t = i / 400, q = bez(P, t); acc += Math.hypot(q[0] - prev[0], q[1] - prev[1]); prev = q; if (acc >= pitch) { pts.push(q); acc = 0; } }
       const path = `M${P[0][0].toFixed(2)},${P[0][1].toFixed(2)}C${P.slice(1).map((q) => q[0].toFixed(2) + ',' + q[1].toFixed(2)).join(' ')}`;
       // One soft warm shadow under the whole chain (fading in with it), rather than a hard one under every link.
-      let out = onSkin ? `<g style="mix-blend-mode:multiply"><path d="${path}" fill="none" stroke="#5a2e1c" stroke-width="${(0.9 * pxmm).toFixed(2)}" stroke-linecap="round" opacity=".3" transform="translate(${(0.15 * pxmm).toFixed(2)},${(0.55 * pxmm).toFixed(2)})" filter="url(#nnChainBlur)"/></g>` : '';
-      out += '<g>';
-      for (let i = 0; i < pts.length; i++) {
-        const a = pts[Math.max(0, i - 1)].p, b = pts[Math.min(pts.length - 1, i + 1)].p, c = pts[i].p;
-        const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
-        const flat = i % 2 === 0;
-        // The first links fade in: the chain is coming round from behind the neck.
-        const op = Math.min(1, (i + 1) / 7);
-        out += `<ellipse cx="${c[0].toFixed(2)}" cy="${c[1].toFixed(2)}" rx="${rx.toFixed(2)}" ry="${(flat ? ry : edge).toFixed(2)}" transform="rotate(${ang.toFixed(1)} ${c[0].toFixed(2)} ${c[1].toFixed(2)})" fill="${flat ? 'none' : 'url(#nnLink)'}" stroke="url(#nnLink)" stroke-width="${(flat ? sw * 1.5 : sw).toFixed(2)}"${op < 1 ? ` opacity="${op.toFixed(2)}"` : ''}/>`;
-      }
-      return out + '</g>';
+      let out = onSkin ? `<g style="mix-blend-mode:multiply"><path d="${path}" fill="none" stroke="#5a2e1c" stroke-width="${(st.width * 0.75 * pxmm).toFixed(2)}" stroke-linecap="round" opacity=".3" transform="translate(${(0.15 * pxmm).toFixed(2)},${(0.55 * pxmm).toFixed(2)})" filter="url(#nnChainBlur)"/></g>` : '';
+      // The first links fade in: the chain is coming round from behind the neck.
+      return out + '<g>' + linkRun(st, pts, pxmm, 'url(#nnLink-neck)', 0.3, 7) + '</g>';
     };
     // Line illustration of a neckline, in mm (figure centre x = 160, notch at y = 104).
     const NECK = { x0: 50, y0: 0, w: 220, h: 190, anchors: [[113, 77], [207, 77]], notch: [160, 104] };
@@ -958,7 +1017,7 @@
         const pt = (p) => [ix + (p[0] / 100) * iw, iy + (p[1] / 100) * ih];
         const L = pt(nk.left || [35, 38]), R = pt(nk.right || [65, 38]), Nn = pt(nk.notch || [50, 52]);
         const pxmm = Math.hypot(R[0] - L[0], R[1] - L[1]) / (nk.widthMm || 105);
-        const py = Nn[1] + (DROP_MM[chainCm] || DROP_MM[45]) * pxmm, px = Nn[0];
+        const py = Nn[1] + (DROP_MM[chain.lengthCm] || DROP_MM[45]) * pxmm, px = Nn[0];
         const lx = px - (pw / 2 - 1.6) * pxmm, rx = px + (pw / 2 - 1.6) * pxmm;
         s += `<image href="${esc(photo.url)}" x="${ix.toFixed(1)}" y="${iy.toFixed(1)}" width="${iw.toFixed(1)}" height="${ih.toFixed(1)}" preserveAspectRatio="none"/>`;
         s += `<rect x="0" y="${(H - 110).toFixed(0)}" width="${W}" height="110" fill="url(#nnFade)"/>`;
@@ -968,18 +1027,18 @@
       } else {
         const sc = Math.min((W - pad * 2) / NECK.w, (capY - 16 - top) / NECK.h);
         const ox = (W - NECK.w * sc) / 2 - NECK.x0 * sc, oy = top - NECK.y0 * sc;
-        const py = NECK.notch[1] + (DROP_MM[chainCm] || DROP_MM[45]);
+        const py = NECK.notch[1] + (DROP_MM[chain.lengthCm] || DROP_MM[45]);
         const [a, b] = NECK.anchors, lx = 160 - pw / 2 + 1.6, rx = 160 + pw / 2 - 1.6;
         s += `<g transform="translate(${ox.toFixed(1)},${oy.toFixed(1)}) scale(${sc})">${neckArt()}`;
         s += chainSvg(chainCurve(a[0], a[1], lx, py, -1), 1) + chainSvg(chainCurve(b[0], b[1], rx, py, 1), 1);
         s += `<g transform="translate(160,${py})"><path d="${platePath()}" fill="url(#nnMetal)" fill-rule="evenodd"/></g></g>`;
       }
-      s += label(W / 2, capY, `On a ${chainCm} cm chain · shown to scale`);
+      s += label(W / 2, capY, `${chain.lengthCm} cm ${chain.style.name.toLowerCase()} chain in ${chain.alloy.name} · shown to scale`);
       sizeSvg.innerHTML = s;
-      sizeBar.innerHTML = `<span class="nn__sz-l">Chain</span>` + [40, 45, 50].map((c) => `<button type="button" class="nn__sz${chainCm === c ? ' on' : ''}" data-chain="${c}">${c} cm</button>`).join('');
+      sizeBar.innerHTML = `<span class="nn__sz-l">Chain</span>` + Chains.LENGTHS_CM.map((c) => `<button type="button" class="nn__sz${chain.lengthCm === c ? ' on' : ''}" data-chain="${c}">${c} cm</button>`).join('');
     }
     window.addEventListener('resize', () => { if (settings.view === 'size') renderSize(); });
-    sizeBar.addEventListener('click', (e) => { const b = e.target.closest('button[data-chain]'); if (!b) return; chainCm = +b.dataset.chain; renderSize(); });
+    sizeBar.addEventListener('click', (e) => { const b = e.target.closest('button[data-chain]'); if (!b) return; setChainLength(+b.dataset.chain); });
 
     document.addEventListener('keydown', (e) => {
       const inField = editable(e.target);
@@ -1044,7 +1103,8 @@
     // final price. Every change asks again after a short pause; the old price shows as "from" until the new one lands.
     const PRICE_URL = apiBase + '/quote';
     const priceOut = $('priceOut');
-    let priceTimer = 0, priceSeq = 0, price = null; // price: the last quote { price, weightGrams, alloy } or null
+    let priceTimer = 0, priceSeq = 0, price = null; // price: the last quote { price, weightGrams, alloy, plate, chain } or null
+    const chainPayload = () => ({ style: chain.style.key, lengthCm: chain.lengthCm, alloy: chain.alloy.key });
     const money = (v) => 'A$' + v.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     async function requestPrice() {
       if (buildError) { price = null; priceOut.className = 'nn__price err'; priceOut.textContent = 'Fix the name above to see a price.'; renderSaveState(); return; }
@@ -1052,7 +1112,7 @@
       priceOut.classList.add('stale');
       renderSaveState();
       try {
-        const res = await fetch(PRICE_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ design: JSON.parse(N.designJSON(design)), alloy: alloy.key }) });
+        const res = await fetch(PRICE_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ design: JSON.parse(N.designJSON(design)), alloy: alloy.key, chain: chainPayload() }) });
         const b = await res.json().catch(() => ({}));
         if (seq !== priceSeq) return; // a newer request is on its way
         if (!res.ok) {
@@ -1064,9 +1124,13 @@
         const basis = !when ? '' : b.metalPriceLive
           ? ` · metal price at ${when.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' })}`
           : ` · metal prices of ${when.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}`;
-        price = { price: b.price, weightGrams: b.weightGrams, alloy: b.alloy, alloyName: b.alloyName };
+        price = { price: b.price, weightGrams: b.weightGrams, alloy: b.alloy, alloyName: b.alloyName, plate: b.plate, chain: b.chain };
+        if (b.chainPrices) { chainPrices = b.chainPrices; renderChainTiles(); }
         priceOut.className = 'nn__price';
-        priceOut.innerHTML = `${money(b.price)}<small>${b.weightGrams.toFixed(2)} g in ${esc(b.alloyName)}${esc(basis)}</small>`;
+        const parts = b.chain && b.plate
+          ? `Nameplate ${money(b.plate.price)} · ${b.plate.weightGrams.toFixed(2)} g ${esc(b.alloyName)}<br>Chain ${money(b.chain.price)} · ${b.chain.lengthCm} cm ${esc(b.chain.styleName.toLowerCase())}, ${esc(b.chain.alloyName)}`
+          : `${b.weightGrams.toFixed(2)} g in ${esc(b.alloyName)}`;
+        priceOut.innerHTML = `${money(b.price)}<small>${parts}${esc(basis)}</small>`;
       } catch (err) {
         if (seq !== priceSeq) return;
         price = null; priceOut.className = 'nn__price err';
@@ -1105,7 +1169,7 @@
     }
     const enquiryHref = () => {
       const q = new URLSearchParams();
-      q.set('design', `Name necklace · ${design.text} · ${fontName()} · ${design.height} mm · ${alloy.name} · ${design.finish || 'polished'}`);
+      q.set('design', `Name necklace · ${design.text} · ${fontName()} · ${design.height} mm · ${alloy.name} · ${design.finish || 'polished'} · ${chainText()}`);
       return String(cfg.contactUrl || '/pages/contact') + '?' + q.toString() + '#contact';
     };
     const stlAbsolute = (u) => (/^https?:\/\//i.test(u) ? u : apiBase + String(u).replace(/^\/api(?=\/)/, ''));
@@ -1121,7 +1185,7 @@
       let picture = '';
       if (picturesOn) { try { picture = previewPicture(); } catch (e) { picture = ''; } }
       try {
-        const payload = { design: JSON.parse(N.designJSON(design)), alloy: alloy.key };
+        const payload = { design: JSON.parse(N.designJSON(design)), alloy: alloy.key, chain: chainPayload() };
         if (picture && picture.length < 800000) payload.preview = picture;
         const res = await fetch(apiBase + '/build', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
         st = res.status; j = await res.json().catch(() => ({}));
@@ -1129,7 +1193,7 @@
       if (st === 200 && j.variant_id) {
         const props = {
           'Build': j.build, 'Name': design.text, 'Font': fontName(), 'Height': `${design.height} mm`, 'Thickness': `${design.thickness.toFixed(1)} mm`,
-          'Metal': j.alloyName || alloy.name, 'Finish': cap(design.finish || 'polished'),
+          'Metal': j.alloyName || alloy.name, 'Chain': j.chain ? `${j.chain.lengthCm} cm ${String(j.chain.styleName).toLowerCase()} chain, ${j.chain.alloyName}` : chainText(), 'Finish': cap(design.finish || 'polished'),
           'Thin joints': design.reinforce && result.reinforced && result.reinforced.passes > 0 ? `Reinforced to ${N.MIN_FEATURE} mm` : '', 'Lead time': cfg.leadTime || '',
           // Underscore: Shopify keeps the link off the cart, checkout and customer emails; staff see it on the order.
           '_STL': stlAbsolute(j.stl_url || ''),
@@ -1191,6 +1255,10 @@
     app.setAttribute('aria-busy', 'false');
     $('loading').hidden = true;
     setAlloy(alloy.key);
+    chainPicker.set(chain.alloy.key, true);
+    renderChainTiles();
+    renderChainLengths();
+    setView('size');
     syncControls();
     setTool('move');
     update({ fit: true });
