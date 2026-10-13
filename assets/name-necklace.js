@@ -1,9 +1,14 @@
 /* Burrows Name Necklace Builder : sections/name-necklace-builder.liquid
-   Ported from name-necklace-builder/name-necklace-maker/src/page.html (the UI script). The geometry lives in
-   assets/name-necklace-core.js (Nameplate, Alloys, StlIO: generated, never hand-edited). Function names follow
-   the upstream page so the two can be diffed.
-   Step 1 name → Step 2 style → Step 3 metal → Step 4 review: live price from {api}/quote, Add to cart through
-   {api}/build (hidden Shopify product at the quoted price) then /cart/add.js. */
+   The geometry lives in assets/name-necklace-core.js (Nameplate, Alloys, Chains, StlIO: generated from the
+   name-necklace-builder repo, never hand-edited).
+   Five sections, one open at a time (name, style, metal, chain, review) and a price bar that always shows the
+   total and Add to cart. The stage shows the necklace to scale on a neck, with a close-up of the plate in the
+   corner (three.js when it has loaded, a flat metal drawing until then). There is no letter editor: the core
+   joins i/j dots, accents and stray strokes onto their letter, and reinforces thin strokes to the casting
+   minimum. Every change rebuilds the plate at once without reinforcement (fast, so typing stays smooth); half a
+   second after the last change it is rebuilt reinforced and checked, and that is the version that is ordered.
+   Prices come from {api}/quote; Add to cart goes through {api}/build (hidden Shopify product at the quoted
+   price) then /cart/add.js. */
 (function () {
   'use strict';
 
@@ -12,7 +17,6 @@
     clipper: { test: () => typeof ClipperLib !== 'undefined', src: 'https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js' },
     earcut: { test: () => typeof earcut !== 'undefined', src: 'https://cdn.jsdelivr.net/npm/earcut@2.2.4/dist/earcut.min.js' },
     three: { test: () => typeof THREE !== 'undefined', src: 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js' },
-    orbit: { test: () => typeof THREE !== 'undefined' && !!THREE.OrbitControls, src: 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js' },
   };
   function loadScript(src) {
     return new Promise((resolve, reject) => {
@@ -34,10 +38,10 @@
     const fail = (msg) => { loading.innerHTML = ''; loading.textContent = msg; loading.classList.add('err'); };
 
     // 1. Geometry libraries, then the core if the deferred copy could not run (it needs the libraries first).
-    // 2. Fonts from the API, in parallel with three.js (optional: the 2D editor works without it).
+    // 2. Fonts from the API, in parallel with three.js (optional: the close-up draws the plate flat without it).
     const libs = Promise.all(['opentype', 'clipper', 'earcut'].map(ensure))
       .then(() => (typeof Nameplate !== 'undefined' || !cfg.coreUrl ? null : loadScript(cfg.coreUrl)));
-    const three = libs.then(() => ensure('three')).then(() => ensure('orbit')).then(() => true, () => false);
+    const three = libs.then(() => ensure('three')).then(() => true, () => false);
     libs.then(() => {
       if (typeof Nameplate === 'undefined' || typeof Alloys === 'undefined' || typeof Chains === 'undefined') throw new Error('core');
       return loadFonts(cfg);
@@ -49,44 +53,51 @@
 
   /* ---------- fonts ---------- */
   // The six TTFs come from the API (fontsBase/<file>), parsed for geometry and registered for the font picker.
+  // The raw files are kept too, for the build workers to parse their own copies.
   const faceName = (f) => 'NP ' + f.name;
   function loadFonts(cfg) {
     const base = String(cfg.fontsBase || '').replace(/\/$/, '');
-    const parsed = {};
+    const parsed = {}, raw = {};
     return Promise.all(Nameplate.FONTS.map((f) => {
       const file = f.file.split('/').pop();
       return fetch(base + '/' + encodeURIComponent(file), { mode: 'cors' })
         .then((res) => { if (!res.ok) throw new Error('font ' + file + ' ' + res.status); return res.arrayBuffer(); })
         .then((buf) => {
+          raw[f.key] = buf.slice(0);
           parsed[f.key] = opentype.parse(buf);
           try { const face = new FontFace(faceName(f), buf); document.fonts.add(face); face.load().catch(() => {}); } catch (e) { /* the list falls back to the UI font */ }
         });
-    })).then(() => parsed);
+    })).then(() => ({ parsed, raw }));
   }
 
-  function start(root, cfg, parsed, threeReady) {
+  function start(root, cfg, fonts, threeReady) {
+    const parsed = fonts.parsed, rawFonts = fonts.raw;
     const $ = (id) => root.querySelector('#' + id);
     const app = root.querySelector('[data-nn-app]');
     const N = Nameplate;
     const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
     const fmtBytes = (b) => (b >= 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.round(b / 1e3) + ' KB');
-    const clone = (o) => JSON.parse(JSON.stringify(o));
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const editable = (el) => el && (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') && !['radio', 'checkbox', 'range'].includes(el.type);
     const getFont = (key) => parsed[key] || parsed[N.FONTS[0].key];
     const showStl = !!cfg.showStl && !!$('saveBtn');
     const apiBase = String(cfg.apiBase || '').replace(/\/$/, '');
+    const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const money = (v) => 'A$' + v.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     /* ---------- state ---------- */
     const DEFAULT_CURVE = 70; // degrees: the name lifts at the ends, as it hangs on a chain
     const DEFAULT_THICKNESS = 1.5; // mm: 'Normal'
+    const FINAL_DELAY = 500; // ms after the last change before the reinforced, checked rebuild
     let design = N.defaultDesign();
     design.curve = DEFAULT_CURVE;
     design.thickness = DEFAULT_THICKNESS;
-    const settings = { detail: 'standard', format: 'binary', view: 'size', tool: 'move', metal: 'yellow' };
+    design.reinforce = true; // always: the core widens anything under the casting minimum
+    const settings = { detail: 'standard', format: 'binary', metal: 'yellow' };
     let alloy = Alloys.byKey(cfg.defaultAlloy) || Alloys.byKey('ag925') || Alloys.ALLOYS[0];
-    let selection = [];   // { type: 'letter', index } | { type: 'dot', index } (an i/j dot) | { type: 'loop', side }
-    let result = null, mesh = null, buildError = null, hover = null;
+    // result: the last good build. final: it is the reinforced, checked build of the current design (what is
+    // ordered), not the quick pass. designSeq counts design changes, so late builds can be told apart.
+    let result = null, final = false, mesh = null, buildError = null, finalTimer = 0, spaceNote = false, designSeq = 0;
     const undoStack = [];
     let lastPush = { tag: null, t: 0 };
 
@@ -101,10 +112,11 @@
     function undo() {
       if (!undoStack.length) return;
       design = JSON.parse(undoStack.pop());
+      design.reinforce = true;
       lastPush = { tag: null, t: 0 };
       $('undoBtn').disabled = !undoStack.length;
       syncControls();
-      update({ fit: true });
+      schedule();
       say('Undone.');
     }
 
@@ -126,6 +138,7 @@
     const radios = (name) => root.querySelectorAll(`input[name="${name}"]`);
     const setRadio = (name, value) => radios(name).forEach((el) => { el.checked = el.value === String(value); });
     const presetFor = (h) => Object.keys(N.HEIGHTS).find((k) => N.HEIGHTS[k] === h) || 'custom';
+    const OV_MIN = N.OVERLAP_RANGE[0], OV_MAX = N.OVERLAP_RANGE[1];
 
     function syncControls() {
       const name = $('nameIn');
@@ -151,52 +164,66 @@
       c.textContent = `${n}/${N.MAX_CHARS}`;
       c.classList.toggle('full', n >= N.MAX_CHARS);
     }
+    function renderNameWarn() {
+      const warn = $('nameWarn');
+      if (buildError) { warn.textContent = buildError.message; warn.hidden = false; }
+      else if (spaceNote) { warn.textContent = 'One word per necklace, so spaces are left out.'; warn.hidden = false; }
+      else warn.hidden = true;
+    }
 
     $('nameIn').addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); }); // Enter shouldn't add to cart
     $('nameIn').addEventListener('input', () => {
       const el = $('nameIn');
-      let text = el.value.replace(/[\r\n\t]/g, ' ');
+      // One word per necklace: a typed or pasted space is dropped (the caret stays where it was).
+      let text = el.value;
+      spaceNote = /\s/.test(text);
+      if (spaceNote) {
+        const at = el.selectionStart, before = text.slice(0, at).replace(/\s+/g, '').length;
+        text = text.replace(/\s+/g, '');
+        el.value = text;
+        try { el.setSelectionRange(before, before); } catch (e) { /* not focused */ }
+      }
       const chars = Array.from(text);
       if (chars.length > N.MAX_CHARS) { text = chars.slice(0, N.MAX_CHARS).join(''); el.value = text; }
       updateCounter();
+      renderNameWarn();
       if (text === design.text) return;
       pushUndo('text');
-      design.letters = N.retainLetters(design.text, text, design.letters);
+      design.letters = [];
       design.text = text;
-      selection = selection.filter((s) => s.type === 'loop' || s.index < Array.from(text).length);
-      schedule({ fit: true });
+      schedule();
     });
     radios('font').forEach((el) => el.addEventListener('change', () => {
       pushUndo(); design.font = el.value;
       fontList.querySelectorAll('label').forEach((l) => l.classList.toggle('on', l.querySelector('input').checked));
-      schedule({ fit: true });
+      schedule();
     }));
     radios('height').forEach((el) => el.addEventListener('change', () => {
       $('heightRow').hidden = el.value !== 'custom';
       if (el.value === 'custom') { $('heightIn').focus(); return; }
-      pushUndo(); design.height = N.HEIGHTS[el.value]; $('heightIn').value = design.height; schedule({ fit: true });
+      pushUndo(); design.height = N.HEIGHTS[el.value]; $('heightIn').value = design.height; schedule();
     }));
     $('heightIn').addEventListener('input', () => {
       const v = parseFloat($('heightIn').value);
       if (!Number.isFinite(v) || v < N.HEIGHT_RANGE[0] || v > N.HEIGHT_RANGE[1]) return;
-      pushUndo('height'); design.height = v; setRadio('height', presetFor(v)); schedule({ fit: true });
+      pushUndo('height'); design.height = v; setRadio('height', presetFor(v)); schedule();
     });
     $('heightIn').addEventListener('change', () => {
       const v = parseFloat($('heightIn').value);
-      if (Number.isFinite(v)) { const c = clamp(v, N.HEIGHT_RANGE[0], N.HEIGHT_RANGE[1]); if (c !== design.height) { pushUndo('height'); design.height = c; schedule({ fit: true }); } }
+      if (Number.isFinite(v)) { const c = clamp(v, N.HEIGHT_RANGE[0], N.HEIGHT_RANGE[1]); if (c !== design.height) { pushUndo('height'); design.height = c; schedule(); } }
       $('heightIn').value = design.height; setRadio('height', presetFor(design.height));
     });
-    const setOverlap = (v) => { pushUndo('overlap'); design.overlap = Math.round(clamp(v, 0, 1) * 100) / 100; schedule({ fit: true }); };
+    const setOverlap = (v) => { pushUndo('overlap'); design.overlap = Math.round(clamp(v, OV_MIN, OV_MAX) * 100) / 100; schedule(); };
     $('ovRange').addEventListener('input', () => { $('ovIn').value = (+$('ovRange').value).toFixed(2); setOverlap(+$('ovRange').value); });
-    $('ovIn').addEventListener('input', () => { const v = parseFloat($('ovIn').value); if (Number.isFinite(v)) { $('ovRange').value = clamp(v, 0, 1); setOverlap(v); } });
+    $('ovIn').addEventListener('input', () => { const v = parseFloat($('ovIn').value); if (Number.isFinite(v)) { $('ovRange').value = clamp(v, OV_MIN, OV_MAX); setOverlap(v); } });
     $('ovIn').addEventListener('change', () => { $('ovIn').value = design.overlap.toFixed(2); });
-    const setCurve = (v) => { pushUndo('curve'); design.curve = Math.round(clamp(v, 0, N.CURVE_RANGE[1])); schedule({ fit: true }); };
+    const setCurve = (v) => { pushUndo('curve'); design.curve = Math.round(clamp(v, 0, N.CURVE_RANGE[1])); schedule(); };
     $('curveRange').addEventListener('input', () => { $('curveIn').value = $('curveRange').value; setCurve(+$('curveRange').value); });
     $('curveIn').addEventListener('input', () => { const v = parseFloat($('curveIn').value); if (Number.isFinite(v)) { $('curveRange').value = clamp(v, 0, 180); setCurve(v); } });
     $('curveIn').addEventListener('change', () => { $('curveIn').value = design.curve || 0; });
     radios('thickness').forEach((el) => el.addEventListener('change', () => { pushUndo(); design.thickness = +el.value; schedule(); }));
-    $('loopL').addEventListener('change', () => { pushUndo(); design.loops.left.on = $('loopL').checked; schedule({ fit: true }); });
-    $('loopR').addEventListener('change', () => { pushUndo(); design.loops.right.on = $('loopR').checked; schedule({ fit: true }); });
+    $('loopL').addEventListener('change', () => { pushUndo(); design.loops.left.on = $('loopL').checked; schedule(); });
+    $('loopR').addEventListener('change', () => { pushUndo(); design.loops.right.on = $('loopR').checked; schedule(); });
     function loopInput() {
       const o = parseFloat($('loopOuter').value), h = parseFloat($('loopHole').value), warn = $('loopWarn');
       if (!Number.isFinite(o) || !Number.isFinite(h)) return;
@@ -211,28 +238,52 @@
     }
     $('loopOuter').addEventListener('input', loopInput);
     $('loopHole').addEventListener('input', loopInput);
-    radios('finish').forEach((el) => el.addEventListener('change', () => { pushUndo(); design.finish = el.value; preview.setFinish(el.value); renderSummary(); }));
+    radios('finish').forEach((el) => el.addEventListener('change', () => { pushUndo(); design.finish = el.value; preview.setFinish(el.value); renderSummary(); renderChoices(); }));
     radios('dots').forEach((el) => el.addEventListener('change', () => { pushUndo(); design.dots = el.value; schedule(); }));
     radios('detail').forEach((el) => el.addEventListener('change', () => { settings.detail = el.value; schedule(); }));
     radios('format').forEach((el) => el.addEventListener('change', () => { settings.format = el.value; renderStats(); }));
 
-    /* ---------- steps ---------- */
+    /* ---------- sections: one open at a time ---------- */
+    const blocks = [...root.querySelectorAll('[data-block]')];
+    const blockOf = (n) => blocks.find((b) => +b.dataset.block === n);
     const steps = root.querySelector('[data-nn-steps]');
+    let openN = 1;
     function setStep(n) {
-      steps.querySelectorAll('li').forEach((li) => { const k = +li.dataset.step; li.classList.toggle('on', k === n); li.classList.toggle('done', k < n); });
+      steps.querySelectorAll('li').forEach((li) => {
+        const k = +li.dataset.step;
+        li.classList.toggle('on', k === n); li.classList.toggle('done', !!n && k < n);
+        const b = li.querySelector('button'); if (b) b.setAttribute('aria-current', k === n ? 'step' : 'false');
+      });
     }
-    steps.querySelectorAll('li').forEach((li) => li.addEventListener('click', () => {
-      const n = +li.dataset.step, block = root.querySelector(`[data-block="${n}"]`);
+    // n = 0 closes them all. Scrolls the opened header into view when it ends up off screen.
+    function openBlock(n, { scroll = true } = {}) {
+      openN = n;
+      for (const b of blocks) {
+        const on = +b.dataset.block === n;
+        b.classList.toggle('is-open', on);
+        b.querySelector('.nn__h-btn').setAttribute('aria-expanded', String(on));
+        b.querySelector('.nn__body').hidden = !on;
+      }
       setStep(n);
-      if (block) block.scrollIntoView({ block: 'start', behavior: 'smooth' });
-    }));
-    root.querySelectorAll('[data-block]').forEach((b) => b.addEventListener('focusin', () => setStep(+b.dataset.block)));
+      if (n === 5) renderSummary();
+      if (renderSize && n) renderSize(); // the stage may have changed size on a phone
+      const b = blockOf(n);
+      if (scroll && b) {
+        const r = b.getBoundingClientRect(), headerH = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 90) + 8;
+        if (r.top < headerH || r.top > window.innerHeight * 0.7) b.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+      }
+    }
+    blocks.forEach((b) => {
+      const n = +b.dataset.block;
+      b.querySelector('.nn__h-btn').addEventListener('click', () => openBlock(openN === n ? 0 : n, { scroll: openN !== n }));
+    });
+    root.querySelectorAll('[data-next]').forEach((b) => b.addEventListener('click', () => openBlock(+b.dataset.next)));
+    steps.querySelectorAll('li').forEach((li) => { const b = li.querySelector('button') || li; b.addEventListener('click', () => openBlock(+li.dataset.step)); });
 
     /* ---------- metal (alloy picker) ---------- */
     // Two small choices instead of eleven buttons: the metal (silver, yellow / white / rose gold, platinum), then
     // the gold purity (9ct / 14ct / 18ct) which only appears once a gold is chosen.
     const colourOf = (a) => (a.colour === 'Rose' ? 'rose' : a.colour === 'Yellow' ? 'yellow' : 'white');
-    const SWATCH = { yellow: '#E7B85A', rose: '#DFA084', white: '#CDD1D2' };
     const METALS = [
       { id: 'silver', label: 'Sterling silver', sw: ['#E3E6E8', '#9EA5A9'], key: 'ag925' },
       { id: 'yellow', label: 'Yellow gold', sw: ['#F1CB7A', '#B88A2E'], colour: 'Yellow' },
@@ -277,82 +328,91 @@
       alloy = a;
       settings.metal = colourOf(a);
       preview.setMetal(settings.metal);
-      if (!preview.ok) renderOverlay();
-      if (settings.view === 'size') renderSize();
+      drawCloseupFlat();
+      renderSize();
       renderStats();
       renderSummary();
+      renderChoices();
       priceChanged();
     }
     const setAlloy = (key) => platePicker.set(key);
 
     /* ---------- chain ---------- */
-    // Every necklace comes with a chain: a style (cable, belcher, curb), a length and its own metal (no platinum).
-    // The server prices it on its weight like the plate; chainPrices (from the last quote) labels the style tiles.
-    const chain = { style: Chains.byKey(Chains.DEFAULT.style), lengthCm: Chains.DEFAULT.lengthCm, alloy: Alloys.byKey('ag925') || Alloys.ALLOYS[0] };
-    let chainPrices = null;
-    const chainStylesEl = $('chainStyles'), chainLengthsEl = $('chainLengths');
+    // Every necklace comes with a chain: a style (cable, belcher, curb) in a thickness (fine, medium, heavy), a
+    // length and its own metal (no platinum). The server prices it on its weight like the plate; gaugePrices
+    // (from the last quote) labels the thickness buttons. A price server from before gauges (no gauge in its
+    // reply) only makes Medium, so the thickness row hides and Medium is used.
+    const chain = { style: Chains.byKey(Chains.DEFAULT.style), gauge: Chains.DEFAULT.gauge || 'medium', lengthCm: Chains.DEFAULT.lengthCm, alloy: Alloys.byKey('ag925') || Alloys.ALLOYS[0] };
+    let gaugePrices = null, gaugePricesFresh = false, gaugesOn = true;
+    const chainStylesEl = $('chainStyles'), chainGaugesEl = $('chainGauges'), chainLengthsEl = $('chainLengths');
+    const chainSpec = () => (Chains.spec ? Chains.spec(chain.style, chain.gauge) : chain.style) || chain.style;
     const chainMetal = () => metalOf(chain.alloy);
-    const chainText = () => `${chain.lengthCm} cm ${chain.style.name.toLowerCase()} chain, ${chain.alloy.name}`;
+    const chainName = () => { const sp = chainSpec(); return `${chain.lengthCm} cm ${(sp.gaugeName || 'medium').toLowerCase()} ${sp.width.toFixed(1)} mm ${chain.style.name.toLowerCase()} chain`; };
+    const chainText = () => `${chainName()}, ${chain.alloy.name}`;
     function chainChanged() {
+      gaugePricesFresh = false;
       renderChainTiles();
+      renderChainGauges();
       renderChainLengths();
-      if (settings.view === 'size') renderSize();
+      renderSize();
       renderSummary();
+      renderChoices();
       priceChanged();
     }
     const chainPicker = makeMetalPicker($('chainAlloyChips'), { exclude: Chains.EXCLUDED_ALLOYS, label: 'Chain metal', onChange: (a) => { chain.alloy = a; chainChanged(); } });
     function setChainStyle(key) { const st = Chains.byKey(key); if (!st || st === chain.style) return; chain.style = st; chainChanged(); }
+    function setChainGauge(key) { if (key === chain.gauge || !(Chains.spec && Chains.spec(chain.style, key))) return; chain.gauge = key; chainChanged(); }
     function setChainLength(cm) { if (!Chains.LENGTHS_CM.includes(cm) || cm === chain.lengthCm) return; chain.lengthCm = cm; chainChanged(); }
-    // A straight run of links across a tile, spaced at the style's pitch (6.5 px per mm), with a gentle sag.
-    const tileRun = (st) => { const pts = [], step = Chains.pitch(st) * 6.5; for (let x = 6; x <= 114; x += step) pts.push([x, 13 + 2.2 * Math.sin((x / 120) * Math.PI)]); return pts; };
+    // A straight run of links across a tile, spaced at the pitch (6.5 px per mm), with a gentle sag.
+    const tileRun = (sp) => { const pts = [], step = Chains.pitch(sp) * 6.5; for (let x = 6; x <= 114; x += step) pts.push([x, 13 + 2.2 * Math.sin((x / 120) * Math.PI)]); return pts; };
     function renderChainTiles() {
       chainStylesEl.innerHTML = Chains.STYLES.map((st) => {
-        const p = chainPrices && chainPrices[st.key];
+        const sp = (Chains.spec && Chains.spec(st, chain.gauge)) || st;
         return `<button type="button" class="nn__ctile${st === chain.style ? ' on' : ''}" role="radio" aria-checked="${st === chain.style}" data-chain-style="${st.key}" title="${esc(st.note)}">
-          <svg viewBox="0 0 120 26" aria-hidden="true">${linkDefs('t' + st.key, chainMetal())}${linkRun(st, tileRun(st), 6.5, 'url(#nnLink-t' + st.key + ')', 0.55)}</svg>
-          <span class="nn__ctile-n">${esc(st.name)}</span><small>${st.width.toFixed(1)} mm${p ? ' · ' + money(p) : ''}</small></button>`;
+          <svg viewBox="0 0 120 26" aria-hidden="true">${linkDefs('t' + st.key, chainMetal())}${linkRun(sp, tileRun(sp), 6.5, 'url(#nnLink-t' + st.key + ')', 0.55)}</svg>
+          <span class="nn__ctile-n">${esc(st.name)}</span></button>`;
       }).join('');
       chainStylesEl.querySelectorAll('[data-chain-style]').forEach((b) => b.addEventListener('click', () => setChainStyle(b.dataset.chainStyle)));
+    }
+    function renderChainGauges() {
+      const group = chainGaugesEl.closest('fieldset');
+      if (group) group.hidden = !gaugesOn || !Chains.GAUGES;
+      if (!gaugesOn || !Chains.GAUGES) return;
+      chainGaugesEl.innerHTML = Chains.GAUGES.map((g) => {
+        const sp = Chains.spec(chain.style, g.key), on = g.key === chain.gauge, p = gaugePrices && gaugePrices[g.key];
+        return `<button type="button" class="nn__chip nn__gchip${on ? ' on' : ''}" role="radio" aria-checked="${on}" data-gauge="${g.key}"><span>${esc(g.name)} <b>${sp.width.toFixed(1)} mm</b></span>${p ? `<small class="${gaugePricesFresh ? '' : 'stale'}">${money(p)}</small>` : ''}</button>`;
+      }).join('');
+      chainGaugesEl.querySelectorAll('[data-gauge]').forEach((b) => b.addEventListener('click', () => setChainGauge(b.dataset.gauge)));
     }
     function renderChainLengths() {
       chainLengthsEl.innerHTML = Chains.LENGTHS_CM.map((cm) => `<button type="button" class="nn__chip${cm === chain.lengthCm ? ' on' : ''}" role="radio" aria-checked="${cm === chain.lengthCm}" data-chain-cm="${cm}">${cm} cm</button>`).join('');
       chainLengthsEl.querySelectorAll('[data-chain-cm]').forEach((b) => b.addEventListener('click', () => setChainLength(+b.dataset.chainCm)));
     }
 
-    /* ---------- preview (three.js) ---------- */
-    const stage = $('stage'), overlay = $('overlay'), stageMsg = $('stageMsg');
-    const view = { cx: 0, cy: 6, s: 10 }; // 2D view: centre (mm) and pixels per mm
-    const stageSize = () => ({ W: stage.clientWidth, H: stage.clientHeight });
-    const toScreen = (x, y) => { const { W, H } = stageSize(); return [W / 2 + (x - view.cx) * view.s, H / 2 - (y - view.cy) * view.s]; };
-    const toWorld = (e) => {
-      const r = overlay.getBoundingClientRect(), { W, H } = stageSize();
-      return { x: view.cx + (e.clientX - r.left - W / 2) / view.s, y: view.cy - (e.clientY - r.top - H / 2) / view.s };
-    };
-
-    const noPreview = { ok: false, set() {}, setMetal() {}, setFinish() {}, setView() {}, frame2d() {}, frame3d() {}, refit3d() {}, snapshot() { return ''; } };
+    /* ---------- close-up (three.js, front on) ---------- */
+    const stage = $('stage'), closeupView = $('closeupView'), closeupSvg = $('closeupSvg');
+    const noPreview = { ok: false, set() {}, setMetal() {}, setFinish() {}, snapshot() { return ''; } };
     let preview = noPreview;
-    // three.js arrives after the page is up (it is the biggest download); until then the overlay draws the plate.
-    function createPreview() {
-      const none = noPreview;
-      if (typeof THREE === 'undefined') return none;
+    // three.js arrives after the page is up (it is the biggest download); until then the close-up is drawn flat.
+    function createPreview(host) {
+      if (typeof THREE === 'undefined') return noPreview;
       let renderer;
-      try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); }
-      catch (e) { return none; }
+      try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: false }); }
+      catch (e) { return noPreview; }
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.05;
       renderer.setClearColor(0x000000, 0);
-      stage.prepend(renderer.domElement);
+      host.appendChild(renderer.domElement);
       renderer.domElement.setAttribute('aria-hidden', 'true');
 
       const scene = new THREE.Scene();
-      // Soft studio environment for metal reflections, drawn on a canvas (same as the ring tool).
+      // Soft studio environment for metal reflections, drawn on a canvas (same as the ring tool), brighter around
+      // the horizon: the face looks straight at the middle of this map, and a dark horizon made silver look grey.
       const c = document.createElement('canvas'); c.width = 512; c.height = 256;
       const g = c.getContext('2d');
       const grd = g.createLinearGradient(0, 0, 0, 256);
-      // Brighter around the horizon than the ring tool: the 2D view looks straight at the face, which reflects
-      // the middle of this map, so a dark horizon made silver look grey on the navy stage.
       grd.addColorStop(0, '#ffffff'); grd.addColorStop(0.4, '#dfe4e2'); grd.addColorStop(0.5, '#aab1ae'); grd.addColorStop(0.62, '#6a716f'); grd.addColorStop(1, '#202423');
       g.fillStyle = grd; g.fillRect(0, 0, 512, 256);
       g.fillStyle = 'rgba(255,255,255,0.95)'; g.fillRect(40, 50, 110, 46); g.fillRect(290, 36, 150, 34);
@@ -362,25 +422,25 @@
       const pm = new THREE.PMREMGenerator(renderer);
       scene.environment = pm.fromEquirectangular(tex).texture;
       tex.dispose(); pm.dispose();
-      const key = new THREE.DirectionalLight(0xffffff, 1.1); key.position.set(30, 60, 25); scene.add(key);
-      // Front light for the 2D view: a soft hotspot upper left, so the flat face reads as polished metal.
-      const front = new THREE.PointLight(0xffffff, 0, 0, 2); scene.add(front);
+      const key = new THREE.DirectionalLight(0xffffff, 0.55); key.position.set(30, 60, 25); scene.add(key);
+      // Front light: a soft hotspot upper left, so the flat face reads as polished metal.
+      const front = new THREE.PointLight(0xffffff, 1, 0, 2); scene.add(front);
 
       const COLORS = { yellow: 0xF0B550, rose: 0xE8A080, white: 0xE3E7EA };
       const mat = new THREE.MeshStandardMaterial({ color: COLORS.yellow, metalness: 1, roughness: 0.28 });
       // Brushed: fine streaks along the length of the name, drawn on a canvas and used as roughness and bump.
       // r128 has no anisotropic metal, so the streaks carry the look. Satin is an even, soft roughness.
       const brushTex = (() => {
-        const c = document.createElement('canvas'); c.width = 512; c.height = 512;
-        const g = c.getContext('2d');
-        g.fillStyle = 'rgb(140,140,140)'; g.fillRect(0, 0, 512, 512);
+        const cv = document.createElement('canvas'); cv.width = 512; cv.height = 512;
+        const gg = cv.getContext('2d');
+        gg.fillStyle = 'rgb(140,140,140)'; gg.fillRect(0, 0, 512, 512);
         for (let i = 0; i < 2600; i++) {
           const v = 90 + Math.floor(Math.random() * 120), y = Math.random() * 512, x = Math.random() * 512, len = 60 + Math.random() * 380;
-          g.strokeStyle = `rgba(${v},${v},${v},0.45)`; g.lineWidth = Math.random() < 0.8 ? 1 : 2;
-          g.beginPath(); g.moveTo(x, y); g.lineTo(x + len, y); g.stroke();
-          if (x + len > 512) { g.beginPath(); g.moveTo(x - 512, y); g.lineTo(x + len - 512, y); g.stroke(); }
+          gg.strokeStyle = `rgba(${v},${v},${v},0.45)`; gg.lineWidth = Math.random() < 0.8 ? 1 : 2;
+          gg.beginPath(); gg.moveTo(x, y); gg.lineTo(x + len, y); gg.stroke();
+          if (x + len > 512) { gg.beginPath(); gg.moveTo(x - 512, y); gg.lineTo(x + len - 512, y); gg.stroke(); }
         }
-        const t = new THREE.CanvasTexture(c);
+        const t = new THREE.CanvasTexture(cv);
         t.wrapS = t.wrapT = THREE.RepeatWrapping;
         t.anisotropy = renderer.capabilities.getMaxAnisotropy();
         return t;
@@ -392,28 +452,30 @@
       };
       const mesh3 = new THREE.Mesh(new THREE.BufferGeometry(), mat);
       scene.add(mesh3);
-
-      const ortho = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 1000);
-      const persp = new THREE.PerspectiveCamera(30, 1, 1, 3000);
-      let active = ortho, box = null, framed3d = false;
-      let controls = null;
-      if (THREE.OrbitControls) {
-        controls = new THREE.OrbitControls(persp, renderer.domElement);
-        controls.enableDamping = true; controls.enablePan = false; controls.enabled = false;
-        const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        controls.autoRotate = !reduce; controls.autoRotateSpeed = 1.1;
-        controls.addEventListener('start', () => { controls.autoRotate = false; });
+      const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 1000);
+      let box = null, raf = 0;
+      const size = () => ({ W: host.clientWidth, H: host.clientHeight });
+      const draw = () => { raf = 0; try { renderer.render(scene, cam); } catch (e) { /* context lost */ } };
+      const request = () => { if (!raf) raf = requestAnimationFrame(draw); };
+      // Fit the plate to the close-up with a margin, the hotspot above and left of it, scaled to its size.
+      function frame() {
+        const { W, H } = size();
+        if (!W || !H || !box) return;
+        const w = Math.max(box.maxX - box.minX, 1), h = Math.max(box.maxY - box.minY, 1);
+        const s = Math.min((0.86 * W) / w, (0.72 * H) / h), cx = (box.minX + box.maxX) / 2, cy = (box.minY + box.maxY) / 2;
+        cam.left = -W / (2 * s); cam.right = W / (2 * s); cam.top = H / (2 * s); cam.bottom = -H / (2 * s);
+        cam.position.set(cx, cy, 200); cam.lookAt(cx, cy, 0); cam.updateProjectionMatrix();
+        front.position.set(cx - w * 0.28, cy + w * 0.2, w * 0.55);
       }
-      const resize = () => {
-        const { W, H } = stageSize();
+      function resize() {
+        const { W, H } = size();
         if (!W || !H) return;
         renderer.setSize(W, H, false);
-        persp.aspect = W / H; persp.updateProjectionMatrix();
-        api.frame2d();
-      };
+        frame(); request();
+      }
       const api = {
         ok: true,
-        set(d, T) {
+        set(d, T, bbox) {
           const geo = new THREE.BufferGeometry();
           geo.setAttribute('position', new THREE.BufferAttribute(d.positions, 3));
           geo.setAttribute('normal', new THREE.BufferAttribute(d.normals, 3));
@@ -424,352 +486,208 @@
           geo.setIndex(new THREE.BufferAttribute(d.indices, 1));
           mesh3.geometry.dispose();
           mesh3.geometry = geo;
-          box = { ...result.bbox, T };
+          box = { ...bbox, T };
+          frame(); request();
         },
-        setMetal(m) { mat.color.setHex(COLORS[m] || COLORS.white); },
+        setMetal(m) { mat.color.setHex(COLORS[m] || COLORS.white); request(); },
         setFinish(f) {
           const F = FINISHES[f] || FINISHES.polished;
           mat.roughness = F.roughness; mat.roughnessMap = F.map; mat.bumpMap = F.map; mat.bumpScale = F.bump;
-          mat.needsUpdate = true;
+          mat.needsUpdate = true; request();
         },
-        setView(v) {
-          active = v === '3d' ? persp : ortho;
-          if (controls) controls.enabled = v === '3d';
-          front.intensity = v === '3d' ? 0 : 1;
-          key.intensity = v === '3d' ? 1.1 : 0.55;
-          if (v === '3d' && !framed3d) api.frame3d();
-        },
-        frame2d() {
-          const { W, H } = stageSize();
-          ortho.left = -W / (2 * view.s); ortho.right = W / (2 * view.s);
-          ortho.top = H / (2 * view.s); ortho.bottom = -H / (2 * view.s);
-          ortho.position.set(view.cx, view.cy, 200); ortho.lookAt(view.cx, view.cy, 0);
-          ortho.updateProjectionMatrix();
-          // Hotspot above and left of the plate, scaled to its size so every name gets the same sheen.
-          const w = box ? box.maxX - box.minX : 40;
-          front.position.set(view.cx - w * 0.28, view.cy + w * 0.2, w * 0.55);
-          front.intensity = active === ortho ? 1 : 0;
-        },
-        frame3d() {
-          if (!box) return;
-          framed3d = true;
-          const cx = (box.minX + box.maxX) / 2, cy = (box.minY + box.maxY) / 2, w = box.maxX - box.minX, h = box.maxY - box.minY;
-          const fit = Math.max(w / persp.aspect, h) * 0.5 / Math.tan((persp.fov * Math.PI) / 360) * 1.35;
-          if (controls) { controls.target.set(cx, cy, box.T / 2); controls.minDistance = fit * 0.3; controls.maxDistance = fit * 4; }
-          // A little below centre, so the face reflects the bright upper half of the studio environment.
-          persp.position.set(cx + fit * 0.3, cy - fit * 0.22, box.T / 2 + fit * 0.92);
-          persp.lookAt(cx, cy, box.T / 2);
-        },
-        refit3d() { framed3d = false; if (active === persp) api.frame3d(); },
-        // A square picture of the plate, face on, for the product in the cart. Rendered into the same canvas at
-        // a fixed size (the CSS keeps it stretched to the stage, so nothing moves on screen), copied out at once,
-        // then the normal size is put back. Returns a JPEG data URL, or '' if anything is missing.
+        // A square picture of the plate, face on, for the product in the cart. Rendered at a fixed size into the
+        // same canvas (CSS keeps it stretched to the close-up, so nothing moves on screen), copied out at once,
+        // then the close-up size is put back. Returns a JPEG data URL, or '' if anything is missing.
         snapshot(px = 1000, bgInner = '#2b3566', bgOuter = '#0b0e2a') {
           if (!box) return '';
           try {
             const w = box.maxX - box.minX, h = box.maxY - box.minY;
             const cx = (box.minX + box.maxX) / 2, cy = (box.minY + box.maxY) / 2;
             const span = Math.max(w, h * 1.4, 8) * 1.15;
-            const cam = new THREE.OrthographicCamera(-span / 2, span / 2, span / 2, -span / 2, 0.1, 1000);
-            cam.position.set(cx, cy, 200); cam.lookAt(cx, cy, 0); cam.updateProjectionMatrix();
-            const fi = front.intensity, ki = key.intensity, fp = front.position.clone(), pr = renderer.getPixelRatio();
-            front.position.set(cx - w * 0.28, cy + w * 0.2, w * 0.55); front.intensity = 1; key.intensity = 0.55;
+            const sc = new THREE.OrthographicCamera(-span / 2, span / 2, span / 2, -span / 2, 0.1, 1000);
+            sc.position.set(cx, cy, 200); sc.lookAt(cx, cy, 0); sc.updateProjectionMatrix();
+            const pr = renderer.getPixelRatio();
+            front.position.set(cx - w * 0.28, cy + w * 0.2, w * 0.55);
             renderer.setPixelRatio(1); renderer.setSize(px, px, false);
-            renderer.render(scene, cam);
+            renderer.render(scene, sc);
             const out = document.createElement('canvas'); out.width = px; out.height = px;
-            const g = out.getContext('2d');
-            // Same navy display case as the stage, lit from the top like the page.
-            const grd = g.createRadialGradient(px / 2, px * 0.3, px * 0.05, px / 2, px * 0.3, px * 0.95);
-            grd.addColorStop(0, bgInner); grd.addColorStop(0.45, '#171d50'); grd.addColorStop(1, bgOuter);
-            g.fillStyle = grd; g.fillRect(0, 0, px, px);
-            g.drawImage(renderer.domElement, 0, 0, px, px);
-            front.position.copy(fp); front.intensity = fi; key.intensity = ki;
-            renderer.setPixelRatio(pr); resize(); renderer.render(scene, active);
+            const gg = out.getContext('2d');
+            // The same navy display case as the stage, lit from the top like the page.
+            const bg = gg.createRadialGradient(px / 2, px * 0.3, px * 0.05, px / 2, px * 0.3, px * 0.95);
+            bg.addColorStop(0, bgInner); bg.addColorStop(0.45, '#171d50'); bg.addColorStop(1, bgOuter);
+            gg.fillStyle = bg; gg.fillRect(0, 0, px, px);
+            gg.drawImage(renderer.domElement, 0, 0, px, px);
+            renderer.setPixelRatio(pr); resize(); draw();
             return out.toDataURL('image/jpeg', 0.88);
           } catch (e) { try { resize(); } catch (e2) { /* ignore */ } return ''; }
         },
       };
-      if (window.ResizeObserver) new ResizeObserver(() => { resize(); fitIfNeeded(); renderOverlay(); }).observe(stage);
-      else window.addEventListener('resize', () => { resize(); renderOverlay(); });
+      if (window.ResizeObserver) new ResizeObserver(resize).observe(host);
+      else window.addEventListener('resize', resize);
+      renderer.domElement.addEventListener('webglcontextrestored', request);
       resize();
-      (function loop() { requestAnimationFrame(loop); if (controls && controls.enabled) controls.update(); renderer.render(scene, active); })();
       return api;
     }
     function attachPreview() {
-      preview = createPreview();
-      const threeD = root.querySelector('input[name="view"][value="3d"]');
-      if (!preview.ok) {
-        threeD.disabled = true;
-        stageMsg.textContent = 'The 3D view could not load. You can still design and order in the 2D view.';
-        stageMsg.hidden = false;
-        stageMsg.style.placeItems = 'end center';
-        stageMsg.style.paddingBottom = '56px';
-        return;
-      }
-      threeD.disabled = false;
-      stageMsg.hidden = true;
+      preview = createPreview(closeupView);
+      if (!preview.ok) return; // the flat drawing stays
+      closeupView.classList.add('gl');
       preview.setMetal(settings.metal);
       preview.setFinish(design.finish || 'polished');
-      if (result) { preview.set(N.buildDisplay(result, design.thickness), design.thickness); fit(); preview.refit3d(); preview.setView(settings.view); }
-      renderOverlay();
+      if (result) preview.set(N.buildDisplay(result, design.thickness), design.thickness, result.bbox);
     }
-    if (!window.ResizeObserver) window.addEventListener('resize', () => { fitIfNeeded(); renderOverlay(); });
-    else new ResizeObserver(() => { if (!preview.ok) { fitIfNeeded(); renderOverlay(); } }).observe(stage);
-
-    // Fit the plate to about 80% of the stage width, clear of the tool rail.
-    function fit() {
-      if (!result) return;
-      const { W, H } = stageSize();
-      if (!W || !H) return;
-      const rail = $('toolRail').getBoundingClientRect(), st = stage.getBoundingClientRect();
-      const railRight = settings.view === '2d' ? rail.right - st.left + 10 : 0;
-      const usable = Math.max(80, W - railRight - 60); // room on the right for the height label
-      const b = result.bbox, w = Math.max(b.maxX - b.minX, 1), h = Math.max(b.maxY - b.minY, 1);
-      view.s = Math.min((0.8 * W) / w, (0.92 * usable) / w, (0.55 * H) / h);
-      const leftPx = railRight + (usable - w * view.s) / 2;
-      view.cx = b.minX + (W / 2 - leftPx) / view.s; // puts the plate's left edge at leftPx
-      view.cy = (b.minY + b.maxY) / 2;
-      preview.frame2d();
-    }
-    // After an edit, refit only when the plate has drifted out of view.
-    function fitIfNeeded() {
-      if (!result) return;
-      const { W, H } = stageSize();
-      const [x0, y0] = toScreen(result.bbox.minX, result.bbox.maxY), [x1, y1] = toScreen(result.bbox.maxX, result.bbox.minY);
-      if (x0 < 8 || y0 < 50 || x1 > W - 8 || y1 > H - 50 || x1 - x0 < W * 0.3) fit();
+    // The flat close-up: the plate's outline filled with a metal gradient, scaled to the close-up.
+    const FLAT_STOPS = { yellow: ['#F6DFA6', '#E2B35A', '#B9893A'], rose: ['#F5D2C2', '#DFA084', '#B47258'], white: ['#F4F6F7', '#CDD1D2', '#9CA3A6'] };
+    function drawCloseupFlat() {
+      if (!result || preview.ok) return;
+      const b = result.bbox, w = Math.max(b.maxX - b.minX, 1), h = Math.max(b.maxY - b.minY, 1), pad = 0.12;
+      const vw = w * (1 + 2 * pad), vh = Math.max(h * 1.6, vw * 0.5);
+      const cx = (b.minX + b.maxX) / 2, cy = (b.minY + b.maxY) / 2, st = FLAT_STOPS[settings.metal] || FLAT_STOPS.white;
+      const d = result.groups.flatMap((g) => [g.outer, ...g.holes]).map((p) => 'M' + p.map((q) => (q.X / N.SCALE).toFixed(3) + ',' + (-q.Y / N.SCALE).toFixed(3)).join('L') + 'Z').join('');
+      closeupSvg.setAttribute('viewBox', `${(cx - vw / 2).toFixed(2)} ${(-cy - vh / 2).toFixed(2)} ${vw.toFixed(2)} ${vh.toFixed(2)}`);
+      closeupSvg.innerHTML = `<defs><linearGradient id="nnFlat" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="${st[0]}"/><stop offset="0.55" stop-color="${st[1]}"/><stop offset="1" stop-color="${st[2]}"/></linearGradient></defs><path d="${d}" fill="url(#nnFlat)" fill-rule="evenodd" stroke="rgba(0,0,0,.3)" stroke-width="${(w / 400).toFixed(3)}"/>`;
     }
 
-    /* ---------- overlay (selection, checks, dimensions) ---------- */
-    const pathD = (paths) => paths.map((p) => 'M' + p.map(([x, y]) => toScreen(x, y).map((v) => v.toFixed(1)).join(',')).join('L') + 'Z').join('');
-    const SC = N.SCALE, F = (p) => p.map((q) => [q.X / SC, q.Y / SC]);
-    const sameSel = (a, b) => a.type === b.type && (a.type === 'loop' ? a.side === b.side : a.index === b.index);
-    const isSelected = (h) => selection.some((s) => sameSel(s, h));
-    const letterOf = (i) => result && result.letters.find((l) => l.index === i);
-    const loopOf = (side) => result && result.loops.find((l) => l.side === side);
-
-    function boxOf(paths) {
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      for (const p of paths) for (const [x, y] of p) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
-      return { minX, minY, maxX, maxY };
+    /* ---------- rebuild, off the main thread ---------- */
+    // Every change asks for a quick pass (no reinforcement, no thin check) straight away, and for the reinforced,
+    // checked pass once the changes stop. Only the checked pass of the current design can be ordered.
+    // The geometry runs in two Web Workers so typing and scrolling never wait for it: one for quick passes, one
+    // for the reinforced pass (a second or two on a phone), so a long reinforced build never holds up the next
+    // quick one. Each worker takes one design at a time; a design asked for while it is busy waits, and a newer
+    // one replaces it. If a worker can't start, that pass runs here instead.
+    const clone = (o) => JSON.parse(JSON.stringify(o));
+    const lanes = {}, finalWaiters = [];
+    let quickShownId = -1;
+    function makeWorker() {
+      if (!window.Worker || !window.Blob || !window.URL || !URL.createObjectURL || !cfg.coreUrl) return null;
+      try {
+        const libs = [CDN.opentype.src, CDN.clipper.src, CDN.earcut.src, new URL(cfg.coreUrl, location.href).href];
+        const code = `importScripts(${libs.map((u) => JSON.stringify(u)).join(', ')});
+          const fonts = {};
+          onmessage = (e) => {
+            const m = e.data;
+            if (m.fonts) { for (const k in m.fonts) fonts[k] = opentype.parse(m.fonts[k]); return; }
+            try { postMessage({ id: m.id, r: Nameplate.build(fonts[m.design.font] || fonts[Object.keys(fonts)[0]], m.design, m.opts) }); }
+            catch (err) { postMessage({ id: m.id, error: String((err && err.message) || err) }); }
+          };`;
+        const w = new Worker(URL.createObjectURL(new Blob([code], { type: 'text/javascript' })));
+        w.postMessage({ fonts: rawFonts }); // copied, so the page keeps its own
+        return w;
+      } catch (e) { return null; }
     }
-    function selectionBox() {
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      for (const s of selection) {
-        let b = null;
-        if (s.type === 'letter') { const l = letterOf(s.index); if (l) b = l.bbox; }
-        else if (s.type === 'dot') { const l = letterOf(s.index); if (l && l.dotPaths.length) b = boxOf(l.dotPaths); }
-        else { const lp = loopOf(s.side); if (lp) { const r = lp.outer / 2; b = { minX: lp.cx - r, maxX: lp.cx + r, minY: lp.cy - r, maxY: lp.cy + r }; } }
-        if (!b) continue;
-        minX = Math.min(minX, b.minX); minY = Math.min(minY, b.minY); maxX = Math.max(maxX, b.maxX); maxY = Math.max(maxY, b.maxY);
-      }
-      return Number.isFinite(minX) ? { minX, minY, maxX, maxY } : null;
+    function lane(kind) {
+      if (kind in lanes) return lanes[kind];
+      const w = makeWorker();
+      if (!w) return (lanes[kind] = null);
+      const L = lanes[kind] = { w, job: null, next: null };
+      const giveUp = () => { // the worker failed: this pass runs here from now on
+        lanes[kind] = null;
+        try { w.terminate(); } catch (e) { /* gone */ }
+        const pending = [L.job, L.next].filter(Boolean);
+        L.job = L.next = null;
+        pending.forEach((j) => runHere(kind, j));
+      };
+      w.onmessage = (e) => {
+        const m = e.data, job = L.job;
+        if (!job || m.id !== job.id) return;
+        L.job = null;
+        if (m.error) { console.warn('Name necklace builder: worker build failed, building here', m.error); runHere(kind, job); }
+        else applyBuild(m.r, kind === 'final', m.id);
+        if (L.next && lanes[kind] === L) { const n = L.next; L.next = null; send(L, n); }
+      };
+      w.onerror = (e) => { if (e && e.preventDefault) e.preventDefault(); console.warn('Name necklace builder: worker unavailable, building here', e && e.message); giveUp(); };
+      return L;
     }
-
-    function renderOverlay() {
-      if (!result) { overlay.innerHTML = ''; return; }
-      const { W, H } = stageSize();
-      overlay.setAttribute('viewBox', `0 0 ${W} ${H}`);
-      const two = settings.view === '2d';
-      let s = '<defs><pattern id="warnHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect class="hatch-b" width="6" height="6"/><rect class="hatch-a" width="3" height="6"/></pattern></defs>';
-      if (!preview.ok) {
-        // No WebGL (or three.js still on its way): draw the plate with a metal gradient so 2D editing works.
-        const stops = { yellow: ['#F6DFA6', '#E2B35A', '#B9893A'], rose: ['#F5D2C2', '#DFA084', '#B47258'], white: ['#F4F6F7', '#CDD1D2', '#9CA3A6'] }[settings.metal];
-        s += `<defs><linearGradient id="metalFill" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="${stops[0]}"/><stop offset="0.55" stop-color="${stops[1]}"/><stop offset="1" stop-color="${stops[2]}"/></linearGradient></defs>`;
-        for (const g of result.groups) s += `<path class="ov-fill" fill-rule="evenodd" d="${pathD([F(g.outer), ...g.holes.map(F)])}"/>`;
-      }
-      if (two) {
-        // Faint bounding box with its dimensions, like the ring tool's cross-section.
-        const b = result.bbox, [x0, y0] = toScreen(b.minX, b.maxY), [x1, y1] = toScreen(b.maxX, b.minY);
-        const dy = y0 - 12, dx = Math.min(x1 + 12, W - 44);
-        s += `<rect class="ov-box" x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${(x1 - x0).toFixed(1)}" height="${(y1 - y0).toFixed(1)}"/>`;
-        // mm rulers on both dimension lines: a tick every 1 mm (dropped when too dense), longer every 5 mm.
-        // The height ruler counts up from the bottom of the plate.
-        const minor = view.s >= 4;
-        let ticks = '';
-        for (let mm = 0; mm <= result.width + 1e-6; mm++) {
-          const major = mm % 5 === 0;
-          if (major || minor) ticks += `M${(x0 + mm * view.s).toFixed(1)} ${dy}V${dy + (major ? 5 : 3)}`;
-        }
-        for (let mm = 0; mm <= result.height + 1e-6; mm++) {
-          const major = mm % 5 === 0, y = y1 - mm * view.s;
-          if (major || minor) ticks += `M${dx} ${y.toFixed(1)}H${dx + (major ? 6 : 3)}`;
-          if (major && mm > 0 && result.height - mm > 1.5) s += `<text class="ruler-t" x="${dx + 9}" y="${(y + 3.5).toFixed(1)}">${mm}</text>`;
-        }
-        s += `<path class="dim" d="${ticks}"/>`;
-        s += `<path class="dim" d="M${x0} ${dy}H${x1}M${x0} ${dy - 4}V${dy + 4}M${x1} ${dy - 4}V${dy + 4}"/>`;
-        s += `<text class="dim-t" x="${(x0 + x1) / 2}" y="${dy - 6}" text-anchor="middle">${result.width.toFixed(2)}</text>`;
-        s += `<path class="dim" d="M${dx} ${y0}V${y1}M${dx - 4} ${y0}H${dx + 4}M${dx - 4} ${y1}H${dx + 4}"/>`;
-        s += `<text class="dim-t" x="${dx + 9}" y="${y0 + 4}">${result.height.toFixed(2)}</text>`;
-      }
-      if (two) {
-        // Check highlights are flat 2D shapes; in 3D they would float free of the turning model.
-        for (const t of result.thin) s += `<path class="ov-thin" fill-rule="evenodd" d="${pathD(t)}"/>`;
-        for (const lz of result.loose) {
-          const g = result.groups[lz.group], d = pathD([F(g.outer), ...g.holes.map(F)]);
-          s += `<path class="ov-loose-edge" d="${d}"/><path class="ov-loose" fill-rule="evenodd" d="${d}"/>`;
-        }
-        if (hover && !isSelected(hover)) {
-          if (hover.type === 'letter') { const l = letterOf(hover.index); if (l) s += `<path class="ov-hover" fill-rule="evenodd" d="${pathD(l.body)}"/>`; }
-          else if (hover.type === 'dot') { const l = letterOf(hover.index); if (l) s += `<path class="ov-hover" fill-rule="evenodd" d="${pathD(l.dotPaths)}"/>`; }
-          else { const lp = loopOf(hover.side); if (lp) s += `<path class="ov-hover" fill-rule="evenodd" d="${pathD([lp.outerPath, lp.holePath])}"/>`; }
-        }
-        for (const sel of selection) {
-          if (sel.type === 'letter') {
-            const l = letterOf(sel.index); if (!l) continue;
-            const [x0, y0] = toScreen(l.bbox.minX, l.bbox.maxY), [x1, y1] = toScreen(l.bbox.maxX, l.bbox.minY);
-            s += `<path class="ov-sel" fill-rule="evenodd" d="${pathD(l.body)}"/><rect class="ov-selbox" x="${(x0 - 3).toFixed(1)}" y="${(y0 - 3).toFixed(1)}" width="${(x1 - x0 + 6).toFixed(1)}" height="${(y1 - y0 + 6).toFixed(1)}"/>`;
-          } else if (sel.type === 'dot') {
-            const l = letterOf(sel.index); if (!l || !l.dotPaths.length) continue;
-            s += `<path class="ov-sel" fill-rule="evenodd" d="${pathD(l.dotPaths)}"/>`;
-          } else {
-            const lp = loopOf(sel.side); if (!lp) continue;
-            s += `<path class="ov-sel" fill-rule="evenodd" d="${pathD([lp.outerPath, lp.holePath])}"/>`;
-          }
-        }
-        // Loop guides: while a loop is selected, lines through both loop centres and their height difference.
-        if (selection.some((x) => x.type === 'loop') && result.loops.length) {
-          const b = result.bbox, xa = toScreen(b.minX - 1, 0)[0], xb = toScreen(b.maxX + 1, 0)[0];
-          const L = loopOf('left'), R = loopOf('right'), level = !!(L && R && Math.abs(L.cy - R.cy) < 0.005);
-          for (const lp of result.loops) { const y = toScreen(0, lp.cy)[1].toFixed(1); s += `<path class="ov-guide${level ? ' level' : ''}" d="M${xa} ${y}H${xb}"/>`; }
-          if (L && R) {
-            const ty = Math.min(toScreen(0, L.cy)[1], toScreen(0, R.cy)[1]) - 7;
-            s += `<text class="ov-guide-t" x="${((xa + xb) / 2).toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle">${level ? 'Loops level' : `${Math.abs(L.cy - R.cy).toFixed(2)} mm apart`}</text>`;
-          }
-        }
-        if (selection.length && settings.tool !== 'move') {
-          const b = selectionBox();
-          if (b) { const [px, py] = toScreen((b.minX + b.maxX) / 2, (b.minY + b.maxY) / 2); s += `<circle class="ov-pivot" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3"/>`; }
-        }
-      }
-      overlay.innerHTML = s;
+    function send(L, job) { L.job = job; L.w.postMessage({ id: job.id, design: job.design, opts: job.opts }); }
+    function runHere(kind, job) {
+      let r;
+      try { r = N.build(getFont(job.design.font), job.design, job.opts); }
+      catch (e) { console.warn('Name necklace builder:', e); r = { ok: false, error: { code: 'error', message: 'Something went wrong drawing this design. Please try again.' } }; }
+      applyBuild(r, kind === 'final', job.id);
     }
-
-    /* ---------- rebuild ---------- */
-    function update({ fit: doFit = false, light = false } = {}) {
-      const r = N.build(getFont(design.font), design, { detail: settings.detail, checks: !light });
-      const warn = $('nameWarn');
+    function requestBuild(kind) {
+      const isFinal = kind === 'final';
+      const job = { id: designSeq, design: isFinal ? clone(design) : Object.assign(clone(design), { reinforce: false }), opts: { detail: settings.detail, checks: isFinal } };
+      const L = lane(kind);
+      if (!L) { runHere(kind, job); return; }
+      if (L.job) L.next = job; else send(L, job);
+    }
+    // A design change: quick pass now, the reinforced pass after the pause, and a new price.
+    let raf = 0;
+    function schedule() {
+      final = false;
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        designSeq++;
+        requestBuild('quick');
+        clearTimeout(finalTimer);
+        finalTimer = setTimeout(() => { finalTimer = 0; requestBuild('final'); }, FINAL_DELAY);
+        priceChanged();
+      });
+    }
+    // Resolves once the reinforced, checked build of the current design is showing (Add to cart, STL download).
+    function whenFinal() {
+      if (raf) { cancelAnimationFrame(raf); raf = 0; designSeq++; priceChanged(); }
+      if (final && !finalTimer) return Promise.resolve();
+      clearTimeout(finalTimer); finalTimer = 0;
+      const L = lanes.final, inFlight = L && ((L.job && L.job.id === designSeq) || (L.next && L.next.id === designSeq));
+      const p = new Promise((resolve) => finalWaiters.push(resolve));
+      if (!inFlight) requestBuild('final');
+      return p;
+    }
+    function applyBuild(r, isFinal, id) {
+      if (isFinal && id !== designSeq) return; // the design has changed since: a newer one is on its way
+      if (!isFinal && (id < quickShownId || (final && id === designSeq))) return; // older, or the checked one is already up
+      if (!isFinal) quickShownId = id;
       if (!r.ok) {
         buildError = r.error;
-        warn.textContent = r.error.message; warn.hidden = false;
+        if (isFinal) final = true;
+        renderNameWarn();
+        renderChoices();
         renderSaveState();
-        return;
+      } else {
+        buildError = null;
+        renderNameWarn();
+        result = r; final = isFinal && id === designSeq;
+        mesh = N.buildMesh(r, design.thickness);
+        if (!mesh.volumeOk) console.warn('Nameplate: mesh volume does not match outline area x thickness', mesh.volume, mesh.expected);
+        preview.set(N.buildDisplay(r, design.thickness), design.thickness, r.bbox);
+        drawCloseupFlat();
+        const c = r.curve, cr = $('curveReadout');
+        cr.innerHTML = !c.degrees ? '<b>Flat</b>' : `<b>${Math.abs(c.degrees)}°</b>`;
+        if (c.limited) cr.innerHTML += ` · limited to ${c.maxDegrees}° for a name this short, so the letters don't fold`;
+        $('dims').textContent = `${r.width.toFixed(1)} × ${r.height.toFixed(1)} mm`;
+        renderChecks();
+        renderStats();
+        renderSize();
+        renderSummary();
+        renderChoices();
+        renderSaveState();
       }
-      buildError = null; warn.hidden = true;
-      if (light && result) { r.thin = result.thin; r.thinArea = result.thinArea; } // keep the last thin overlay while dragging
-      result = r;
-      mesh = N.buildMesh(r, design.thickness);
-      if (!mesh.volumeOk) console.warn('Nameplate: mesh volume does not match outline area x thickness', mesh.volume, mesh.expected);
-      selection = selection.filter((s) => (s.type === 'loop' ? !!loopOf(s.side) : s.type === 'dot' ? !!(letterOf(s.index) && letterOf(s.index).dotPaths.length) : !!letterOf(s.index)));
-      preview.set(N.buildDisplay(r, design.thickness), design.thickness);
-      if (doFit) { fit(); if (preview.refit3d) preview.refit3d(); } else if (!drag) fitIfNeeded();
-      const c = r.curve, cr = $('curveReadout');
-      cr.innerHTML = !c.degrees ? '<b>Flat</b>' : `<b>${Math.abs(c.degrees)}°</b>`;
-      if (c.limited) cr.innerHTML += ` · limited to ${c.maxDegrees}° for a name this short, so the letters don't fold`;
-      $('dims').textContent = `Width ${r.width.toFixed(2)} · Height ${r.height.toFixed(2)} · Thickness ${design.thickness.toFixed(2)} mm`;
-      renderOverlay();
-      renderChecks();
-      renderStats();
-      if (settings.view === 'size') renderSize();
-      renderSummary();
-      renderSaveState();
-      if (!light) priceChanged();
-    }
-    let raf = 0, pending = {};
-    function schedule(opts = {}) {
-      pending = { fit: pending.fit || opts.fit, light: (pending.light !== false) && !!opts.light };
-      if (!raf) raf = requestAnimationFrame(() => { raf = 0; const o = pending; pending = {}; update(o); });
+      if (isFinal) finalWaiters.splice(0).forEach((resolve) => resolve());
     }
 
+    // What stops an order, and which section fixes it.
+    function blocker() {
+      if (buildError) return { block: 1, msg: buildError.message };
+      if (!result) return { block: 1, msg: 'Type a name to start.' };
+      if (result.loose.length) return { block: 2, msg: $('looseWarn').textContent || "This name doesn't hold together in this font." };
+      if (final && result.thin.length) return { block: 2, msg: $('thinWarn').textContent };
+      return null;
+    }
     function renderChecks() {
-      const issues = $('issues'), loose = result.loose.length;
-      issues.innerHTML = '';
-      const looseWarn = $('looseWarn'), thinWarn = $('thinWarn');
+      const looseWarn = $('looseWarn'), thinWarn = $('thinWarn'), note = $('reinforceNote');
+      const loose = result.loose.length;
       if (loose) {
-        const what = result.loose.map((l) => l.label);
-        looseWarn.textContent = `${loose} loose piece${loose > 1 ? 's' : ''}. ${loose > 1 ? 'They' : 'It'} would fall off when cast (${[...new Set(what)].join(', ')}). Join ${loose > 1 ? 'them' : 'it'} up in the editor before ordering.`;
-        if (result.loose.some((l) => l.owners.some((o) => o.type === 'dot'))) looseWarn.textContent += ' Drag the dot down onto its letter, or remove dots under More options.';
-        const b = document.createElement('button');
-        b.type = 'button'; b.className = 'nn__issue'; b.textContent = `${loose} loose piece${loose > 1 ? 's' : ''}`;
-        b.title = 'Select the loose pieces';
-        b.addEventListener('click', () => selectOwners(result.loose.flatMap((l) => l.owners)));
-        issues.appendChild(b);
+        const what = [...new Set(result.loose.map((l) => l.label))];
+        looseWarn.textContent = `This name doesn't hold together in this font: ${what.join(', ')} would cast as a separate piece. Try another font, or more letter overlap under Style, More options.`;
       }
       looseWarn.hidden = !loose;
-      thinWarn.classList.remove('ok');
-      if (result.thin.length) {
-        thinWarn.textContent = '';
-        const msg = document.createElement('span');
-        msg.textContent = design.reinforce
-          ? `Some strokes are still thinner than ${N.MIN_FEATURE} mm after reinforcing. Try a heavier font or a bigger height. `
-          : `Some strokes are thinner than ${N.MIN_FEATURE} mm and may not fill when cast. Reinforce them (adds a little metal where the joins are thin), or try a heavier font or a bigger height. `;
-        thinWarn.appendChild(msg);
-        if (!design.reinforce) {
-          const rb = document.createElement('button');
-          rb.type = 'button'; rb.className = 'nn__mini nn__mini--solid nn__warn-btn'; rb.textContent = 'Reinforce thin joints';
-          rb.addEventListener('click', () => setReinforce(true));
-          thinWarn.appendChild(rb);
-        }
-        if (!design.reinforce) {
-          const sb = document.createElement('button');
-          sb.type = 'button'; sb.className = 'nn__issue nn__issue--solid'; sb.textContent = 'Reinforce thin joints';
-          sb.title = `Widen the strokes under ${N.MIN_FEATURE} mm so the piece casts`;
-          sb.addEventListener('click', () => setReinforce(true));
-          issues.appendChild(sb);
-        }
-        const b = document.createElement('button');
-        b.type = 'button'; b.className = 'nn__issue'; b.textContent = 'Show thin strokes';
-        b.title = 'Select the letters with thin strokes';
-        b.addEventListener('click', () => {
-          const hits = [];
-          for (const t of result.thin) {
-            const [x, y] = t[0][0];
-            let best = null, bd = Infinity;
-            for (const l of result.letters) { const bb = l.bbox, d = Math.hypot(Math.max(bb.minX - x, 0, x - bb.maxX), Math.max(bb.minY - y, 0, y - bb.maxY)); if (d < bd) { bd = d; best = l; } }
-            if (best && bd < 0.5) hits.push({ type: 'letter', index: best.index });
-          }
-          selectOwners(hits);
-        });
-        issues.appendChild(b);
-      }
-      if (!result.thin.length && design.reinforce && result.reinforced && result.reinforced.passes > 0) {
-        // Reinforced and nothing left under the minimum: say so on the stage and in the review, with a way back.
-        const okChip = document.createElement('span');
-        okChip.className = 'nn__issue nn__issue--ok';
-        okChip.textContent = `Thin joints reinforced · `;
-        const rm = document.createElement('button');
-        rm.type = 'button'; rm.className = 'nn__warn-link'; rm.textContent = 'Remove';
-        rm.addEventListener('click', () => setReinforce(false));
-        okChip.appendChild(rm);
-        issues.appendChild(okChip);
-        thinWarn.textContent = '';
-        thinWarn.classList.add('ok');
-        const msg = document.createElement('span');
-        const grams = alloy ? (result.reinforced.addedArea * design.thickness / 1000) * alloy.density : 0;
-        msg.textContent = `Thin joints reinforced to ${N.MIN_FEATURE} mm so the piece casts and wears well${grams >= 0.05 ? ` (about ${grams.toFixed(1)} g more metal)` : ''}. `;
-        thinWarn.appendChild(msg);
-        const ub = document.createElement('button');
-        ub.type = 'button'; ub.className = 'nn__warn-link'; ub.textContent = 'Remove reinforcement';
-        ub.addEventListener('click', () => setReinforce(false));
-        thinWarn.appendChild(ub);
-        thinWarn.hidden = false;
-      } else {
-        thinWarn.hidden = !result.thin.length;
-      }
-    }
-    function setReinforce(on) {
-      if (!!design.reinforce === !!on) return;
-      pushUndo();
-      design.reinforce = !!on;
-      try { say(''); } catch (e) { /* before the cart section is ready */ }
-      schedule();
-    }
-    function selectOwners(owners) {
-      const out = [];
-      for (const o of owners) { const h = o.type === 'loop' ? { type: 'loop', side: o.side } : { type: o.type, index: o.index }; if (!out.some((s) => sameSel(s, h))) out.push(h); }
-      if (settings.view !== '2d') setView('2d');
-      selection = out;
-      renderOverlay();
-      stage.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      const thin = final && result.thin.length > 0;
+      thinWarn.textContent = thin ? 'This font is too fine at this height to cast. Try a bigger height or another font.' : '';
+      thinWarn.hidden = !thin;
+      note.hidden = !(final && !thin && result.reinforced && result.reinforced.passes > 0);
     }
 
     // Weight for the chosen metal only (the server's figure replaces it once the quote arrives).
@@ -780,10 +698,10 @@
       if (!showStl) return;
       const tris = mesh.triangles;
       const bytes = settings.format === 'binary' ? 84 + 50 * tris : tris * 240.5;
-      $('stats').innerHTML = `<b>${tris.toLocaleString()}</b> triangles · ${settings.format === 'binary' ? '' : '≈ '}${fmtBytes(bytes)} · ${mesh.volume.toFixed(1)} mm³`;
+      $('stats').innerHTML = `<b>${tris.toLocaleString()}</b> triangles · ${settings.format === 'binary' ? '' : '≈ '}${fmtBytes(bytes)} · ${mesh.volume.toFixed(1)} mm³${final ? '' : ' (updating)'}`;
     }
 
-    /* ---------- review summary ---------- */
+    /* ---------- review summary and the collapsed headers ---------- */
     const fontName = () => N.fontMeta(design.font).name;
     const thicknessText = () => { const c = THICKNESS_CHOICES.find(([t]) => t === design.thickness); return `${c ? c[1] + ' ' : ''}${design.thickness.toFixed(1)} mm`; };
     const curveText = () => { const c = result && result.curve.degrees; return !c ? 'Straight' : `${Math.abs(c)}° curve`; };
@@ -794,128 +712,22 @@
         ['Name', design.text], ['Font', fontName()],
         ['Size', result ? `${result.width.toFixed(1)} × ${result.height.toFixed(1)} mm` : `${design.height} mm high`],
         ['Thickness', thicknessText()], ['Curve', curveText()], ['Chain loops', loopsText()],
-        ['Metal', alloy.name], ['Chain', chainText()], ['Finish', cap(design.finish || 'polished')],
+        ['Metal', alloy.name], ['Chain', cap(chainText())], ['Finish', cap(design.finish || 'polished')],
       ];
-      if (design.reinforce && result && result.reinforced && result.reinforced.passes > 0) rows.push(['Thin joints', `Reinforced to ${N.MIN_FEATURE} mm`]);
       $('summary').innerHTML = rows.map(([k, v]) => `<div class="nn__summary-row"><span>${esc(k)}</span><span>${esc(v)}</span></div>`).join('');
     }
-
-    /* ---------- editing ---------- */
-    function adjOf(sel) {
-      if (sel.type === 'loop') return design.loops[sel.side];
-      const L = design.letters;
-      while (L.length <= sel.index) L.push(null);
-      if (!L[sel.index]) L[sel.index] = N.defaultLetter();
-      if (sel.type === 'dot') return L[sel.index].dot || (L[sel.index].dot = { dx: 0, dy: 0 });
-      return L[sel.index];
-    }
-    const round = (v, d) => Math.round(v * 10 ** d) / 10 ** d;
-    const normDeg = (a) => ((((a + 180) % 360) + 360) % 360) - 180;
-
-    // Apply a change to every selected item, from a snapshot (absolute) so drags don't drift.
-    function applyTool(base, tool, amount) {
-      design = clone(base);
-      for (const sel of selection) {
-        const a = adjOf(sel);
-        if (tool === 'move') {
-          // On a curved name a letter's own moves happen before the bend, so turn the screen move into its slant.
-          const l = sel.type === 'loop' ? null : letterOf(sel.index), ang = l ? l.angle : 0;
-          const mx = amount.dx * Math.cos(ang) + amount.dy * Math.sin(ang), my = -amount.dx * Math.sin(ang) + amount.dy * Math.cos(ang);
-          a.dx = round((a.dx || 0) + mx, 3); a.dy = round((a.dy || 0) + my, 3);
-        }
-        else if (sel.type === 'letter' && tool === 'rotate') a.rot = round(normDeg((a.rot || 0) + amount), 2);
-        else if (sel.type === 'letter' && tool === 'scale') a.scale = round(clamp((a.scale || 1) * amount, N.SCALE_RANGE[0], N.SCALE_RANGE[1]), 4);
-      }
+    const choiceEl = (n) => { const b = blockOf(n); return b && b.querySelector('[data-choice]'); };
+    function renderChoices() {
+      const set = (n, text) => { const el = choiceEl(n); if (el) el.textContent = text; };
+      const sp = chainSpec(), short = THICKNESS_CHOICES.find(([t]) => t === design.thickness);
+      set(1, design.text ? `“${design.text}”` : '');
+      set(2, [fontName(), `${design.height} mm`, result && result.curve.degrees ? `${Math.abs(result.curve.degrees)}°` : 'flat', short ? short[1] : `${design.thickness} mm`].join(' · '));
+      set(3, alloy.name);
+      set(4, [chain.style.name, gaugesOn && sp.gaugeName ? `${sp.gaugeName} ${sp.width.toFixed(1)} mm` : `${sp.width.toFixed(1)} mm`, `${chain.lengthCm} cm`, chain.alloy.name].join(' · '));
+      set(5, price ? money(price.price) : '');
     }
 
-    let drag = null;
-    overlay.addEventListener('pointerdown', (e) => {
-      if (settings.view !== '2d' || !result || e.button > 0) return;
-      e.preventDefault();
-      // Take focus off the form so arrow keys nudge the selection instead of moving a caret.
-      if (document.activeElement && document.activeElement !== document.body && document.activeElement.blur) document.activeElement.blur();
-      overlay.focus({ preventScroll: true });
-      const p = toWorld(e), hit = N.hitTest(result, p.x, p.y);
-      if (!hit) { if (!e.shiftKey) { selection = []; renderOverlay(); } return; }
-      if (e.shiftKey) {
-        if (isSelected(hit)) { selection = selection.filter((s) => !sameSel(s, hit)); renderOverlay(); return; }
-        selection.push(hit);
-      } else if (!isSelected(hit)) selection = [hit];
-      const b = selectionBox();
-      // One loop dragged on its own snaps level with the other one.
-      const only = selection.length === 1 && selection[0].type === 'loop' ? loopOf(selection[0].side) : null;
-      const other = only && loopOf(only.side === 'left' ? 'right' : 'left');
-      drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, p0: p, base: clone(design), moved: false, c: b ? { x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2 } : p, snap: only && other ? { from: only.cy, to: other.cy } : null };
-      overlay.setPointerCapture(e.pointerId);
-      overlay.classList.add('dragging');
-      renderOverlay();
-    });
-    overlay.addEventListener('pointermove', (e) => {
-      if (!result || settings.view !== '2d') return;
-      const p = toWorld(e);
-      if (!drag) {
-        const h = N.hitTest(result, p.x, p.y);
-        overlay.classList.toggle('over', !!h);
-        if ((h && (!hover || !sameSel(h, hover))) || (!h && hover)) { hover = h; renderOverlay(); }
-        return;
-      }
-      if (!drag.moved && Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 3) return;
-      if (!drag.moved) { pushUndo(); drag.moved = true; }
-      const tool = settings.tool;
-      if (tool !== 'move' && !selection.some((s) => s.type === 'letter')) { say('Dots and loops only move. Press M for Move.'); return; }
-      if (tool === 'move') {
-        let dy = p.y - drag.p0.y;
-        if (drag.snap && !e.altKey && Math.abs(drag.snap.from + dy - drag.snap.to) < 6 / view.s) dy = drag.snap.to - drag.snap.from; // hold Alt to place freely
-        applyTool(drag.base, 'move', { dx: p.x - drag.p0.x, dy });
-      }
-      else if (tool === 'rotate') {
-        const a0 = Math.atan2(drag.p0.y - drag.c.y, drag.p0.x - drag.c.x), a1 = Math.atan2(p.y - drag.c.y, p.x - drag.c.x);
-        applyTool(drag.base, 'rotate', normDeg(((a1 - a0) * 180) / Math.PI));
-      } else {
-        const d0 = Math.hypot(drag.p0.x - drag.c.x, drag.p0.y - drag.c.y) || 1, d1 = Math.hypot(p.x - drag.c.x, p.y - drag.c.y);
-        applyTool(drag.base, 'scale', d1 / d0);
-      }
-      schedule({ light: true });
-    });
-    const endDrag = () => {
-      if (!drag) return;
-      const moved = drag.moved;
-      drag = null;
-      overlay.classList.remove('dragging');
-      if (moved) schedule();
-    };
-    overlay.addEventListener('pointerup', endDrag);
-    overlay.addEventListener('pointercancel', endDrag);
-    overlay.addEventListener('pointerleave', () => { if (!drag && hover) { hover = null; overlay.classList.remove('over'); renderOverlay(); } });
-
-    function setTool(t) {
-      settings.tool = t;
-      overlay.dataset.tool = t;
-      root.querySelectorAll('#toolRail button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tool === t)));
-      renderOverlay();
-    }
-    root.querySelectorAll('#toolRail button').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
-
-    function setView(v) {
-      settings.view = v;
-      setRadio('view', v);
-      stage.classList.toggle('view3d', v === '3d');
-      stage.classList.toggle('viewsize', v === 'size');
-      $('toolRail').hidden = v !== '2d'; // in 3D the rail would sit over the model; the hint says how to edit instead
-      $('hint').textContent = v === '3d' ? 'Drag to turn · scroll to zoom · switch to 2D to edit letters' : v === 'size' ? 'Shown to scale · 2D to adjust letters' : 'Click a letter to adjust it · Shift-click for more';
-      $('sizeView').hidden = v !== 'size';
-      $('sizeBar').hidden = v !== 'size';
-      $('issues').hidden = v === 'size';
-      preview.setView(v === 'size' ? '2d' : v);
-      if (v === '2d') fit();
-      if (v === 'size') renderSize();
-      renderOverlay();
-    }
-    radios('view').forEach((el) => el.addEventListener('change', () => setView(el.value)));
-    // Overlap, loops and dots need the letter editor: opening More options brings up the 2D view.
-    $('paneAdvanced').addEventListener('toggle', () => { if ($('paneAdvanced').open && settings.view !== '2d') setView('2d'); });
-
-    /* ---------- on a neck: the plate to scale on a neckline ---------- */
+    /* ---------- on a neck: the necklace to scale on a neckline ---------- */
     // Everything is drawn in millimetres and scaled to the stage. With a photo configured in the section
     // (cfg.neckImage plus the two points where the chain comes over the shoulders and the collarbone notch, as
     // percentages of the photo), the real distance between the chain points sets the scale; otherwise a line
@@ -935,7 +747,7 @@
       white: { face: ['#FBFCFC', '#D3D7D9', '#FFFFFF', '#C2C7CA', '#8F979B'], edge: '#788085', link: ['#FFFFFF', '#D6DADC', '#8E969A'] },
     };
     // Gradients for a chain's links in a metal (ids suffixed so tiles and the neck view can each have their own).
-    const linkDefs = (id, metal) => { const m = METAL_STOPS[metal] || METAL_STOPS.white; return `<defs><radialGradient id="nnLink-${id}" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="${m.link[0]}"/><stop offset="0.5" stop-color="${m.link[1]}"/><stop offset="1" stop-color="${m.link[2]}"/></radialGradient></defs>`; };
+    function linkDefs(id, metal) { const m = METAL_STOPS[metal] || METAL_STOPS.white; return `<defs><radialGradient id="nnLink-${id}" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="${m.link[0]}"/><stop offset="0.5" stop-color="${m.link[1]}"/><stop offset="1" stop-color="${m.link[2]}"/></radialGradient></defs>`; }
     const metalDefs = () => {
       const m = METAL_STOPS[settings.metal] || METAL_STOPS.white, f = m.face;
       return `<defs><linearGradient id="nnMetal" x1="0" y1="0" x2="0.55" y2="1"><stop offset="0" stop-color="${f[0]}"/><stop offset="0.32" stop-color="${f[1]}"/><stop offset="0.5" stop-color="${f[2]}"/><stop offset="0.68" stop-color="${f[3]}"/><stop offset="1" stop-color="${f[4]}"/></linearGradient>
@@ -949,18 +761,14 @@
     const plateOnSkin = (d) => `<g style="mix-blend-mode:multiply"><path d="${d}" fill="#6b3a24" fill-rule="evenodd" opacity=".28" transform="translate(0.35,1.1)" filter="url(#nnAmbient)"/><path d="${d}" fill="#5a2e1c" fill-rule="evenodd" opacity=".4" transform="translate(0.12,0.38)" filter="url(#nnContact)"/></g>
       <g filter="url(#nnSoft)"><path d="${d}" fill="${(METAL_STOPS[settings.metal] || METAL_STOPS.white).edge}" fill-rule="evenodd" transform="translate(0.1,0.28)"/><path d="${d}" fill="url(#nnMetal)" fill-rule="evenodd"/></g>`;
     const label = (x, y, text) => `<text class="sz-l" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle">${esc(text)}</text>`;
-    // Chain from an anchor (ax, ay) to a loop (lx, ly), all in the same units: a gentle hanging curve, drawn as a
-    // dark line under a light one so it reads on skin as well as on navy.
-    // A cable chain: small oval links laid along the hanging curve, every second one turned on its edge, in the
-    // chosen metal. pxmm scales the link size (1.6 mm links, 1.0 mm wide) to the drawing's units.
     // The chain leaves the anchor (the neck's edge) heading straight down, as if coming round from behind, then
     // sweeps in to the loop.
     const chainCurve = (ax, ay, lx, ly, out) => { const d = ly - ay; return [[ax, ay], [ax + out * 0.3, ay + d * 0.42], [lx - out * 4, ly - d * 0.35], [lx, ly]]; };
     const bez = (P, t) => { const u = 1 - t; return [u * u * u * P[0][0] + 3 * u * u * t * P[1][0] + 3 * u * t * t * P[2][0] + t * t * t * P[3][0], u * u * u * P[0][1] + 3 * u * u * t * P[1][1] + 3 * u * t * t * P[2][1] + t * t * t * P[3][1]]; };
-    // The links of one chain style laid along a list of points (already spaced at the pitch), in the drawing's
-    // units per mm. Cable: oval links, every second one on its edge. Belcher: round links the same way. Curb: every
-    // link twisted to lie flat, so a row of overlapping ovals with a slight alternate tilt.
-    const linkRun = (st, pts, pxmm, fill, swMin, fadeFrom) => {
+    // The links of one chain (a style in a gauge) laid along a list of points already spaced at the pitch, in the
+    // drawing's units per mm. Cable: oval links, every second one on its edge. Belcher: round links the same way.
+    // Curb: every link twisted to lie flat, so a row of overlapping ovals with a slight alternate tilt.
+    function linkRun(st, pts, pxmm, fill, swMin, fadeFrom) {
       const edge = 0.5 * st.wire * pxmm * 0.85, sw = Math.max(swMin, st.wire * pxmm * 0.38);
       let out = '';
       for (let i = 0; i < pts.length; i++) {
@@ -977,15 +785,15 @@
         }
       }
       return out;
-    };
+    }
     const chainSvg = (P, pxmm, onSkin) => {
-      const st = chain.style, pitch = Chains.pitch(st) * pxmm;
+      const st = chainSpec(), pitch = Chains.pitch(st) * pxmm;
       // walk the curve at even spacing
       const pts = []; let prev = bez(P, 0), acc = 0; pts.push(prev);
       for (let i = 1; i <= 400; i++) { const t = i / 400, q = bez(P, t); acc += Math.hypot(q[0] - prev[0], q[1] - prev[1]); prev = q; if (acc >= pitch) { pts.push(q); acc = 0; } }
       const path = `M${P[0][0].toFixed(2)},${P[0][1].toFixed(2)}C${P.slice(1).map((q) => q[0].toFixed(2) + ',' + q[1].toFixed(2)).join(' ')}`;
       // One soft warm shadow under the whole chain (fading in with it), rather than a hard one under every link.
-      let out = onSkin ? `<g style="mix-blend-mode:multiply"><path d="${path}" fill="none" stroke="#5a2e1c" stroke-width="${(st.width * 0.75 * pxmm).toFixed(2)}" stroke-linecap="round" opacity=".3" transform="translate(${(0.15 * pxmm).toFixed(2)},${(0.55 * pxmm).toFixed(2)})" filter="url(#nnChainBlur)"/></g>` : '';
+      const out = onSkin ? `<g style="mix-blend-mode:multiply"><path d="${path}" fill="none" stroke="#5a2e1c" stroke-width="${(st.width * 0.75 * pxmm).toFixed(2)}" stroke-linecap="round" opacity=".3" transform="translate(${(0.15 * pxmm).toFixed(2)},${(0.55 * pxmm).toFixed(2)})" filter="url(#nnChainBlur)"/></g>` : '';
       // The first links fade in: the chain is coming round from behind the neck.
       return out + '<g>' + linkRun(st, pts, pxmm, 'url(#nnLink-neck)', 0.3, 7) + '</g>';
     };
@@ -1000,7 +808,8 @@
       <path d="M156 103 C158 107 162 107 164 103" stroke-opacity=".4"/></g>`;
     // The photo, if any: loaded once so its proportions are known.
     const photo = { url: cfg.neckImage || '', w: 0, h: 0, failed: false };
-    if (photo.url) { const im = new Image(); im.onload = () => { photo.w = im.naturalWidth; photo.h = im.naturalHeight; if (settings.view === 'size') renderSize(); }; im.onerror = () => { photo.failed = true; if (settings.view === 'size') renderSize(); }; im.src = photo.url; }
+    if (photo.url) { const im = new Image(); im.onload = () => { photo.w = im.naturalWidth; photo.h = im.naturalHeight; renderSize(); }; im.onerror = () => { photo.failed = true; renderSize(); }; im.src = photo.url; }
+    const stageSize = () => ({ W: stage.clientWidth, H: stage.clientHeight });
     function renderSize() {
       if (!result || !sizeSvg) return;
       const { W, H } = stageSize();
@@ -1038,58 +847,23 @@
         s += chainSvg(chainCurve(a[0], a[1], lx, py, -1), 1) + chainSvg(chainCurve(b[0], b[1], rx, py, 1), 1);
         s += `<g transform="translate(160,${py})"><path d="${platePath()}" fill="url(#nnMetal)" fill-rule="evenodd"/></g></g>`;
       }
-      s += label(W / 2, capY, `${chain.lengthCm} cm ${chain.style.name.toLowerCase()} chain in ${chain.alloy.name} · shown to scale`);
+      // The caption names the chain; on a narrow stage it drops the width and the metal so it fits.
+      const sp = chainSpec(), gn = gaugesOn && sp.gaugeName ? sp.gaugeName.toLowerCase() + ' ' : '';
+      s += label(W / 2, capY, W < 520 ? `${chain.lengthCm} cm ${gn}${chain.style.name.toLowerCase()} chain · to scale` : `${cap(chainName())} in ${chain.alloy.name} · shown to scale`);
       sizeSvg.innerHTML = s;
       sizeBar.innerHTML = `<span class="nn__sz-l">Chain</span>` + Chains.LENGTHS_CM.map((c) => `<button type="button" class="nn__sz${chain.lengthCm === c ? ' on' : ''}" data-chain="${c}">${c} cm</button>`).join('');
     }
-    window.addEventListener('resize', () => { if (settings.view === 'size') renderSize(); });
+    if (window.ResizeObserver) new ResizeObserver(() => renderSize()).observe(stage);
+    else window.addEventListener('resize', () => renderSize());
     sizeBar.addEventListener('click', (e) => { const b = e.target.closest('button[data-chain]'); if (!b) return; setChainLength(+b.dataset.chain); });
 
     document.addEventListener('keydown', (e) => {
-      const inField = editable(e.target);
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'z') {
-        if (inField) return; // let text fields undo their own typing
-        if (!root.contains(e.target) && e.target !== document.body) return;
-        e.preventDefault(); undo(); return;
-      }
-      if (inField || e.ctrlKey || e.metaKey || e.altKey) return;
-      if (e.key === 'Escape') { if (selection.length) { selection = []; renderOverlay(); } return; }
-      if (settings.view !== '2d') return;
-      // Single-key shortcuts only while the editor is in use, so they never fight the rest of the page.
+      if (!((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'z')) return;
+      if (editable(e.target)) return; // let text fields undo their own typing
       if (!root.contains(e.target) && e.target !== document.body) return;
-      const k = e.key.toLowerCase();
-      if (k === 'm' || k === 'r' || k === 's') { setTool({ m: 'move', r: 'rotate', s: 'scale' }[k]); return; }
-      if (!selection.length || !e.key.startsWith('Arrow')) return;
-      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT')) return; // arrows keep their native job in form controls
-      e.preventDefault();
-      const big = e.shiftKey, dir = e.key.slice(5); // Up Down Left Right
-      pushUndo('nudge');
-      const base = clone(design);
-      if (settings.tool === 'move') {
-        const st = big ? 1 : 0.1;
-        applyTool(base, 'move', { dx: dir === 'Left' ? -st : dir === 'Right' ? st : 0, dy: dir === 'Up' ? st : dir === 'Down' ? -st : 0 });
-      } else if (settings.tool === 'rotate') {
-        const st = big ? 5 : 1;
-        applyTool(base, 'rotate', dir === 'Left' || dir === 'Up' ? st : -st); // counter-clockwise on Left / Up
-      } else {
-        const st = big ? 0.05 : 0.01;
-        applyTool(base, 'scale', dir === 'Right' || dir === 'Up' ? 1 + st : 1 - st);
-      }
-      schedule();
+      e.preventDefault(); undo();
     });
-
     $('undoBtn').addEventListener('click', undo);
-    $('resetBtn').addEventListener('click', () => { $('resetConfirm').hidden = false; $('resetYes').focus(); });
-    $('resetNo').addEventListener('click', () => { $('resetConfirm').hidden = true; });
-    $('resetYes').addEventListener('click', () => {
-      $('resetConfirm').hidden = true;
-      pushUndo();
-      design.letters = [];
-      for (const side of ['left', 'right']) { design.loops[side].dx = 0; design.loops[side].dy = 0; }
-      selection = [];
-      schedule({ fit: true });
-      say('Letters and loops are back to their automatic places.');
-    });
 
     if (showStl) {
       $('copyJson').addEventListener('click', async () => {
@@ -1104,15 +878,19 @@
     }
 
     /* ---------- price ---------- */
-    // The price server rebuilds the design, applies the metal price list and the markup, and sends back just the
-    // final price. Every change asks again after a short pause; the old price shows as "from" until the new one lands.
+    // The price server rebuilds the design (reinforced), applies the metal price list and the markup, and sends
+    // back just the final price. Every change asks again after a short pause; the old price shows as "from"
+    // until the new one lands. The total shows in the price bar, itemised in Review.
     const PRICE_URL = apiBase + '/quote';
-    const priceOut = $('priceOut');
+    const priceOut = $('priceOut'), barPrice = $('barPrice');
     let priceTimer = 0, priceSeq = 0, price = null; // price: the last quote { price, weightGrams, alloy, plate, chain } or null
-    const chainPayload = () => ({ style: chain.style.key, lengthCm: chain.lengthCm, alloy: chain.alloy.key });
-    const money = (v) => 'A$' + v.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const chainPayload = () => (gaugesOn ? { style: chain.style.key, gauge: chain.gauge, lengthCm: chain.lengthCm, alloy: chain.alloy.key } : { style: chain.style.key, lengthCm: chain.lengthCm, alloy: chain.alloy.key });
+    const setBar = (html, cls) => { barPrice.className = 'nn__bar-price' + (cls ? ' ' + cls : ''); barPrice.innerHTML = html; };
     async function requestPrice() {
-      if (buildError) { price = null; priceOut.className = 'nn__price err'; priceOut.textContent = 'Fix the name above to see a price.'; renderSaveState(); return; }
+      if (buildError) {
+        price = null; priceOut.className = 'nn__price err'; priceOut.textContent = 'Fix the name to see a price.';
+        setBar('—', 'err'); renderChoices(); renderSaveState(); return;
+      }
       const seq = ++priceSeq;
       priceOut.classList.add('stale');
       renderSaveState();
@@ -1123,29 +901,43 @@
         if (!res.ok) {
           price = null; priceOut.className = 'nn__price err';
           priceOut.textContent = res.status === 429 ? 'Please wait a moment and try again.' : (b.error || `The price service answered ${res.status}.`);
+          setBar('—', 'err');
           return;
         }
+        // A server from before gauges answers without one: only Medium can be made there.
+        if (b.chain && !b.chain.gauge && gaugesOn) { gaugesOn = false; chain.gauge = 'medium'; renderChainTiles(); renderChainGauges(); renderSize(); renderSummary(); }
         const when = b.metalPriceAt ? new Date(b.metalPriceAt) : null;
         const basis = !when ? '' : b.metalPriceLive
           ? ` · metal price at ${when.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' })}`
           : ` · metal prices of ${when.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}`;
         price = { price: b.price, weightGrams: b.weightGrams, alloy: b.alloy, alloyName: b.alloyName, plate: b.plate, chain: b.chain };
-        if (b.chainPrices) { chainPrices = b.chainPrices; renderChainTiles(); }
+        if (b.gaugePrices) { gaugePrices = b.gaugePrices; gaugePricesFresh = true; renderChainGauges(); }
         priceOut.className = 'nn__price';
-        const parts = b.chain && b.plate
-          ? `Nameplate ${money(b.plate.price)} · ${b.plate.weightGrams.toFixed(2)} g ${esc(b.alloyName)}<br>Chain ${money(b.chain.price)} · ${b.chain.lengthCm} cm ${esc(b.chain.styleName.toLowerCase())}, ${esc(b.chain.alloyName)}`
+        const ch = b.chain;
+        const chainWords = ch ? `${ch.lengthCm} cm ${ch.gaugeName ? ch.gaugeName.toLowerCase() + ' ' : ''}${ch.styleName.toLowerCase()}, ${ch.alloyName}` : '';
+        const parts = ch && b.plate
+          ? `Nameplate ${money(b.plate.price)} · ${b.plate.weightGrams.toFixed(2)} g ${esc(b.alloyName)}<br>Chain ${money(ch.price)} · ${esc(chainWords)}`
           : `${b.weightGrams.toFixed(2)} g in ${esc(b.alloyName)}`;
         priceOut.innerHTML = `${money(b.price)}<small>${parts}${esc(basis)}</small>`;
+        setBar(money(b.price));
+        renderChoices();
       } catch (err) {
         if (seq !== priceSeq) return;
         price = null; priceOut.className = 'nn__price err';
         priceOut.textContent = "Couldn't reach the price service. Check the connection and try again.";
+        setBar('—', 'err');
       } finally { if (seq === priceSeq) renderSaveState(); }
     }
     function priceChanged() { // keep the price current as the design changes
-      if (price && !buildError) { priceOut.className = 'nn__price stale'; priceOut.innerHTML = `<span class="from">from</span>${money(price.price)}`; }
-      else if (!buildError) { priceOut.className = 'nn__price stale'; priceOut.textContent = 'Working out the price…'; }
+      if (price && !buildError) {
+        priceOut.className = 'nn__price stale'; priceOut.innerHTML = `<span class="from">from</span>${money(price.price)}`;
+        setBar(`<span class="from">from</span>${money(price.price)}`, 'stale');
+      } else if (!buildError) {
+        priceOut.className = 'nn__price stale'; priceOut.textContent = 'Working out the price…';
+        setBar('Working it out…', 'stale');
+      }
       price = null;
+      renderChoices();
       renderSaveState();
       clearTimeout(priceTimer);
       priceTimer = setTimeout(requestPrice, 700);
@@ -1161,16 +953,17 @@
       fetch(apiBase + '/health').then((r) => r.json()).then((j) => { cartState = j && j.cart ? 'on' : 'off'; picturesOn = !!(j && j.pictures); renderSaveState(); }).catch(() => { cartState = 'on'; renderSaveState(); }); // unsure: let /build decide
     }
     function say(text, isErr) { status.textContent = text || ''; status.classList.toggle('err', !!isErr); }
+    // A blocked design keeps the button live: pressing it opens the section that fixes it.
     function renderSaveState() {
-      const ready = !!result && !buildError;
+      const blocked = !!blocker();
       if (cartState === 'off') {
         addBtn.textContent = 'Enquire about this design';
-        addBtn.disabled = !ready || adding;
+        addBtn.disabled = adding;
       } else {
-        addBtn.textContent = adding ? 'Adding to cart…' : price ? `Add to cart · ${money(price.price)}` : 'Add to cart';
-        addBtn.disabled = !ready || !price || adding || cartState === 'checking';
+        addBtn.textContent = adding ? 'Adding to cart…' : 'Add to cart';
+        addBtn.disabled = adding || cartState === 'checking' || (!blocked && !price);
       }
-      if (showStl) { $('saveBtn').disabled = !ready; $('saveConfirm').hidden = true; }
+      if (showStl) { $('saveBtn').disabled = !result || !!buildError; $('saveConfirm').hidden = true; }
     }
     const enquiryHref = () => {
       const q = new URLSearchParams();
@@ -1178,17 +971,32 @@
       return String(cfg.contactUrl || '/pages/contact') + '?' + q.toString() + '#contact';
     };
     const stlAbsolute = (u) => (/^https?:\/\//i.test(u) ? u : apiBase + String(u).replace(/^\/api(?=\/)/, ''));
-    const previewPicture = () => (preview && preview.ok ? preview.snapshot(1000) : '');
+    function showBlocker(b) {
+      openBlock(b.block);
+      if (b.block === 2) {
+        // The fix is a font, a height or the overlap: say so where the warning lives too.
+        say(b.msg, true);
+        $('nameIn').blur();
+      } else {
+        renderNameWarn();
+        say(b.msg, true);
+        setTimeout(() => $('nameIn').focus({ preventScroll: true }), 0);
+      }
+    }
     async function addToCart() {
-      if (!result || buildError || adding) return;
-      if (cartState === 'off') { location.href = enquiryHref(); return; }
-      if (result.loose.length) { $('looseWarn').hidden = false; $('looseWarn').scrollIntoView({ block: 'center', behavior: 'smooth' }); say('Join up the loose pieces first.', true); return; }
-      if (result.thin.length) { $('thinWarn').hidden = false; $('thinWarn').scrollIntoView({ block: 'center', behavior: 'smooth' }); say(design.reinforce ? 'Some strokes are still too thin to cast.' : 'Reinforce the thin joints first.', true); return; }
+      if (adding) return;
       adding = true; say(''); renderSaveState();
+      await whenFinal();
+      adding = false;
+      const b = blocker();
+      if (b) { renderSaveState(); showBlocker(b); return; }
+      if (cartState === 'off') { renderSaveState(); location.href = enquiryHref(); return; }
+      if (!price) { renderSaveState(); say('One moment, the price is still being worked out.'); return; }
+      adding = true; renderSaveState();
       let st = 0, j = {};
       // The picture of the design goes with the build so the hidden product (and so the cart) has an image.
       let picture = '';
-      if (picturesOn) { try { picture = previewPicture(); } catch (e) { picture = ''; } }
+      if (picturesOn) { try { picture = preview.snapshot(1000); } catch (e) { picture = ''; } }
       try {
         const payload = { design: JSON.parse(N.designJSON(design)), alloy: alloy.key, chain: chainPayload() };
         if (picture && picture.length < 800000) payload.preview = picture;
@@ -1196,15 +1004,18 @@
         st = res.status; j = await res.json().catch(() => ({}));
       } catch (e) { st = 0; }
       if (st === 200 && j.variant_id) {
+        const ch = j.chain;
         const props = {
           'Build': j.build, 'Name': design.text, 'Font': fontName(), 'Height': `${design.height} mm`, 'Thickness': thicknessText(),
-          'Metal': j.alloyName || alloy.name, 'Chain': j.chain ? `${j.chain.lengthCm} cm ${String(j.chain.styleName).toLowerCase()} chain, ${j.chain.alloyName}` : chainText(), 'Finish': cap(design.finish || 'polished'),
-          'Thin joints': design.reinforce && result.reinforced && result.reinforced.passes > 0 ? `Reinforced to ${N.MIN_FEATURE} mm` : '', 'Lead time': cfg.leadTime || '',
-          // Underscore: Shopify keeps the link off the cart, checkout and customer emails; staff see it on the order.
+          'Metal': j.alloyName || alloy.name,
+          'Chain': ch ? cap(`${ch.lengthCm} cm ${ch.gaugeName ? ch.gaugeName.toLowerCase() + ' ' : ''}${ch.widthMm ? (+ch.widthMm).toFixed(1) + ' mm ' : ''}${String(ch.styleName).toLowerCase()} chain, ${ch.alloyName}`) : cap(chainText()),
+          'Finish': cap(design.finish || 'polished'), 'Lead time': cfg.leadTime || '',
+          // Underscore: Shopify keeps these off the cart, checkout and customer emails; staff see them on the order.
+          '_Thin joints': result.reinforced && result.reinforced.passes > 0 ? `Reinforced to ${N.MIN_FEATURE} mm` : '',
           '_STL': stlAbsolute(j.stl_url || ''),
         };
         if (!props['Lead time']) delete props['Lead time'];
-        if (!props['Thin joints']) delete props['Thin joints'];
+        if (!props['_Thin joints']) delete props['_Thin joints'];
         try {
           const r = await fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: [{ id: j.variant_id, quantity: 1, properties: props }] }) });
           if (!r.ok) throw new Error('cart ' + r.status);
@@ -1217,10 +1028,14 @@
         }
       }
       adding = false; renderSaveState();
-      if (st === 422 && j.code === 'thin') { const w = $('thinWarn'); w.hidden = false; w.scrollIntoView({ block: 'center', behavior: 'smooth' }); say(j.error || 'Reinforce the thin joints first.', true); }
-      else if (st === 422 && j.code === 'loose') { const w = $('looseWarn'); w.textContent = j.error || w.textContent; w.hidden = false; w.scrollIntoView({ block: 'center', behavior: 'smooth' }); say('Join up the loose pieces first.', true); }
-      else if (st === 422) { const w = $('nameWarn'); w.textContent = j.error || 'This design could not be made. Check the name and try again.'; w.hidden = false; w.scrollIntoView({ block: 'center', behavior: 'smooth' }); say('Check the name.', true); }
-      else if (st === 501) { cartState = 'off'; renderSaveState(); status.innerHTML = `Online ordering isn't switched on yet. <a class="nn__link" href="${esc(enquiryHref())}">Send us an enquiry</a> and we will quote it for you.`; status.classList.add('err'); }
+      if (st === 422 && (j.code === 'thin' || j.code === 'loose')) {
+        const w = $(j.code === 'thin' ? 'thinWarn' : 'looseWarn');
+        w.textContent = j.error || w.textContent; w.hidden = false;
+        showBlocker({ block: 2, msg: j.error || 'This design could not be made.' });
+      } else if (st === 422) {
+        const w = $('nameWarn'); w.textContent = j.error || 'This design could not be made. Check the name and try again.'; w.hidden = false;
+        openBlock(1); say(j.error || 'Check the name.', true);
+      } else if (st === 501) { cartState = 'off'; renderSaveState(); status.innerHTML = `Online ordering isn't switched on yet. <a class="nn__link" href="${esc(enquiryHref())}">Send us an enquiry</a> and we will quote it for you.`; status.classList.add('err'); }
       else if (st === 429) say('Please wait a moment and try again.', true);
       else say("That didn't go through. Please try again" + (cfg.phone ? ' or call us on ' + cfg.phone + '.' : '.'), true);
     }
@@ -1231,7 +1046,7 @@
       const btn = $('saveBtn');
       function save() {
         $('saveConfirm').hidden = true;
-        if (!mesh || buildError) return;
+        if (!mesh || buildError || !final) return;
         const base = N.fileBase(design);
         const bytes = settings.format === 'binary'
           ? N.toBinarySTL(mesh, `Nameplate ${base}, binary STL, units mm`)
@@ -1243,10 +1058,11 @@
         setTimeout(() => URL.revokeObjectURL(url), 4000);
         say(`Downloading ${base}.stl`);
       }
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
+        await whenFinal();
         if (result && result.loose.length) {
           $('saveConfirm').hidden = false;
-          say('Check the loose pieces first, or save anyway.', true);
+          say('This design has a loose piece. Save anyway?', true);
           $('saveAnyway').focus();
           return;
         }
@@ -1262,13 +1078,13 @@
     setAlloy(alloy.key);
     chainPicker.set(chain.alloy.key, true);
     renderChainTiles();
+    renderChainGauges();
     renderChainLengths();
-    setView('size');
     syncControls();
-    setTool('move');
-    update({ fit: true });
+    openBlock(1, { scroll: false });
+    schedule();
     renderSaveState();
-    threeReady.then(attachPreview); // with or without three.js: without it the overlay keeps drawing the plate
+    threeReady.then(attachPreview); // with or without three.js: without it the close-up stays a flat drawing
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
