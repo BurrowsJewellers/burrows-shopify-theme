@@ -268,7 +268,7 @@
       }
       return { set, get alloy() { return current; } };
     }
-    const platePicker = makeMetalPicker($('alloyChips'), { label: 'Nameplate metal', onChange: (a) => applyAlloy(a) });
+    const platePicker = makeMetalPicker($('alloyChips'), { label: 'Metal', onChange: (a) => applyAlloy(a) });
     function applyAlloy(a) {
       alloy = a;
       settings.metal = colourOf(a);
