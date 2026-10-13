@@ -253,3 +253,5 @@
 .nn__ctile:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .nn__ctile.on { background: var(--ink); border-color: var(--ink); color: var(--cream); font-weight: 500; }
 .nn__ctile.on small { color: rgba(255, 255, 255, .7); }
+.nn__seg span small { font-size: 11.5px; color: var(--muted); margin-left: 6px; font-weight: 300; }
+.nn__seg input:checked + span small { color: rgba(255, 255, 255, .72); }
