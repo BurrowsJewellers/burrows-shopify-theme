@@ -3,8 +3,8 @@
   A price bar under them always shows the running total and Add to cart.
 
   The designer runs in the browser (assets/name-necklace-core.js, generated from the name-necklace-builder repo)
-  and asks the name necklace API for prices. The stage shows the necklace to scale on a neck, with a close-up of
-  the plate in the corner. There is no letter editor: i/j dots, accents and stray strokes join their letter by
+  and asks the name necklace API for prices. The stage shows the necklace to scale on a neck (a close-up of
+  the plate is rendered off screen only for the order picture). There is no letter editor: i/j dots, accents and stray strokes join their letter by
   themselves, thin strokes are reinforced to the casting minimum by themselves, and a name is one word.
   Add to cart posts the design to {{ api_base }}/build, which rebuilds it, writes the casting STL and makes a
   hidden Shopify product at the quoted price; the theme adds that variant to the cart with the design details as
@@ -12,7 +12,7 @@
 
   Script order matters. The geometry core looks for opentype.js, clipper-lib and earcut the moment it runs, so
   those three load (deferred, in order) before it. three.js is fetched by name-necklace.js only when the page is
-  up, for the close-up and the order picture; until then the close-up is drawn as a flat metal shape.
+  up, for the order picture; until then the (hidden) close-up is drawn as a flat metal shape.
 
   Fonts come from {{ fonts_base }}/<file> (served by the API with CORS), so nothing heavy is inlined here.
 {%- endcomment -%}
@@ -48,7 +48,9 @@
             <button type="button" class="nn__mini" id="undoBtn" title="Undo (Ctrl+Z)" disabled>Undo</button>
           </div>
         </div>
-        <figure class="nn__closeup" id="closeup">
+        {%- comment -%} The close-up is not shown (the photo is the preview), but the figure stays as the home of the
+            WebGL canvas that renders the order picture sent with each build, and of the dimensions readout. {%- endcomment -%}
+        <figure class="nn__closeup" id="closeup" aria-hidden="true">
           <div class="nn__closeup-view" id="closeupView">
             <svg class="nn__closeup-svg" id="closeupSvg" role="img" aria-label="Close-up of the nameplate"></svg>
           </div>
