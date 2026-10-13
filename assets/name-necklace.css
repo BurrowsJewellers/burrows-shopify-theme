@@ -172,6 +172,11 @@
 .nn__status:empty { display: none; }
 .nn__status.err { color: #f4c77e; }
 .nn__status .nn__link { color: var(--gold-3); border-bottom-color: var(--gold-3); }
+/* Shopify's chat bubble sits in the bottom-right corner, where the price bar keeps Add to cart. While the bar is
+   down there, name-necklace.js sets --nn-chat-lift: the chat layer moves up by that much and its window moves back
+   down, so only the bubble moves and the chat still opens where it always does. */
+shopify-chat { translate: 0 calc(-1 * var(--nn-chat-lift, 0px)); }
+shopify-chat::part(dialog) { translate: 0 var(--nn-chat-lift, 0px); }
 
 /* Small stage buttons */
 .nn__mini { appearance: none; height: 32px; padding: 0 12px; border: 1px solid var(--nn-line); background: rgba(255, 255, 255, .85); color: var(--ink); font: inherit; font-size: 12.5px; font-family: var(--font-body); cursor: pointer; }
