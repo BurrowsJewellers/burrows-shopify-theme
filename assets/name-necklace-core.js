@@ -130,35 +130,62 @@ const Alloys = (() => {
 if (typeof module !== 'undefined') module.exports = Alloys;
 
 /* Chains offered with a name necklace. Not secret: the page uses them for the drawing and the weight, the price
-   server for the cost. One fine gauge per style; the weight per centimetre comes from the link geometry (wire
-   diameter, link outside size) and the alloy's density, so a chain is priced the same way as the plate: metal
-   weight x cost per gram x markup. Check the figures against a real chain off the shelf and correct the link
-   sizes here if they drift.
+   server for the cost. Each style comes in three gauges (Fine, Medium, Heavy); Medium is the gauge every style
+   had at first, so its price did not move when the others were added. The weight per centimetre comes from the
+   link geometry (wire diameter, link outside size) and the alloy's density, so a chain is priced the same way as
+   the plate: metal weight x cost per gram x markup. Fine and Heavy are Medium scaled by width; check every gauge
+   against a real chain off the shelf and correct the link sizes here if they drift.
      width  the chain's width as the trade names it ("1.2 mm cable")
      wire   the wire diameter
      link   the link's outside length and width (a belcher link is round)
      pitch  how far the chain advances per link: links interlock, so it is the link length less two wire widths */
 const Chains = (() => {
-  const STYLES = [
-    { key: 'cable', name: 'Cable', width: 1.2, wire: 0.30, link: [2.2, 1.2], note: 'Fine oval links, the classic for a nameplate' },
-    { key: 'belcher', name: 'Belcher', width: 1.5, wire: 0.40, link: [1.5, 1.5], note: 'Round links, a little heavier' },
-    { key: 'curb', name: 'Curb', width: 1.8, wire: 0.45, link: [2.6, 1.8], note: 'Flat twisted links that lie close' },
+  const GAUGES = [
+    { key: 'fine', name: 'Fine' },
+    { key: 'medium', name: 'Medium' },
+    { key: 'heavy', name: 'Heavy' },
   ];
+  const STYLES = [
+    { key: 'cable', name: 'Cable', note: 'Fine oval links, the classic for a nameplate', gauges: {
+      fine: { width: 1.0, wire: 0.25, link: [1.83, 1.0] },
+      medium: { width: 1.2, wire: 0.30, link: [2.2, 1.2] },
+      heavy: { width: 1.6, wire: 0.40, link: [2.93, 1.6] },
+    } },
+    { key: 'belcher', name: 'Belcher', note: 'Round links, a little heavier', gauges: {
+      fine: { width: 1.3, wire: 0.35, link: [1.3, 1.3] },
+      medium: { width: 1.5, wire: 0.40, link: [1.5, 1.5] },
+      heavy: { width: 2.0, wire: 0.53, link: [2.0, 2.0] },
+    } },
+    { key: 'curb', name: 'Curb', note: 'Flat twisted links that lie close', gauges: {
+      fine: { width: 1.5, wire: 0.38, link: [2.17, 1.5] },
+      medium: { width: 1.8, wire: 0.45, link: [2.6, 1.8] },
+      heavy: { width: 2.2, wire: 0.55, link: [3.18, 2.2] },
+    } },
+  ];
+  // A bare style carries its Medium figures too, so code that predates gauges keeps working.
+  for (const s of STYLES) Object.assign(s, s.gauges.medium);
   const LENGTHS_CM = [40, 45, 50];
-  const DEFAULT = { style: 'cable', lengthCm: 45 };
+  const DEFAULT = { style: 'cable', gauge: 'medium', lengthCm: 45 };
   // Alloys a chain comes in: every cast alloy except platinum.
   const EXCLUDED_ALLOYS = ['pt950'];
   const byKey = (key) => STYLES.find((s) => s.key === key) || null;
+  const gaugeByKey = (key) => GAUGES.find((g) => g.key === key) || null;
+  // One style in one gauge: { key, name, note, gauge, gaugeName, width, wire, link }, or null for an unknown pair.
+  function spec(style, gauge = DEFAULT.gauge) {
+    const s = typeof style === 'string' ? byKey(style) : style, g = gaugeByKey(gauge);
+    if (!s || !g || !s.gauges[g.key]) return null;
+    return Object.assign({ key: s.key, name: s.name, note: s.note, gauge: g.key, gaugeName: g.name }, s.gauges[g.key]);
+  }
   // Ramanujan's approximation of an ellipse's perimeter, here the wire's centre line.
   const perimeter = (a, b) => Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
-  // Wire volume in one link, mm³.
+  // Wire volume in one link, mm³. s is a spec (a bare style counts as its Medium gauge).
   const linkVolume = (s) => perimeter((s.link[0] - s.wire) / 2, (s.link[1] - s.wire) / 2) * Math.PI * (s.wire / 2) ** 2;
   const pitch = (s) => s.link[0] - 2 * s.wire;
   const volumePerCm = (s) => linkVolume(s) * (10 / pitch(s));
   // Grams of a length of chain in an alloy (alloy as in alloys.js, with a density in g/cm³).
-  const weightGrams = (style, lengthCm, alloy) => (volumePerCm(style) * lengthCm / 1000) * alloy.density;
+  const weightGrams = (s, lengthCm, alloy) => (volumePerCm(s) * lengthCm / 1000) * alloy.density;
   const chainAlloys = (alloys) => alloys.filter((a) => !EXCLUDED_ALLOYS.includes(a.key));
-  return { STYLES, LENGTHS_CM, DEFAULT, EXCLUDED_ALLOYS, byKey, linkVolume, pitch, volumePerCm, weightGrams, chainAlloys };
+  return { STYLES, GAUGES, LENGTHS_CM, DEFAULT, EXCLUDED_ALLOYS, byKey, gaugeByKey, spec, linkVolume, pitch, volumePerCm, weightGrams, chainAlloys };
 })();
 if (typeof module !== 'undefined') module.exports = Chains;
 
@@ -177,6 +204,8 @@ const Nameplate = (() => {
   const MIN_LOOP_WALL = 0.6;   // mm: (outer - hole) / 2
   const LOOP_MIN_JOIN = 0.1;   // mm: a loop always overlaps the outline by at least this, so overlap 0 can't leave it touching at a point
   const MIN_JOIN_AREA = 0.002; // mm²: two neighbouring letters sharing less than this don't count as joined
+  const MAX_JOIN_MOVE = 4;     // mm: auto-join moves a dot, accent or stray stroke at most this far onto its letter
+  const CRUMB = 1e-4;          // mm²: a piece smaller than this is a numerical speck from the union (where a joined dot meets its stem), not metal
 
   const SCALE = 1e5;           // Clipper units per mm (1 unit = 10 nm)
   const MAX_CHARS = 14;
@@ -185,7 +214,7 @@ const Nameplate = (() => {
   const HEIGHTS = { small: 8, medium: 12, large: 16 };
   const HEIGHT_RANGE = [6, 25];
   const THICKNESSES = [0.8, 1.0, 1.2, 1.5, 2.0];
-  const OVERLAP_RANGE = [0, 1];
+  const OVERLAP_RANGE = [0.1, 1]; // mm; 0.1 like LOOP_MIN_JOIN: at 0 letters only touch at a point and cast apart
   const LOOP_OUTER_RANGE = [2.5, 5];
   const LOOP_HOLE_RANGE = [1.0, 2.5];
   const SCALE_RANGE = [0.5, 2];
@@ -207,7 +236,7 @@ const Nameplate = (() => {
     return {
       version: 1, text: 'Charlotte', font: 'greatvibes', height: 12, thickness: 1.2, overlap: 0.3,
       loops: { outer: 3.2, hole: 1.4, left: { on: true, dx: 0, dy: 0 }, right: { on: true, dx: 0, dy: 0 } },
-      dots: 'keep', curve: 0, finish: 'polished', reinforce: false, letters: [],
+      dots: 'keep', curve: 0, finish: 'polished', reinforce: true, letters: [],
     };
   }
   const isSpace = (ch) => /\s/.test(ch);
@@ -487,14 +516,132 @@ const Nameplate = (() => {
       : `${list} aren't in ${fontName}. Choose another font or remove them.`;
   }
 
+  // Closest pair of points between two sets of float paths (vertex to segment, both ways): { d, pa, pb }.
+  function nearestPair(a, b) {
+    let best = { d: Infinity, pa: null, pb: null };
+    const scan = (P, Q, swap) => {
+      for (const p of P) for (const pt of p) for (const q of Q) {
+        for (let i = 0; i < q.length; i++) {
+          const s = q[i], e = q[(i + 1) % q.length], ex = e[0] - s[0], ey = e[1] - s[1], l2 = ex * ex + ey * ey;
+          const t = l2 ? clamp(((pt[0] - s[0]) * ex + (pt[1] - s[1]) * ey) / l2, 0, 1) : 0;
+          const cx = s[0] + t * ex, cy = s[1] + t * ey, d = Math.hypot(pt[0] - cx, pt[1] - cy);
+          if (d < best.d) best = swap ? { d, pa: [cx, cy], pb: pt } : { d, pa: pt, pb: [cx, cy] };
+        }
+      }
+    };
+    scan(a, b, false);
+    scan(b, a, true);
+    return best;
+  }
+  // Heights where a vertical line at x crosses a set of float paths.
+  function yHits(paths, x) {
+    const ys = [];
+    for (const p of paths) for (let i = 0, j = p.length - 1; i < p.length; j = i++) {
+      const a = p[j], b = p[i];
+      if ((a[0] <= x) !== (b[0] <= x)) ys.push(a[1] + ((x - a[0]) * (b[1] - a[1])) / (b[0] - a[0]));
+    }
+    return ys;
+  }
+  // How far `a` can drop straight down before it meets `b` (Infinity if nothing of b lies below it).
+  function dropGap(a, b) {
+    const ba = bboxOf(a), bb = bboxOf(b), lo = Math.max(ba.minX, bb.minX), hi = Math.min(ba.maxX, bb.maxX);
+    let best = Infinity;
+    for (let k = 0; hi > lo && k < 120; k++) {
+      const x = lo + ((k + 0.5) / 120) * (hi - lo), ya = yHits(a, x), yb = yHits(b, x);
+      if (!ya.length || !yb.length) continue;
+      const bottom = Math.min(...ya), below = yb.filter((y) => y <= bottom + 1e-9);
+      if (below.length) best = Math.min(best, bottom - Math.max(...below));
+    }
+    return best;
+  }
+  const sharedArea = (a, b) => (a.length && b.length ? clip(a.map(toInt), b.map(toInt), CL.ClipType.ctIntersection).reduce((s, p) => s + Math.abs(intArea(p)), 0) / (SCALE * SCALE) : 0);
+
+  // Step 7c of build. Every glyph island (a letter's main stroke, each extra stroke, each kept dot or accent) is a
+  // part; parts sharing more than MIN_JOIN_AREA are connected. The cluster with the most metal is the anchor.
+  // Each other cluster, smallest first, moves along the shortest line to its own letters' parts in the anchor
+  // (so a dot lands on its own stem) by the gap plus `depth`, and up to 0.5 mm further if two thin strokes
+  // would only graze, then joins the anchor. Never a whole letter, and at most MAX_JOIN_MOVE. A graze
+  // that StrictlySimple would keep as one piece still counts as apart, since the curve or the casting can open
+  // it. Returns what moved:
+  // [{ index, ch, kind: 'dot' | 'part' | 'body', mm }] (index and ch of the moved cluster's first letter).
+  function autoJoin(letters, depth) {
+    const parts = [];
+    letters.forEach((l) => {
+      l.pathGroups.forEach((idx, gi) => parts.push({ l, key: 'paths', idx, kind: gi === l.mainGroup ? 'body' : 'part' }));
+      l.dotGroups.forEach((idx) => parts.push({ l, key: 'dotPaths', idx, kind: 'dot' }));
+    });
+    if (parts.length < 2) return [];
+    const pathsOf = (p) => p.idx.map((i) => p.l[p.key][i]);
+    const areaOf = (paths) => Math.abs(paths.reduce((s, q) => s + intArea(toInt(q)), 0)) / (SCALE * SCALE);
+    const near = (a, b) => a.minX <= b.maxX + 1e-6 && b.minX <= a.maxX + 1e-6 && a.minY <= b.maxY + 1e-6 && b.minY <= a.maxY + 1e-6;
+    for (const p of parts) { p.bbox = bboxOf(pathsOf(p)); p.area = areaOf(pathsOf(p)); }
+    // Union-find over parts.
+    const up = parts.map((_, i) => i);
+    const find = (i) => (up[i] === i ? i : (up[i] = find(up[i])));
+    for (let i = 0; i < parts.length; i++) for (let j = i + 1; j < parts.length; j++) {
+      if (find(i) !== find(j) && near(parts[i].bbox, parts[j].bbox) && sharedArea(pathsOf(parts[i]), pathsOf(parts[j])) > MIN_JOIN_AREA) up[find(i)] = find(j);
+    }
+    const joins = [];
+    for (let guard = 0; guard < parts.length; guard++) {
+      const comps = new Map();
+      parts.forEach((p, i) => { const r = find(i); if (!comps.has(r)) comps.set(r, []); comps.get(r).push(i); });
+      if (comps.size < 2) break;
+      const list = [...comps.values()].map((ids) => ({ ids, area: ids.reduce((s, i) => s + parts[i].area, 0) }));
+      list.sort((a, b) => b.area - a.area);
+      // A cluster moves only when every letter in it already has a part in the anchor, so islands move (a dot,
+      // an accent, a stray stroke, or two of them touching each other) but never a whole letter: one that didn't
+      // join its neighbour is a spacing problem and stays where it is (the piece is then reported loose).
+      const anchor = list[0];
+      const inAnchor = new Set(anchor.ids.map((i) => parts[i].l));
+      const movable = list.slice(1).filter((c) => c.ids.every((i) => !parts[i].stuck && inAnchor.has(parts[i].l)));
+      if (!movable.length) break;
+      const mover = movable[movable.length - 1];
+      const moverLetters = new Set(mover.ids.map((i) => parts[i].l));
+      const target = anchor.ids.filter((i) => moverLetters.has(parts[i].l)).flatMap((i) => pathsOf(parts[i]));
+      const own = mover.ids.flatMap((i) => pathsOf(parts[i]));
+      let { d, pa, pb } = nearestPair(own, target);
+      // A dot or accent drops straight down onto its letter when that is nearly as short as the nearest way in,
+      // so the two dots of an umlaut each land on their own spot rather than sliding together.
+      const drop = dropGap(own, target);
+      if (d > 1e-4 && drop <= MAX_JOIN_MOVE && drop <= 1.5 * d + 0.3) { d = drop; pa = [0, 0]; pb = [0, -1]; }
+      else if (!(d > 1e-4)) {
+        // Grazing already: head from the cluster's centre to the nearest point of the target instead.
+        const b = bboxOf(own), c = [(b.minX + b.maxX) / 2, (b.minY + b.maxY) / 2];
+        ({ pb } = nearestPair([[c]], target)); pa = c; d = 0;
+      }
+      if (d > MAX_JOIN_MOVE) { mover.ids.forEach((i) => { parts[i].stuck = true; }); continue; } // too far to be its own mark
+      const len = Math.hypot(pb[0] - pa[0], pb[1] - pa[1]) || 1, ux = (pb[0] - pa[0]) / len, uy = (pb[1] - pa[1]) / len;
+      let step = 0;
+      for (let extra = 0; extra <= 0.5 + 1e-9; extra += 0.05) {
+        step = d + depth + extra;
+        const s = step;
+        if (sharedArea(mapPaths(own, (x, y) => [x + ux * s, y + uy * s]), target) > MIN_JOIN_AREA) break;
+      }
+      for (const i of mover.ids) {
+        const p = parts[i];
+        p.idx.forEach((k) => { p.l[p.key][k] = p.l[p.key][k].map(([x, y]) => [x + ux * step, y + uy * step]); });
+        p.bbox = bboxOf(pathsOf(p));
+        up[find(i)] = find(anchor.ids[0]);
+      }
+      const first = parts[mover.ids[0]];
+      joins.push({ index: first.l.index, ch: first.l.ch, kind: first.kind, mm: +step.toFixed(3) });
+    }
+    for (const l of letters) l.bbox = bboxOf(l.paths);
+    return joins;
+  }
+
   // design: see defaultDesign(). opts: { detail: 'draft'|'standard'|'fine', fontName, checks: true }
   function build(font, design, opts = {}) {
+    // Letters always overlap a little: at 0 they only touch at a point and would cast apart.
+    design = Object.assign({}, design, { overlap: clamp(Number(design.overlap) || 0, OVERLAP_RANGE[0], OVERLAP_RANGE[1]) });
     const tol = DETAIL[opts.detail] || DETAIL.standard;
     const fontName = opts.fontName || fontMeta(design.font).name;
     const chars = Array.from(design.text || '');
     const fail = (code, message, extra) => ({ ok: false, error: Object.assign({ code, message }, extra) });
     if (!chars.some((c) => !isSpace(c))) return fail('empty', 'Type a name to start.');
     if (chars.length > MAX_CHARS) return fail('too-long', `Names can be up to ${MAX_CHARS} characters.`);
+    // One word per necklace: a second word would be a separate piece, and there is no editor to join it.
+    if (/\s/.test((design.text || '').trim())) return fail('space', 'One word per necklace. Take out the space.');
 
     // 1. Glyphs, one per character so per-letter edits line up with the name.
     const items = chars.map((ch, index) => (isSpace(ch) ? { index, ch, space: true } : { index, ch, glyph: font.charToGlyph(ch) }));
@@ -520,7 +667,12 @@ const Nameplate = (() => {
       let groups = glyphGroups(font, it.glyph, tol / k0, k0), dots = [];
       if (it.ch === 'i' || it.ch === 'j') ({ keep: groups, dots } = splitDots(groups));
       if (groups.length) {
-        letters.push({ index: it.index, ch: it.ch, pen, afterSpace: pendingSpace, local: groups.flatMap((g) => g.paths), dotPaths: design.dots === 'remove' ? [] : dots.flatMap((g) => g.paths) });
+        // Which paths make up which island, so step 7c can move an island that stands apart (index lists into
+        // l.paths and l.dotPaths; every later transform keeps the paths in order).
+        const kept = design.dots === 'remove' ? [] : dots;
+        const indexGroups = (gs) => { let n = 0; return gs.map((g) => g.paths.map(() => n++)); };
+        const mainGroup = groups.reduce((m, g, i) => (g.area > groups[m].area ? i : m), 0);
+        letters.push({ index: it.index, ch: it.ch, pen, afterSpace: pendingSpace, local: groups.flatMap((g) => g.paths), dotPaths: kept.flatMap((g) => g.paths), mainGroup, pathGroups: indexGroups(groups), dotGroups: indexGroups(kept) });
         pendingSpace = false;
       }
       pen += it.glyph.advanceWidth * k0;
@@ -591,6 +743,11 @@ const Nameplate = (() => {
       if (ddx || ddy) l.dotPaths = mapPaths(l.dotPaths, (x, y) => [x + ddx, y + ddy]);
     }
 
+    // 7c. Auto-join. An island of a letter (an i/j dot, an accent, a stroke drawn apart as in some script
+    // capitals) that doesn't already overlap the name moves straight toward the nearest point of its own letter
+    // until it overlaps it by the letter overlap, so the piece always casts whole without any hand editing.
+    const joins = autoJoin(letters, Math.max(design.overlap, LOOP_MIN_JOIN));
+
     // 7b. Curve: bend the finished name along an arc. The warp is continuous and one-to-one, so every join
     // and every loose piece stays exactly as it was on the flat name.
     const curve = curveFor(letters, design.curve || 0, tol);
@@ -657,14 +814,14 @@ const Nameplate = (() => {
     // so a widened stroke can never close one.
     let reinforced = null;
     if (design.reinforce) {
-      const all = treeGroups(tree).filter((g) => g.area > 1e-9).flatMap((g) => [g.outer, ...g.holes]);
+      const all = treeGroups(tree).filter((g) => g.area > CRUMB).flatMap((g) => [g.outer, ...g.holes]);
       const r = reinforceThin(all, tol);
       reinforced = { passes: r.passes, addedArea: r.addedArea };
       if (r.passes) tree = clip(r.paths, loops.map((lp) => toInt(lp.holePath)), CL.ClipType.ctDifference, { tree: true, strict: true });
     }
 
     // 10. Pieces.
-    const groups = treeGroups(tree).filter((g) => g.area > 1e-9);
+    const groups = treeGroups(tree).filter((g) => g.area > CRUMB);
     separateTouching(groups);
     groups.sort((a, b) => b.area - a.area);
     for (const g of groups) g.bbox = bboxOf([toFloat(g.outer)]);
@@ -677,7 +834,7 @@ const Nameplate = (() => {
       letters: letters.map((l) => ({ index: l.index, ch: l.ch, angle: l.angle || 0, paths: l.paths.concat(l.dotPaths), body: l.paths, dotPaths: l.dotPaths, bbox: bboxOf(l.paths.concat(l.dotPaths)), adj: l.adj })),
       pairs, loops, loopError: loopErr, groups, pieces: groups.length, area, bbox,
       width: bbox.maxX - bbox.minX, height: bbox.maxY - bbox.minY,
-      loose: [], thin: [], thinArea: 0, reinforced,
+      loose: [], thin: [], thinArea: 0, reinforced, joins,
     };
 
     // 11. Checks.
@@ -859,6 +1016,9 @@ const Nameplate = (() => {
     }
     const r = REINFORCE_SMOOTH * SCALE;
     paths = offsetInt(offsetInt(paths, r, arcTol), -r, arcTol);
+    // The offsets leave edges as short as 10 nm; their cap triangles flip in 32-bit floats (STL, preview). Points
+    // closer than 2 µm merge, far below anything a casting shows.
+    paths = CL.Clipper.CleanPolygons(paths, 0.002 * SCALE).filter((p) => p.length > 2);
     return { paths, passes, addedArea: Math.max(0, areaOf(paths) - before) };
   }
 

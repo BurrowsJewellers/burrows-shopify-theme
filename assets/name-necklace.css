@@ -1,5 +1,5 @@
 /* Burrows Name Necklace Builder : section styles (tokens from snippets/css-variables.liquid, same shape as ring-builder.css) */
-.nn { background: var(--cream); padding: 40px var(--gutter) var(--section-pad); --nn-line: rgba(var(--gold-dark-rgb), .22); --nn-warn: #8a5a0b; --nn-warn-soft: #f7ecd6; }
+.nn { background: var(--cream); padding: 40px var(--gutter) var(--section-pad); --nn-line: rgba(var(--gold-dark-rgb), .22); --nn-warn: #8a5a0b; --nn-warn-soft: #f7ecd6; --nn-ok: #2f5e3d; }
 .nn *, .nn *::before, .nn *::after { box-sizing: border-box; }
 .nn [hidden] { display: none !important; }
 .nn__inner { max-width: var(--page-max); margin: 0 auto; }
@@ -7,15 +7,18 @@
 .nn__title { font-family: var(--font-heading); font-weight: 500; font-size: clamp(34px, 4vw, 48px); line-height: 1.1; color: var(--ink); margin: 0; text-wrap: balance; }
 .nn__intro { max-width: 640px; margin: 0; }
 .nn__steps { list-style: none; margin: 12px 0 0; padding: 0; display: flex; gap: 0; align-items: center; }
-.nn__steps li { display: flex; align-items: center; gap: 9px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 500; cursor: pointer; }
+.nn__steps li { display: flex; align-items: center; }
 .nn__steps li + li::before { content: ''; width: 36px; height: 1px; background: rgba(var(--gold-dark-rgb), .35); margin: 0 14px; }
-.nn__steps li span { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(var(--gold-dark-rgb), .45); display: grid; place-items: center; font-size: 12px; letter-spacing: 0; color: var(--gold-dark); }
-.nn__steps li.on { color: var(--ink); }
-.nn__steps li.on span { background: var(--ink); border-color: var(--ink); color: var(--cream); }
-.nn__steps li.done { color: var(--ink); }
-.nn__steps li.done span { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+.nn__steps button { appearance: none; border: 0; background: none; padding: 4px 0; display: flex; align-items: center; gap: 9px; font: inherit; font-family: var(--font-body); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 500; cursor: pointer; }
+.nn__steps button span { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(var(--gold-dark-rgb), .45); display: grid; place-items: center; font-size: 12px; letter-spacing: 0; color: var(--gold-dark); }
+.nn__steps button:hover { color: var(--ink); }
+.nn__steps button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.nn__steps li.on button { color: var(--ink); }
+.nn__steps li.on button span { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+.nn__steps li.done button { color: var(--ink); }
+.nn__steps li.done button span { background: var(--gold); border-color: var(--gold); color: var(--navy); }
 
-/* App: preview on the left (sticky), controls on the right. Room is reserved so the footer doesn't jump while the fonts load. */
+/* App: the stage on the left (sticky), the sections on the right. Room is reserved so the footer doesn't jump while the fonts load. */
 .nn__app { position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, 1fr); gap: 48px; align-items: start; min-height: 70vh; }
 .nn__app[aria-busy="true"] > :not(.nn__loading) { visibility: hidden; }
 .nn__loading { position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: center; padding: 56px 20px; color: var(--muted); font-weight: 300; }
@@ -28,25 +31,38 @@
 .nn__label { font-size: 11.5px; letter-spacing: .24em; text-transform: uppercase; color: var(--gold-dark); font-weight: 500; padding: 0; margin: 0; }
 .nn__label small { letter-spacing: .06em; text-transform: none; color: var(--muted); font-weight: 300; font-size: 11.5px; }
 .nn__note { margin: 0; font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.6; }
+.nn__note--ok { color: var(--nn-ok); font-weight: 400; display: flex; gap: 8px; align-items: baseline; }
+.nn__note--ok::before { content: '\2713'; font-weight: 600; }
 .nn__readout { margin: 0; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .nn__readout b { color: var(--ink); font-weight: 500; }
 .nn__row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .nn__unit { font-size: 12.5px; color: var(--muted); }
 .nn__warn { margin: 0; padding: 10px 12px; background: var(--nn-warn-soft); color: var(--nn-warn); font-size: 13.5px; line-height: 1.5; border-left: 2px solid var(--nn-warn); }
-.nn__warn.ok { background: #e8efe8; color: #2f5e3d; border-left-color: #2f5e3d; }
-.nn__warn-btn { margin-top: 8px; display: inline-flex; }
-.nn__warn-link { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
 .nn__link { color: var(--gold-dark); border-bottom: 1px solid var(--gold-2); font-size: 13px; }
 .nn__linkbtn { appearance: none; border: 0; background: none; padding: 0; color: var(--gold-dark); font: inherit; font-size: 13px; border-bottom: 1px solid var(--gold-2); cursor: pointer; font-family: var(--font-body); }
 .nn__linkbtn:focus-visible, .nn__text:focus-visible, .nn__num:focus-visible, .nn input[type="range"]:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
-/* Controls panel */
-.nn__panel { display: flex; flex-direction: column; gap: 36px; min-width: 0; margin: 0; }
-.nn__block { display: flex; flex-direction: column; gap: 22px; scroll-margin-top: calc(var(--header-height, 90px) + 16px); }
-.nn__h { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-weight: 500; font-size: 28px; line-height: 1.1; color: var(--ink); margin: 0; padding-bottom: 12px; border-bottom: 1px solid var(--nn-line); }
-.nn__h span { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(var(--gold-dark-rgb), .45); display: grid; place-items: center; font-family: var(--font-body); font-size: 12px; color: var(--gold-dark); flex: none; }
+/* Sections: one open at a time. The header is a button; when the section is closed it shows the current choice. */
+.nn__panel { display: flex; flex-direction: column; gap: 0; min-width: 0; margin: 0; border-top: 1px solid var(--nn-line); }
+.nn__block { border-bottom: 1px solid var(--nn-line); scroll-margin-top: calc(var(--header-height, 90px) + 16px); }
+.nn__h { margin: 0; font: inherit; }
+.nn__h-btn { appearance: none; width: 100%; display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 18px 2px; border: 0; background: none; text-align: left; cursor: pointer; color: var(--ink); font: inherit; font-family: var(--font-body); }
+.nn__h-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.nn__h-n { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(var(--gold-dark-rgb), .45); display: grid; place-items: center; font-size: 12px; color: var(--gold-dark); flex: none; }
+.nn__h-t { font-family: var(--font-heading); font-weight: 500; font-size: 26px; line-height: 1.1; }
+.nn__h-v { justify-self: end; max-width: 100%; font-size: 13px; color: var(--muted); font-weight: 300; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.nn__h-c { width: 9px; height: 9px; border-right: 1.5px solid var(--gold-dark); border-bottom: 1.5px solid var(--gold-dark); transform: rotate(45deg) translate(-2px, -2px); transition: transform .2s ease; margin: 0 4px; }
+.nn__block.is-open .nn__h-n { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+.nn__block.is-open .nn__h-v { visibility: hidden; }
+.nn__block.is-open .nn__h-c { transform: rotate(-135deg) translate(-2px, -2px); }
+.nn__h-btn:hover .nn__h-t { color: var(--gold-dark); }
+.nn__body { display: flex; flex-direction: column; gap: 22px; padding: 4px 0 28px; }
 .nn__group { display: flex; flex-direction: column; gap: 10px; min-width: 0; border: 0; margin: 0; padding: 0; }
 .nn__group > legend { margin-bottom: 10px; }
+.nn__next { appearance: none; align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 18px; border: 1px solid var(--ink); background: transparent; color: var(--ink); font: inherit; font-family: var(--font-body); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; font-weight: 500; cursor: pointer; }
+.nn__next::after { content: ''; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-top: 1.5px solid currentColor; transform: rotate(45deg); }
+.nn__next:hover { background: var(--ink); color: var(--cream); }
+.nn__next:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 .nn__text { font-family: var(--font-body); font-size: 17px; color: var(--ink); background: #fff; border: 1px solid var(--nn-line); padding: 13px 16px; width: 100%; min-width: 0; outline: none; border-radius: 0; }
 .nn__text:focus { border-color: var(--gold-dark); }
@@ -68,6 +84,8 @@
 .nn__seg input:checked + span { background: var(--ink); border-color: var(--ink); color: var(--cream); font-weight: 500; }
 .nn__seg input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
 .nn__seg input:disabled + span { opacity: .4; cursor: not-allowed; }
+.nn__seg span small { font-size: 11.5px; color: var(--muted); margin-left: 6px; font-weight: 300; }
+.nn__seg input:checked + span small { color: rgba(255, 255, 255, .72); }
 
 .nn__font-list { display: grid; border: 1px solid var(--nn-line); background: #fff; }
 .nn__font-list label { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; padding: 4px 14px; border-top: 1px solid var(--nn-line); cursor: pointer; }
@@ -87,9 +105,8 @@
 .nn__more:not([open]) .nn__pm::after { content: '+'; }
 .nn__more-body { display: flex; flex-direction: column; gap: 22px; padding: 4px 0 22px; }
 
-/* Step 3: metal chips, grouped by carat */
-.nn__alloys { display: flex; flex-direction: column; gap: 14px; }
 /* Metal: five tiles with a metal swatch; gold purity appears underneath once a gold is picked. */
+.nn__alloys { display: flex; flex-direction: column; gap: 14px; }
 .nn__metal-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .nn__tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; min-height: 86px; padding: 12px 6px 10px; border: 1px solid rgba(var(--gold-dark-rgb), .35); background: #fff; font: inherit; font-size: 12.5px; line-height: 1.2; color: var(--body); text-align: center; cursor: pointer; font-family: var(--font-body); }
 .nn__tile i { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, .85) 0, var(--sw) 38%, var(--sw2) 100%); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .1), 0 1px 2px rgba(0, 0, 0, .15); flex: none; }
@@ -102,14 +119,26 @@
 .nn__purity-note { font-size: 12.5px; color: var(--muted); }
 .nn__chips { display: flex; gap: 8px; flex-wrap: wrap; }
 .nn__chip { min-width: 44px; height: 44px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(var(--gold-dark-rgb), .35); background: transparent; font: inherit; font-size: 13.5px; color: var(--body); cursor: pointer; font-family: var(--font-body); }
-.nn__chip i { width: 12px; height: 12px; border-radius: 50%; background: var(--sw, #ccc); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12); flex: none; }
 .nn__chip:hover { border-color: var(--gold); }
 .nn__chip:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .nn__chip.on { background: var(--ink); border-color: var(--ink); color: var(--cream); font-weight: 500; }
 
-/* Step 4: review */
-.nn__block--review { background: #fff; border: 1px solid var(--nn-line); padding: 26px; gap: 16px; }
-.nn__block--review .nn__h { padding-bottom: 14px; }
+/* Chain: style tiles (a drawn run of links in the chain's metal and the name), then thickness with its price */
+.nn__chain-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.nn__ctile { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 84px; padding: 14px 8px 12px; border: 1px solid rgba(var(--gold-dark-rgb), .35); background: #fff; font: inherit; font-size: 13.5px; line-height: 1.2; color: var(--body); text-align: center; cursor: pointer; font-family: var(--font-body); }
+.nn__ctile svg { width: 100%; max-width: 120px; height: 26px; display: block; }
+.nn__ctile:hover { border-color: var(--gold); }
+.nn__ctile:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.nn__ctile.on { background: var(--ink); border-color: var(--ink); color: var(--cream); font-weight: 500; }
+.nn__chips--gauge { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.nn__gchip { height: auto; min-height: 58px; flex-direction: column; gap: 3px; padding: 8px 6px; line-height: 1.2; }
+.nn__gchip b { font-weight: 500; }
+.nn__gchip small { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; transition: opacity .2s; }
+.nn__gchip small.stale { opacity: .45; }
+.nn__gchip.on small { color: rgba(255, 255, 255, .72); }
+
+/* Review */
+.nn__block--review .nn__body { background: #fff; border: 1px solid var(--nn-line); padding: 22px 24px; gap: 16px; margin-bottom: 24px; }
 .nn__summary { display: flex; flex-direction: column; }
 .nn__summary-row { display: flex; justify-content: space-between; gap: 20px; padding: 9px 0; border-top: 1px solid rgba(var(--gold-dark-rgb), .14); font-size: 14px; }
 .nn__summary-row:first-child { border-top: 0; }
@@ -117,141 +146,97 @@
 .nn__summary-row span:last-child { color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
 .nn__total { display: flex; flex-direction: column; gap: 8px; padding-top: 16px; border-top: 1px solid var(--ink); margin-top: 6px; }
 .nn__price { margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 34px; line-height: 1.1; color: var(--ink); font-variant-numeric: tabular-nums; }
-.nn__price small { display: block; font-family: var(--font-body); font-size: 12px; color: var(--muted); letter-spacing: .04em; margin-top: 4px; font-weight: 300; }
-.nn__price .from { font-family: var(--font-body); font-size: 13px; color: var(--muted); margin-right: 6px; font-weight: 300; }
+.nn__price small { display: block; font-family: var(--font-body); font-size: 12px; color: var(--muted); letter-spacing: .04em; margin-top: 4px; font-weight: 300; line-height: 1.6; }
+.nn__price .from, .nn__bar-price .from { font-family: var(--font-body); font-size: 13px; color: var(--muted); margin-right: 6px; font-weight: 300; }
 .nn__price.stale { opacity: .5; }
 .nn__price.err { font-family: var(--font-body); font-size: 13.5px; font-weight: 300; color: var(--nn-warn); }
 .nn__lead { display: flex; gap: 10px; align-items: center; font-size: 13.5px; color: var(--body); margin: 0; }
 .nn__lead::before { content: ''; width: 6px; height: 6px; background: var(--gold); transform: rotate(45deg); flex: none; }
-.nn__actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.nn__actions { display: flex; gap: 12px; flex-wrap: wrap; }
 .nn__actions .btn { flex: 1 1 200px; }
-.nn__actions .btn:disabled { opacity: .5; cursor: not-allowed; }
-.nn__status { margin: 0; min-height: 1.2em; font-size: 13px; color: var(--gold-dark); }
-.nn__status.err { color: var(--nn-warn); }
 .nn__stl { display: flex; flex-direction: column; gap: 12px; padding-top: 16px; border-top: 1px dashed var(--nn-line); }
 .nn__confirm { display: flex; flex-direction: column; gap: 8px; }
 
-/* Small stage buttons (undo, reset, confirm) */
+/* Price bar: under the sections, kept on screen while the panel scrolls */
+.nn__bar { position: sticky; bottom: 0; z-index: 3; margin-top: 18px; padding: 14px 16px 10px; background: var(--ink); color: var(--cream); box-shadow: 0 -8px 24px rgba(var(--navy-rgb, 23, 29, 80), .12); }
+.nn__bar-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.nn__bar-total { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.nn__bar-l { white-space: nowrap; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255, 255, 255, .62); }
+.nn__bar-price { font-family: var(--font-heading); font-size: 26px; line-height: 1.1; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.nn__bar-price.stale { opacity: .6; font-size: 20px; }
+.nn__bar-price.stale .from { color: rgba(255, 255, 255, .7); }
+.nn__bar-price.err { opacity: .7; }
+.nn__bar .btn { flex: none; min-width: 168px; }
+.nn__bar .btn:disabled { opacity: .5; cursor: not-allowed; }
+.nn__status { margin: 6px 0 0; min-height: 0; font-size: 13px; color: var(--gold-3); line-height: 1.45; }
+.nn__status:empty { display: none; }
+.nn__status.err { color: #f4c77e; }
+.nn__status .nn__link { color: var(--gold-3); border-bottom-color: var(--gold-3); }
+
+/* Small stage buttons */
 .nn__mini { appearance: none; height: 32px; padding: 0 12px; border: 1px solid var(--nn-line); background: rgba(255, 255, 255, .85); color: var(--ink); font: inherit; font-size: 12.5px; font-family: var(--font-body); cursor: pointer; }
 .nn__mini:hover:not(:disabled) { border-color: var(--gold); }
 .nn__mini:disabled { opacity: .45; cursor: not-allowed; }
 .nn__mini--solid { background: var(--ink); color: var(--cream); border-color: var(--ink); }
 .nn__mini:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
-/* Stage: the 2D editor (SVG over a WebGL canvas) and the 3D view */
-.nn__stage { user-select: none; -webkit-user-select: none; position: sticky; top: calc(var(--header-height, 90px) + 16px); height: min(72vh, 620px); min-height: 400px; overflow: hidden; background: radial-gradient(120% 90% at 50% 28%, #2b3566 0%, #171d50 45%, #0b0e2a 100%); border: 1px solid rgba(255, 255, 255, .08); min-width: 0; }
-/* The stage is a dark navy display case, so silver and gold both read as metal. Everything drawn on it is light. */
-.nn__stage .nn__hint { color: rgba(255, 255, 255, .62); }
-.nn__stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
-.nn__stage canvas:active { cursor: grabbing; }
-.nn__overlay { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; outline: none; }
-.nn__overlay.over { cursor: grab; }
-.nn__overlay.dragging { cursor: grabbing; }
-.nn__overlay[data-tool="rotate"].over { cursor: alias; }
-.nn__overlay[data-tool="scale"].over { cursor: nwse-resize; }
-.nn__stage.view3d .nn__overlay { pointer-events: none; }
-/* Real size view: the plate and everyday references drawn to one scale in an SVG over the stage */
-.nn__stage.viewsize canvas, .nn__stage.viewsize .nn__overlay { visibility: hidden; }
+/* Stage: the necklace to scale on a neck (an SVG over the photo), with a close-up of the plate in the corner.
+   The stage is a dark navy display case, so silver and gold both read as metal. Everything drawn on it is light. */
+.nn__stage { user-select: none; -webkit-user-select: none; position: sticky; top: calc(var(--header-height, 90px) + 16px); height: min(72vh, 620px); min-height: 440px; overflow: hidden; background: radial-gradient(120% 90% at 50% 28%, #2b3566 0%, #171d50 45%, #0b0e2a 100%); border: 1px solid rgba(255, 255, 255, .08); min-width: 0; }
 .nn__size { position: absolute; inset: 0; }
 .nn__size-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .nn .sz-l { fill: rgba(255, 255, 255, .78); font-family: var(--font-body); font-size: 12px; }
+.nn__hud { position: absolute; left: 14px; right: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; pointer-events: none; flex-wrap: wrap; }
+.nn__hud--top { top: 12px; }
+.nn__hud--bottom { bottom: 12px; }
+.nn__hud > * { pointer-events: auto; }
+.nn__hud-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.nn__hint { font-size: 12px; color: #fff; letter-spacing: .04em; background: rgba(11, 14, 42, .62); padding: 7px 10px; line-height: 1; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.nn__stage .nn__mini { background: rgba(11, 14, 42, .62); color: #fff; border-color: rgba(255, 255, 255, .28); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.nn__stage .nn__mini:hover:not(:disabled) { border-color: var(--gold); }
+.nn__stage .nn__mini:disabled { opacity: .5; }
 .nn__sizebar { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; align-items: center; margin-left: auto; }
 .nn__sz { appearance: none; border: 1px solid rgba(255, 255, 255, .5); border-radius: 999px; padding: 5px 11px; background: rgba(255, 255, 255, .08); color: #fff; font: inherit; font-size: 12.5px; font-family: var(--font-body); cursor: pointer; }
 .nn__sz:hover { border-color: #fff; }
 .nn__sz.on { background: var(--gold); border-color: var(--gold); color: var(--navy); font-weight: 500; }
 .nn__sz:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .nn__sz-l { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255, 255, 255, .62); margin-right: 4px; }
-.nn__stage-msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: rgba(255, 255, 255, .7); font-size: 14px; pointer-events: none; }
-.nn__hud { position: absolute; left: 14px; right: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; pointer-events: none; flex-wrap: wrap; }
-.nn__hud--top { top: 12px; }
-.nn__hud--bottom { bottom: 12px; }
-.nn__hud > * { pointer-events: auto; }
-.nn__hud-left, .nn__hud-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.nn__seg--hud { gap: 0; background: rgba(255, 255, 255, .85); }
-.nn__seg--hud span { min-height: 32px; padding: 0 12px; font-size: 12.5px; }
-.nn__seg--hud label + label span { border-left: 0; }
-/* On the navy stage the selected view is gold, so it does not vanish into the background. */
-.nn__seg--hud input:checked + span { background: var(--gold); border-color: var(--gold); color: var(--navy); }
-.nn__seg--hud input:focus-visible + span { outline-color: #fff; }
-.nn__hint { font-size: 12px; color: var(--muted); }
-.nn__dims { font-size: 12.5px; color: var(--ink); background: rgba(255, 255, 255, .85); border: 1px solid var(--nn-line); padding: 5px 9px; font-variant-numeric: tabular-nums; }
-.nn__issues { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
-.nn__issue { appearance: none; border: 1px solid var(--nn-warn); border-radius: 999px; padding: 5px 11px; background: var(--nn-warn-soft); color: var(--nn-warn); font: inherit; font-size: 12.5px; font-weight: 500; font-family: var(--font-body); cursor: pointer; }
-.nn__issue:focus-visible { outline: 2px solid var(--nn-warn); outline-offset: 2px; }
-.nn__issue--solid { background: var(--gold); border-color: var(--gold); color: var(--navy); font-weight: 500; }
-.nn__issue--solid:hover { background: #e0bc4a; }
-.nn__issue--ok { background: #e8efe8; border-color: #2f5e3d; color: #2f5e3d; cursor: default; display: inline-flex; align-items: center; gap: 4px; }
-.nn__issue--ok .nn__warn-link { font-size: 12.5px; font-weight: 500; }
-.nn__confirm--stage { position: absolute; left: 14px; top: 56px; padding: 12px 14px; background: #fff; border: 1px solid var(--nn-line); box-shadow: 0 10px 30px rgba(var(--navy-rgb), .12); z-index: 2; }
-.nn__tool-rail { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); display: grid; gap: 3px; padding: 4px; background: rgba(255, 255, 255, .9); border: 1px solid var(--nn-line); }
-.nn__tool-rail button { height: 36px; min-width: 96px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 10px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-family: var(--font-body); cursor: pointer; }
-.nn__tool-rail button kbd { font-family: var(--font-body); font-size: 11px; color: var(--muted); border: 1px solid var(--nn-line); padding: 1px 5px; }
-.nn__tool-rail button:hover:not([aria-pressed="true"]) { color: var(--ink); }
-.nn__tool-rail button[aria-pressed="true"] { background: var(--ink); color: var(--cream); }
-.nn__tool-rail button[aria-pressed="true"] kbd { color: var(--cream); border-color: rgba(255, 255, 255, .4); }
-.nn__tool-rail button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-
-/* SVG overlay marks: dimensions, checks, selection */
-.nn .dim { stroke: rgba(255, 255, 255, .5); stroke-width: 1; fill: none; }
-.nn .dim-t { fill: rgba(255, 255, 255, .78); font-family: var(--font-body); font-size: 11px; }
-.nn .ruler-t { fill: rgba(255, 255, 255, .6); font-family: var(--font-body); font-size: 9.5px; }
-.nn .ov-fill { fill: url(#metalFill); stroke: rgba(0, 0, 0, .3); stroke-width: 0.6; }
-.nn .ov-box { fill: none; stroke: rgba(255, 255, 255, .16); stroke-width: 1; }
-.nn .ov-loose { fill: url(#warnHatch); stroke: #f3b23f; stroke-width: 1.4; }
-.nn .ov-loose-edge { fill: none; stroke: rgba(11, 14, 42, .7); stroke-width: 3.6; }
-.nn .ov-thin { fill: #f3b23f; stroke: rgba(11, 14, 42, .75); stroke-width: 1.6; paint-order: stroke; stroke-linejoin: round; }
-.nn .hatch-a { fill: #f3b23f; }
-.nn .hatch-b { fill: rgba(243, 178, 63, .25); }
-.nn .ov-hover { fill: none; stroke: #fff; stroke-opacity: .7; stroke-width: 1; }
-.nn .ov-sel { fill: rgba(var(--gold-rgb), .18); stroke: var(--gold); stroke-width: 1.6; stroke-linejoin: round; }
-.nn .ov-selbox { fill: none; stroke: var(--gold); stroke-width: 1; stroke-dasharray: 4 3; }
-.nn .ov-pivot { fill: var(--gold-dark); }
-.nn .ov-guide { fill: none; stroke: var(--gold); stroke-width: 1; stroke-dasharray: 5 4; }
-.nn .ov-guide.level { stroke-dasharray: none; stroke-width: 1.4; }
-.nn .ov-guide-t { fill: var(--gold); font: 500 11.5px var(--font-body); paint-order: stroke; stroke: #0b0e2a; stroke-width: 3px; stroke-linejoin: round; }
+/* Close-up: the plate face on, big enough to judge the font, over the top right of the photo. */
+.nn__closeup { position: absolute; top: 12px; right: 12px; width: clamp(150px, 34%, 250px); margin: 0; background: radial-gradient(120% 120% at 50% 20%, #2b3566 0%, #171d50 55%, #0b0e2a 100%); border: 1px solid rgba(255, 255, 255, .22); box-shadow: 0 10px 30px rgba(0, 0, 0, .35); pointer-events: none; }
+.nn__closeup-view { position: relative; aspect-ratio: 16 / 9; }
+.nn__closeup-view canvas, .nn__closeup-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.nn__closeup-view.gl .nn__closeup-svg { visibility: hidden; }
+.nn__closeup-cap { display: flex; justify-content: space-between; gap: 8px; padding: 5px 8px 6px; border-top: 1px solid rgba(255, 255, 255, .12); font-size: 11px; letter-spacing: .06em; color: rgba(255, 255, 255, .7); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; }
+.nn__closeup-cap span:first-child { text-transform: uppercase; letter-spacing: .14em; color: rgba(255, 255, 255, .5); }
 
 @media (max-width: 1023px) {
   .nn { padding: 28px var(--gutter-mobile) var(--section-pad-mobile); }
-  .nn__app { grid-template-columns: minmax(0, 1fr); gap: 26px; min-height: 0; }
-  .nn__stage { position: relative; top: 0; height: 360px; min-height: 0; }
-  .nn__hint { display: none; }
-  .nn__tool-rail button { min-width: 0; height: 34px; }
-  .nn__tool-rail button .tl { display: none; }
-  .nn__dims { font-size: 11px; padding: 4px 7px; }
-  .nn__seg--hud { flex-wrap: nowrap; }
-  .nn__seg--hud label { flex: 0 0 auto; }
-  .nn__seg--hud span { padding: 0 9px; white-space: nowrap; }
-  .nn__stage.viewsize { height: 460px; }
-  .nn__stage.viewsize .nn__dims { display: none; }
+  .nn__app { grid-template-columns: minmax(0, 1fr); gap: 22px; min-height: 0; }
+  .nn__stage { position: relative; top: 0; height: 460px; min-height: 0; }
   .nn__sizebar { justify-content: flex-start; margin-left: 0; width: 100%; }
   .nn__sz { font-size: 12px; padding: 4px 9px; }
   .nn__steps li + li::before { width: 16px; margin: 0 8px; }
-  .nn__steps li { font-size: 0; gap: 0; }
-  .nn__steps li span { font-size: 12px; }
-  .nn__steps li.on { font-size: 11px; gap: 8px; }
+  .nn__steps button { font-size: 0; gap: 0; }
+  .nn__steps button span { font-size: 12px; }
+  .nn__steps li.on button { font-size: 11px; gap: 8px; }
   .nn__metal-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   #chainAlloyChips .nn__metal-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nn__bar { margin-left: calc(-1 * var(--gutter-mobile, 16px)); margin-right: calc(-1 * var(--gutter-mobile, 16px)); }
 }
 @media (max-width: 520px) {
-  .nn__stage { height: 300px; }
-  .nn__stage.viewsize { height: 440px; }
-  .nn__seg--hud label { flex: 0 0 auto; }
-  .nn__block--review { padding: 18px; }
+  .nn__stage { height: 440px; }
+  .nn__closeup { width: 42%; }
+  .nn__closeup-cap { justify-content: flex-end; font-size: 10.5px; padding: 4px 7px 5px; }
+  .nn__closeup-cap span:first-child { display: none; }
+  .nn__h-t { font-size: 22px; }
+  .nn__h-btn { gap: 10px; padding: 16px 0; }
+  .nn__block--review .nn__body { padding: 18px; }
   .nn__actions .btn { flex-basis: 100%; }
   .nn__seg label { flex: 1 1 calc(50% - 8px); }
   .nn__seg span { padding: 0 8px; }
   .nn__font-list .fname { font-size: 21px; }
   .nn__price { font-size: 26px; }
+  .nn__bar { padding: 12px 14px 8px; }
+  .nn__bar-price { font-size: 22px; }
+  .nn__bar .btn { min-width: 0; padding-left: 18px; padding-right: 18px; }
 }
-
-/* chain style tiles: a drawn run of links in the chain's metal, the name, the gauge and the price */
-.nn__chain-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.nn__ctile { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 96px; padding: 12px 8px 10px; border: 1px solid rgba(var(--gold-dark-rgb), .35); background: #fff; font: inherit; font-size: 13px; line-height: 1.2; color: var(--body); text-align: center; cursor: pointer; font-family: var(--font-body); }
-.nn__ctile svg { width: 100%; max-width: 120px; height: 26px; display: block; }
-.nn__ctile small { font-size: 12px; color: var(--muted); }
-.nn__ctile:hover { border-color: var(--gold); }
-.nn__ctile:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-.nn__ctile.on { background: var(--ink); border-color: var(--ink); color: var(--cream); font-weight: 500; }
-.nn__ctile.on small { color: rgba(255, 255, 255, .7); }
-.nn__seg span small { font-size: 11.5px; color: var(--muted); margin-left: 6px; font-weight: 300; }
-.nn__seg input:checked + span small { color: rgba(255, 255, 255, .72); }
