@@ -79,8 +79,10 @@
 
     /* ---------- state ---------- */
     const DEFAULT_CURVE = 70; // degrees: the name lifts at the ends, as it hangs on a chain
+    const DEFAULT_THICKNESS = 1.5; // mm: 'Normal'
     let design = N.defaultDesign();
     design.curve = DEFAULT_CURVE;
+    design.thickness = DEFAULT_THICKNESS;
     const settings = { detail: 'standard', format: 'binary', view: 'size', tool: 'move', metal: 'yellow' };
     let alloy = Alloys.byKey(cfg.defaultAlloy) || Alloys.byKey('ag925') || Alloys.ALLOYS[0];
     let selection = [];   // { type: 'letter', index } | { type: 'dot', index } (an i/j dot) | { type: 'loop', side }
@@ -113,10 +115,12 @@
       lab.innerHTML = `<input type="radio" name="font" value="${f.key}" aria-label="${esc(f.name)}, ${esc(f.style.toLowerCase())}"><span class="fname" style="font-family:'${faceName(f)}', cursive">${esc(f.name)}</span><span class="fstyle">${esc(f.style)}</span>`;
       fontList.appendChild(lab);
     }
+    // Three plate thicknesses with plain names (the server accepts the wider list in the core; the page offers these).
+    const THICKNESS_CHOICES = [[1.0, 'Thin'], [1.5, 'Normal'], [2.0, 'Thick']].filter(([t]) => N.THICKNESSES.includes(t));
     const thickSeg = $('thickSeg');
-    for (const t of N.THICKNESSES) {
+    for (const [t, name] of THICKNESS_CHOICES) {
       const lab = document.createElement('label');
-      lab.innerHTML = `<input type="radio" name="thickness" value="${t}"><span>${t.toFixed(1)}</span>`;
+      lab.innerHTML = `<input type="radio" name="thickness" value="${t}"><span>${esc(name)} <small>${t.toFixed(1)}</small></span>`;
       thickSeg.appendChild(lab);
     }
     const radios = (name) => root.querySelectorAll(`input[name="${name}"]`);
@@ -781,6 +785,7 @@
 
     /* ---------- review summary ---------- */
     const fontName = () => N.fontMeta(design.font).name;
+    const thicknessText = () => { const c = THICKNESS_CHOICES.find(([t]) => t === design.thickness); return `${c ? c[1] + ' ' : ''}${design.thickness.toFixed(1)} mm`; };
     const curveText = () => { const c = result && result.curve.degrees; return !c ? 'Straight' : `${Math.abs(c)}° curve`; };
     const loopsText = () => { const L = design.loops; return L.left.on && L.right.on ? 'Left and right' : L.left.on ? 'Left only' : L.right.on ? 'Right only' : 'None'; };
     const cap = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
@@ -788,7 +793,7 @@
       const rows = [
         ['Name', design.text], ['Font', fontName()],
         ['Size', result ? `${result.width.toFixed(1)} × ${result.height.toFixed(1)} mm` : `${design.height} mm high`],
-        ['Thickness', `${design.thickness.toFixed(1)} mm`], ['Curve', curveText()], ['Chain loops', loopsText()],
+        ['Thickness', thicknessText()], ['Curve', curveText()], ['Chain loops', loopsText()],
         ['Metal', alloy.name], ['Chain', chainText()], ['Finish', cap(design.finish || 'polished')],
       ];
       if (design.reinforce && result && result.reinforced && result.reinforced.passes > 0) rows.push(['Thin joints', `Reinforced to ${N.MIN_FEATURE} mm`]);
@@ -1192,7 +1197,7 @@
       } catch (e) { st = 0; }
       if (st === 200 && j.variant_id) {
         const props = {
-          'Build': j.build, 'Name': design.text, 'Font': fontName(), 'Height': `${design.height} mm`, 'Thickness': `${design.thickness.toFixed(1)} mm`,
+          'Build': j.build, 'Name': design.text, 'Font': fontName(), 'Height': `${design.height} mm`, 'Thickness': thicknessText(),
           'Metal': j.alloyName || alloy.name, 'Chain': j.chain ? `${j.chain.lengthCm} cm ${String(j.chain.styleName).toLowerCase()} chain, ${j.chain.alloyName}` : chainText(), 'Finish': cap(design.finish || 'polished'),
           'Thin joints': design.reinforce && result.reinforced && result.reinforced.passes > 0 ? `Reinforced to ${N.MIN_FEATURE} mm` : '', 'Lead time': cfg.leadTime || '',
           // Underscore: Shopify keeps the link off the cart, checkout and customer emails; staff see it on the order.
