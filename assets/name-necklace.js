@@ -100,6 +100,7 @@
     let result = null, final = false, mesh = null, buildError = null, finalTimer = 0, spaceNote = false, designSeq = 0;
     const undoStack = [];
     let lastPush = { tag: null, t: 0 };
+    let queueLift = () => {}; // keeps the chat bubble clear of the price bar (set up with the price bar, below)
 
     function pushUndo(tag) {
       const now = performance.now();
@@ -267,6 +268,7 @@
       setStep(n);
       if (n === 5) renderSummary();
       if (renderSize && n) renderSize(); // the stage may have changed size on a phone
+      queueLift(); // the price bar may have moved
       const b = blockOf(n);
       if (scroll && b) {
         const r = b.getBoundingClientRect(), headerH = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 90) + 8;
@@ -1041,6 +1043,22 @@
     }
     $('controls').addEventListener('submit', (e) => { e.preventDefault(); addToCart(); });
 
+    /* ---------- chat bubble ---------- */
+    // Shopify's chat bubble sits in the bottom-right corner, where the price bar keeps Add to cart. While the bar is
+    // down there the bubble is lifted just clear of it (the CSS reads --nn-chat-lift); otherwise it stays put.
+    const priceBarEl = $('priceBar');
+    let liftRaf = 0, liftPx = -1;
+    function liftChat() {
+      liftRaf = 0;
+      const r = priceBarEl.getBoundingClientRect(), vh = window.innerHeight;
+      const px = r.top < vh && r.bottom > vh - 100 ? Math.max(0, Math.round(vh - r.top - 12)) : 0;
+      if (px !== liftPx) { liftPx = px; document.documentElement.style.setProperty('--nn-chat-lift', px + 'px'); }
+    }
+    queueLift = () => { if (!liftRaf) liftRaf = requestAnimationFrame(liftChat); };
+    window.addEventListener('scroll', queueLift, { passive: true });
+    window.addEventListener('resize', queueLift);
+    if (window.ResizeObserver) { const ro = new ResizeObserver(queueLift); ro.observe(priceBarEl); ro.observe($('controls')); }
+
     /* ---------- STL download (testing only) ---------- */
     if (showStl) {
       const btn = $('saveBtn');
@@ -1084,6 +1102,7 @@
     openBlock(1, { scroll: false });
     schedule();
     renderSaveState();
+    queueLift();
     threeReady.then(attachPreview); // with or without three.js: without it the close-up stays a flat drawing
   }
 
