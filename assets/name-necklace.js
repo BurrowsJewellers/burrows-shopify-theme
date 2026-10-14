@@ -83,7 +83,7 @@
     const showStl = !!cfg.showStl && !!$('saveBtn');
     const apiBase = String(cfg.apiBase || '').replace(/\/$/, '');
     const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    const money = (v) => 'A$' + v.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const money = (v) => '$' + v.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     /* ---------- state ---------- */
     const DEFAULT_CURVE = 70; // degrees: the name lifts at the ends, as it hangs on a chain
@@ -239,7 +239,7 @@
     }
     $('loopOuter').addEventListener('input', loopInput);
     $('loopHole').addEventListener('input', loopInput);
-    radios('finish').forEach((el) => el.addEventListener('change', () => { pushUndo(); design.finish = el.value; preview.setFinish(el.value); renderSummary(); renderChoices(); }));
+    radios('finish').forEach((el) => el.addEventListener('change', () => { pushUndo(); design.finish = el.value; preview.setFinish(el.value); renderSummary(); renderChoices(); saveDraft(); }));
     radios('dots').forEach((el) => el.addEventListener('change', () => { pushUndo(); design.dots = el.value; schedule(); }));
     radios('detail').forEach((el) => el.addEventListener('change', () => { settings.detail = el.value; schedule(); }));
     radios('format').forEach((el) => el.addEventListener('change', () => { settings.format = el.value; renderStats(); }));
@@ -884,10 +884,11 @@
     // back just the final price. Every change asks again after a short pause; the old price shows as "from"
     // until the new one lands. The total shows in the price bar, itemised in Review.
     const PRICE_URL = apiBase + '/quote';
-    const priceOut = $('priceOut'), barPrice = $('barPrice');
+    const priceOut = $('priceOut'), barPrice = $('barPrice'), stagePrice = $('stagePrice');
     let priceTimer = 0, priceSeq = 0, price = null; // price: the last quote { price, weightGrams, alloy, plate, chain } or null
     const chainPayload = () => (gaugesOn ? { style: chain.style.key, gauge: chain.gauge, lengthCm: chain.lengthCm, alloy: chain.alloy.key } : { style: chain.style.key, lengthCm: chain.lengthCm, alloy: chain.alloy.key });
-    const setBar = (html, cls) => { barPrice.className = 'nn__bar-price' + (cls ? ' ' + cls : ''); barPrice.innerHTML = html; };
+    // The total shows in the price bar and, so it stays in view while the necklace is changed, on the stage too.
+    const setBar = (html, cls) => { barPrice.className = 'nn__bar-price' + (cls ? ' ' + cls : ''); barPrice.innerHTML = html; if (stagePrice) { stagePrice.className = 'nn__stage-price' + (cls ? ' ' + cls : ''); stagePrice.innerHTML = html; } };
     async function requestPrice() {
       if (buildError) {
         price = null; priceOut.className = 'nn__price err'; priceOut.textContent = 'Fix the name to see a price.';
@@ -908,19 +909,14 @@
         }
         // A server from before gauges answers without one: only Medium can be made there.
         if (b.chain && !b.chain.gauge && gaugesOn) { gaugesOn = false; chain.gauge = 'medium'; renderChainTiles(); renderChainGauges(); renderSize(); renderSummary(); }
-        const when = b.metalPriceAt ? new Date(b.metalPriceAt) : null;
-        const basis = !when ? '' : b.metalPriceLive
-          ? ` · metal price at ${when.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' })}`
-          : ` · metal prices of ${when.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}`;
         price = { price: b.price, weightGrams: b.weightGrams, alloy: b.alloy, alloyName: b.alloyName, plate: b.plate, chain: b.chain };
         if (b.gaugePrices) { gaugePrices = b.gaugePrices; gaugePricesFresh = true; renderChainGauges(); }
         priceOut.className = 'nn__price';
         const ch = b.chain;
         const chainWords = ch ? `${ch.lengthCm} cm ${ch.gaugeName ? ch.gaugeName.toLowerCase() + ' ' : ''}${ch.styleName.toLowerCase()}, ${ch.alloyName}` : '';
-        const parts = ch && b.plate
-          ? `Nameplate ${money(b.plate.price)} · ${b.plate.weightGrams.toFixed(2)} g ${esc(b.alloyName)}<br>Chain ${money(ch.price)} · ${esc(chainWords)}`
-          : `${b.weightGrams.toFixed(2)} g in ${esc(b.alloyName)}`;
-        priceOut.innerHTML = `${money(b.price)}<small>${parts}${esc(basis)}</small>`;
+        // One total; underneath, what it is for (no part prices, weights or metal-price dates: the customer buys a necklace).
+        const parts = ch ? `Nameplate · ${esc(b.alloyName)}<br>Chain · ${esc(chainWords)}` : `Nameplate · ${esc(b.alloyName)}`;
+        priceOut.innerHTML = `${money(b.price)}<small>${parts}</small>`;
         setBar(money(b.price));
         renderChoices();
       } catch (err) {
@@ -941,6 +937,7 @@
       price = null;
       renderChoices();
       renderSaveState();
+      saveDraft();
       clearTimeout(priceTimer);
       priceTimer = setTimeout(requestPrice, 700);
     }
@@ -1021,6 +1018,7 @@
         try {
           const r = await fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: [{ id: j.variant_id, quantity: 1, properties: props }] }) });
           if (!r.ok) throw new Error('cart ' + r.status);
+          clearDraft();
           location.href = '/cart';
           return;
         } catch (e) {
@@ -1090,9 +1088,48 @@
       $('saveCancel').addEventListener('click', () => { $('saveConfirm').hidden = true; say(''); });
     }
 
+    /* ---------- keep the design across a reload ---------- */
+    // The design and the choices are kept in this browser (localStorage), so a reload, a closed tab or a slip on
+    // the back button does not lose them. Only the name and the options; forgotten after a week or once the
+    // necklace is in the cart.
+    const DRAFT_KEY = 'nn-draft-v1', DRAFT_DAYS = 7;
+    function saveDraft() {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), design: JSON.parse(N.designJSON(design)), alloy: alloy.key, chain: { style: chain.style.key, gauge: chain.gauge, lengthCm: chain.lengthCm, alloy: chain.alloy.key } }));
+      } catch (e) { /* storage off or full: nothing lost but the convenience */ }
+    }
+    function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* ignore */ } }
+    // Takes only what the page itself could have made; anything odd falls back to the default.
+    function restoreDraft() {
+      let d;
+      try { d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (e) { return false; }
+      if (!d || !d.design || !(Date.now() - d.at < DRAFT_DAYS * 86400e3)) return false;
+      const s = d.design, base = N.defaultDesign();
+      if (typeof s.text !== 'string' || !s.text.trim() || !N.FONTS.some((f) => f.key === s.font)) return false;
+      const num = (v, lo, hi, dflt) => (typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi ? v : dflt);
+      const L = s.loops || {};
+      design = Object.assign(base, {
+        text: Array.from(s.text).slice(0, N.MAX_CHARS).join(''), font: s.font,
+        height: num(s.height, N.HEIGHT_RANGE[0], N.HEIGHT_RANGE[1], base.height),
+        thickness: THICKNESS_CHOICES.some(([t]) => t === s.thickness) ? s.thickness : DEFAULT_THICKNESS,
+        overlap: num(s.overlap, OV_MIN, OV_MAX, base.overlap), curve: num(s.curve, 0, N.CURVE_RANGE[1], DEFAULT_CURVE),
+        dots: s.dots === 'remove' ? 'remove' : 'keep', finish: ['polished', 'brushed', 'satin'].includes(s.finish) ? s.finish : 'polished', reinforce: true,
+        loops: { outer: num(L.outer, N.LOOP_OUTER_RANGE[0], N.LOOP_OUTER_RANGE[1], base.loops.outer), hole: num(L.hole, N.LOOP_HOLE_RANGE[0], N.LOOP_HOLE_RANGE[1], base.loops.hole), left: { on: !(L.left && L.left.on === false), dx: 0, dy: 0 }, right: { on: !(L.right && L.right.on === false), dx: 0, dy: 0 } },
+        letters: [],
+      });
+      if (Alloys.byKey(d.alloy)) alloy = Alloys.byKey(d.alloy);
+      const c = d.chain || {};
+      if (Chains.byKey(c.style)) chain.style = Chains.byKey(c.style);
+      if (typeof c.gauge === 'string' && Chains.spec && Chains.spec(chain.style, c.gauge)) chain.gauge = c.gauge;
+      if (Chains.LENGTHS_CM.includes(c.lengthCm)) chain.lengthCm = c.lengthCm;
+      if (Alloys.byKey(c.alloy) && !Chains.EXCLUDED_ALLOYS.includes(c.alloy)) chain.alloy = Alloys.byKey(c.alloy);
+      return true;
+    }
+
     /* ---------- boot ---------- */
     app.setAttribute('aria-busy', 'false');
     $('loading').hidden = true;
+    restoreDraft();
     setAlloy(alloy.key);
     chainPicker.set(chain.alloy.key, true);
     renderChainTiles();
