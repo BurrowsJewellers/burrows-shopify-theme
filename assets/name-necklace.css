@@ -245,3 +245,13 @@ shopify-chat::part(dialog) { translate: 0 var(--nn-chat-lift, 0px); }
   .nn__bar-price { font-size: 22px; }
   .nn__bar .btn { min-width: 0; padding-left: 18px; padding-right: 18px; }
 }
+
+/* the running total on the stage, so the price is in view while the necklace is being changed */
+.nn__hud-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.nn__stage-price { font-family: var(--font-heading); font-size: 22px; line-height: 1; color: #fff; background: rgba(11, 14, 42, .72); padding: 8px 12px; font-variant-numeric: tabular-nums; white-space: nowrap; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.nn__stage-price:empty { display: none; }
+.nn__stage-price.stale { opacity: .72; font-size: 18px; }
+.nn__stage-price.stale .from { font-family: var(--font-body); font-size: 12px; color: rgba(255, 255, 255, .75); margin-right: 5px; }
+.nn__stage-price.err { opacity: .7; }
+.nn__note--proof { margin-top: 4px; }
+@media (max-width: 520px) { .nn__stage-price { font-size: 18px; padding: 7px 10px; } .nn__stage-price.stale { font-size: 15px; } }
