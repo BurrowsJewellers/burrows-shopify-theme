@@ -8,7 +8,10 @@
    minimum. Every change rebuilds the plate at once without reinforcement (fast, so typing stays smooth); half a
    second after the last change it is rebuilt reinforced and checked, and that is the version that is ordered.
    Prices come from {api}/quote; Add to cart goes through {api}/build (hidden Shopify product at the quoted
-   price) then /cart/add.js. */
+   price) then /cart/add.js.
+   Staff mode (?build=<id>&t=<token>, opened from the dashboard's Custom Orders): the paid design loads from the
+   API, every thickness and a letter editor are offered, the quote carries the cost figures, and "Save to order"
+   hands the design back to the dashboard window instead of adding to the cart. See the staff section below. */
 (function () {
   'use strict';
 
@@ -84,6 +87,11 @@
     const apiBase = String(cfg.apiBase || '').replace(/\/$/, '');
     const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     const money = (v) => '$' + v.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    // Staff mode: the dashboard opens the page with the build id and its token (the same token that unlocks the STL).
+    const query = (() => { try { return new URLSearchParams(location.search); } catch (e) { return new URLSearchParams(); } })();
+    const STAFF = query.get('build') && query.get('t') ? { build: String(query.get('build')).slice(0, 40), t: String(query.get('t')).slice(0, 80), meta: null } : null;
+    const ORDER_ORIGINS = ['https://dashboard.burrowsjewellers.com.au', 'http://localhost:5173', 'http://localhost:4000'];
+    if (STAFF) root.classList.add('nn--staff');
 
     /* ---------- state ---------- */
     const DEFAULT_CURVE = 70; // degrees: the name lifts at the ends, as it hangs on a chain
@@ -129,11 +137,13 @@
       fontList.appendChild(lab);
     }
     // Three plate thicknesses with plain names (the server accepts the wider list in the core; the page offers these).
-    const THICKNESS_CHOICES = [[1.0, 'Thin'], [1.5, 'Normal'], [2.0, 'Thick']].filter(([t]) => N.THICKNESSES.includes(t));
+    // Staff get every thickness the server makes.
+    const THICKNESS_NAMES = { 0.8: 'Fine', 1: 'Thin', 1.2: 'Light', 1.5: 'Normal', 2: 'Thick' };
+    const THICKNESS_CHOICES = (STAFF ? N.THICKNESSES.map((t) => [t, THICKNESS_NAMES[t] || '']) : [[1.0, 'Thin'], [1.5, 'Normal'], [2.0, 'Thick']]).filter(([t]) => N.THICKNESSES.includes(t));
     const thickSeg = $('thickSeg');
     for (const [t, name] of THICKNESS_CHOICES) {
       const lab = document.createElement('label');
-      lab.innerHTML = `<input type="radio" name="thickness" value="${t}"><span>${esc(name)} <small>${t.toFixed(1)}</small></span>`;
+      lab.innerHTML = `<input type="radio" name="thickness" value="${t}"><span>${esc(name || t.toFixed(1) + ' mm')}${name ? ` <small>${t.toFixed(1)}</small>` : ''}</span>`;
       thickSeg.appendChild(lab);
     }
     const radios = (name) => root.querySelectorAll(`input[name="${name}"]`);
@@ -656,6 +666,7 @@
         if (!mesh.volumeOk) console.warn('Nameplate: mesh volume does not match outline area x thickness', mesh.volume, mesh.expected);
         preview.set(N.buildDisplay(r, design.thickness), design.thickness, r.bbox);
         drawCloseupFlat();
+        if (editor) editor.onBuild();
         const c = r.curve, cr = $('curveReadout');
         cr.innerHTML = !c.degrees ? '<b>Flat</b>' : `<b>${Math.abs(c.degrees)}°</b>`;
         if (c.limited) cr.innerHTML += ` · limited to ${c.maxDegrees}° for a name this short, so the letters don't fold`;
@@ -886,6 +897,8 @@
     const PRICE_URL = apiBase + '/quote';
     const priceOut = $('priceOut'), barPrice = $('barPrice'), stagePrice = $('stagePrice');
     let priceTimer = 0, priceSeq = 0, price = null; // price: the last quote { price, weightGrams, alloy, plate, chain } or null
+    const priceWaiters = []; // resolved when a quote lands (Save to order waits for the current price)
+    const whenPriced = () => (price ? Promise.resolve() : new Promise((resolve) => { priceWaiters.push(resolve); setTimeout(resolve, 12000); }));
     const chainPayload = () => (gaugesOn ? { style: chain.style.key, gauge: chain.gauge, lengthCm: chain.lengthCm, alloy: chain.alloy.key } : { style: chain.style.key, lengthCm: chain.lengthCm, alloy: chain.alloy.key });
     // The total shows in the price bar and, so it stays in view while the necklace is changed, on the stage too.
     const setBar = (html, cls) => { barPrice.className = 'nn__bar-price' + (cls ? ' ' + cls : ''); barPrice.innerHTML = html; if (stagePrice) { stagePrice.className = 'nn__stage-price' + (cls ? ' ' + cls : ''); stagePrice.innerHTML = html; } };
@@ -898,7 +911,7 @@
       priceOut.classList.add('stale');
       renderSaveState();
       try {
-        const res = await fetch(PRICE_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ design: JSON.parse(N.designJSON(design)), alloy: alloy.key, chain: chainPayload() }) });
+        const res = await fetch(PRICE_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ design: JSON.parse(N.designJSON(design)), alloy: alloy.key, chain: chainPayload(), staff: STAFF ? { build: STAFF.build, t: STAFF.t } : undefined }) });
         const b = await res.json().catch(() => ({}));
         if (seq !== priceSeq) return; // a newer request is on its way
         if (!res.ok) {
@@ -909,7 +922,8 @@
         }
         // A server from before gauges answers without one: only Medium can be made there.
         if (b.chain && !b.chain.gauge && gaugesOn) { gaugesOn = false; chain.gauge = 'medium'; renderChainTiles(); renderChainGauges(); renderSize(); renderSummary(); }
-        price = { price: b.price, weightGrams: b.weightGrams, alloy: b.alloy, alloyName: b.alloyName, plate: b.plate, chain: b.chain };
+        price = { price: b.price, weightGrams: b.weightGrams, alloy: b.alloy, alloyName: b.alloyName, plate: b.plate, chain: b.chain, staff: b.staff || null, metalPriceAt: b.metalPriceAt };
+        if (STAFF) renderStaffFigures();
         if (b.gaugePrices) { gaugePrices = b.gaugePrices; gaugePricesFresh = true; renderChainGauges(); }
         priceOut.className = 'nn__price';
         const ch = b.chain;
@@ -924,7 +938,7 @@
         price = null; priceOut.className = 'nn__price err';
         priceOut.textContent = "Couldn't reach the price service. Check the connection and try again.";
         setBar('—', 'err');
-      } finally { if (seq === priceSeq) renderSaveState(); }
+      } finally { if (seq === priceSeq) { renderSaveState(); priceWaiters.splice(0).forEach((resolve) => resolve()); } }
     }
     function priceChanged() { // keep the price current as the design changes
       if (price && !buildError) {
@@ -955,7 +969,10 @@
     // A blocked design keeps the button live: pressing it opens the section that fixes it.
     function renderSaveState() {
       const blocked = !!blocker();
-      if (cartState === 'off') {
+      if (STAFF) {
+        addBtn.textContent = adding ? 'Saving…' : 'Save to order';
+        addBtn.disabled = adding || (!blocked && !price);
+      } else if (cartState === 'off') {
         addBtn.textContent = 'Enquire about this design';
         addBtn.disabled = adding;
       } else {
@@ -1039,7 +1056,7 @@
       else if (st === 429) say('Please wait a moment and try again.', true);
       else say("That didn't go through. Please try again" + (cfg.phone ? ' or call us on ' + cfg.phone + '.' : '.'), true);
     }
-    $('controls').addEventListener('submit', (e) => { e.preventDefault(); addToCart(); });
+    $('controls').addEventListener('submit', (e) => { e.preventDefault(); if (STAFF) saveToOrder(); else addToCart(); });
 
     /* ---------- chat bubble ---------- */
     // Shopify's chat bubble sits in the bottom-right corner, where the price bar keeps Add to cart. While the bar is
@@ -1094,6 +1111,7 @@
     // necklace is in the cart.
     const DRAFT_KEY = 'nn-draft-v1', DRAFT_DAYS = 7;
     function saveDraft() {
+      if (STAFF) return; // the order's design lives on the API, not in this browser
       try {
         localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), design: JSON.parse(N.designJSON(design)), alloy: alloy.key, chain: { style: chain.style.key, gauge: chain.gauge, lengthCm: chain.lengthCm, alloy: chain.alloy.key } }));
       } catch (e) { /* storage off or full: nothing lost but the convenience */ }
@@ -1126,21 +1144,331 @@
       return true;
     }
 
+    /* ---------- staff mode: the dashboard's order review ---------- */
+    // The dashboard's Custom Orders tab opens this page with ?build=<id>&t=<token>. The paid design (letters and
+    // all) loads from the API; the stage gains a "Letters" view where single letters can be moved, turned and
+    // scaled (click to select, drag to move, arrows nudge; the Style section has the exact numbers); every
+    // thickness is offered; Review shows the cost figures the quote carries for that token; and the price bar's
+    // button hands the design back to the dashboard window that opened the page (postMessage nn-revision), which
+    // reprices it on the server and writes the revised STL. Nothing is added to the cart and no draft is kept.
+    let editor = null;
+    function renderStaffFigures() {}
+    async function saveToOrder() {}
+    let loadOrder = () => Promise.resolve();
+    if (STAFF) {
+      const inner = root.querySelector('.nn__inner');
+      const bar = document.createElement('div');
+      bar.className = 'nn__orderbar'; bar.id = 'orderBar';
+      bar.innerHTML = `<div class="nn__orderbar-row"><b>Order review</b><span id="orderText">Loading ${esc(STAFF.build)}…</span></div>
+        <label class="nn__orderbar-note"><span>Note for the order</span><input type="text" id="orderNote" class="nn__text" maxlength="300" placeholder="What changed and why, e.g. letters were too close, spaced the C and l"></label>`;
+      inner.insertBefore(bar, app);
+      const orderText = bar.querySelector('#orderText'), orderNote = bar.querySelector('#orderNote');
+      orderNote.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
+
+      // --- load the paid design
+      loadOrder = async () => {
+        let meta;
+        try {
+          const res = await fetch(`${apiBase}/build/${encodeURIComponent(STAFF.build)}?t=${encodeURIComponent(STAFF.t)}`);
+          if (!res.ok) throw new Error(res.status === 403 ? 'wrong token' : res.status === 404 ? 'no such build' : 'HTTP ' + res.status);
+          meta = await res.json();
+        } catch (e) {
+          orderText.textContent = `Could not load ${STAFF.build} (${e.message}). Open this page from the dashboard's order.`;
+          bar.classList.add('err');
+          return;
+        }
+        STAFF.meta = meta;
+        const d = meta.design || {};
+        const base = N.defaultDesign();
+        design = Object.assign(base, d, { reinforce: true, letters: Array.isArray(d.letters) ? d.letters : [] });
+        if (!N.FONTS.some((f) => f.key === design.font)) design.font = base.font;
+        if (!N.THICKNESSES.includes(design.thickness)) design.thickness = DEFAULT_THICKNESS;
+        if (typeof design.curve !== 'number') design.curve = DEFAULT_CURVE;
+        if (Alloys.byKey(meta.alloy)) alloy = Alloys.byKey(meta.alloy);
+        const c = meta.chain || {};
+        if (Chains.byKey(c.style)) chain.style = Chains.byKey(c.style);
+        if (typeof c.gauge === 'string' && Chains.spec && Chains.spec(chain.style, c.gauge)) chain.gauge = c.gauge;
+        if (Chains.LENGTHS_CM.includes(c.lengthCm)) chain.lengthCm = c.lengthCm;
+        if (Alloys.byKey(c.alloy) && !Chains.EXCLUDED_ALLOYS.includes(c.alloy)) chain.alloy = Alloys.byKey(c.alloy);
+        const order = meta.order && meta.order.order_name ? `order ${meta.order.order_name}` : (meta.paid ? 'paid' : 'unpaid');
+        orderText.textContent = `${STAFF.build} · ${design.text} · ${alloy.name} · ${order} · ${meta.paid ? 'paid' : 'quoted'} ${money(meta.price || 0)}${meta.parent ? ` · revision of ${meta.parent}` : ''}`;
+        if (meta.note) orderNote.value = String(meta.note).slice(0, 300);
+      };
+
+      // --- the letters view on the stage
+      const editView = document.createElement('div');
+      editView.className = 'nn__edit'; editView.id = 'editView'; editView.hidden = true;
+      editView.innerHTML = `<svg class="nn__edit-svg" id="editSvg" tabindex="0" role="img" aria-label="The nameplate, letter by letter"></svg>
+        <div class="nn__tools" id="toolRail" role="radiogroup" aria-label="Drag tool">
+          <button type="button" data-tool="move" aria-pressed="true">Move <kbd>M</kbd></button>
+          <button type="button" data-tool="rotate" aria-pressed="false">Rotate <kbd>R</kbd></button>
+          <button type="button" data-tool="scale" aria-pressed="false">Scale <kbd>S</kbd></button>
+        </div>
+        <div class="nn__edit-dims" id="editDims"></div>`;
+      stage.insertBefore(editView, stage.querySelector('.nn__hud--top'));
+      const editSvg = editView.querySelector('#editSvg'), toolRail = editView.querySelector('#toolRail'), editDims = editView.querySelector('#editDims');
+      const sizeView = $('sizeView'), hint = $('hint');
+      const seg = document.createElement('div');
+      seg.className = 'nn__viewseg'; seg.setAttribute('role', 'radiogroup'); seg.setAttribute('aria-label', 'Stage view');
+      seg.innerHTML = `<button type="button" data-view="neck" aria-pressed="true">On a neck</button><button type="button" data-view="letters" aria-pressed="false">Letters</button>`;
+      stage.querySelector('.nn__hud-left').insertBefore(seg, hint);
+      let view = 'neck';
+      function setView(v) {
+        view = v;
+        seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+        editView.hidden = v !== 'letters';
+        sizeView.hidden = v === 'letters';
+        $('sizeBar').hidden = v === 'letters';
+        hint.textContent = v === 'letters' ? 'Click a letter · drag to move · Shift-click for more · arrows nudge' : 'Shown to scale';
+        if (v === 'letters') { ed.fit(); ed.render(); }
+      }
+      seg.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+
+      // The editor: mm on the plate <-> pixels on the stage.
+      const SC = N.SCALE, F = (p) => p.map((q) => [q.X / SC, q.Y / SC]);
+      const ed = { s: 4, cx: 0, cy: 0, selection: [], hover: null, tool: 'move', drag: null };
+      const toScreen = (x, y) => { const { W, H } = stageSize(); return [(x - ed.cx) * ed.s + W / 2, (ed.cy - y) * ed.s + H / 2]; };
+      const toWorld = (e) => { const r = editSvg.getBoundingClientRect(), { W, H } = stageSize(); const px = e.clientX - r.left, py = e.clientY - r.top; return { x: (px - W / 2) / ed.s + ed.cx, y: ed.cy - (py - H / 2) / ed.s }; };
+      const pathD = (paths) => paths.map((p) => 'M' + p.map(([x, y]) => toScreen(x, y).map((v) => v.toFixed(1)).join(',')).join('L') + 'Z').join('');
+      const sameSel = (a, b) => a.type === b.type && (a.type === 'loop' ? a.side === b.side : a.index === b.index);
+      const isSelected = (h) => ed.selection.some((x) => sameSel(x, h));
+      const letterOf = (i) => result && result.letters.find((l) => l.index === i);
+      const loopOf = (side) => result && result.loops.find((l) => l.side === side);
+      const round = (v, d) => Math.round(v * 10 ** d) / 10 ** d;
+      const normDeg = (a) => ((((a + 180) % 360) + 360) % 360) - 180;
+      ed.fit = () => {
+        if (!result) return;
+        const { W, H } = stageSize();
+        if (!W || !H) return;
+        const b = result.bbox, w = Math.max(b.maxX - b.minX, 1), h = Math.max(b.maxY - b.minY, 1);
+        ed.s = Math.min((0.78 * W) / w, (0.5 * H) / h);
+        ed.cx = (b.minX + b.maxX) / 2; ed.cy = (b.minY + b.maxY) / 2;
+      };
+      function selectionBox() {
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        for (const sel of ed.selection) {
+          let b = null;
+          if (sel.type === 'letter') { const l = letterOf(sel.index); if (l) b = l.bbox; }
+          else if (sel.type === 'dot') { const l = letterOf(sel.index); if (l && l.dotPaths.length) { b = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity }; for (const p of l.dotPaths) for (const [x, y] of p) { b.minX = Math.min(b.minX, x); b.maxX = Math.max(b.maxX, x); b.minY = Math.min(b.minY, y); b.maxY = Math.max(b.maxY, y); } } }
+          else { const lp = loopOf(sel.side); if (lp) { const r = lp.outer / 2; b = { minX: lp.cx - r, maxX: lp.cx + r, minY: lp.cy - r, maxY: lp.cy + r }; } }
+          if (!b) continue;
+          minX = Math.min(minX, b.minX); minY = Math.min(minY, b.minY); maxX = Math.max(maxX, b.maxX); maxY = Math.max(maxY, b.maxY);
+        }
+        return Number.isFinite(minX) ? { minX, minY, maxX, maxY } : null;
+      }
+      ed.render = () => {
+        if (view !== 'letters') return;
+        if (!result) { editSvg.innerHTML = ''; editDims.textContent = ''; return; }
+        const { W, H } = stageSize();
+        editSvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+        const st = FLAT_STOPS[settings.metal] || FLAT_STOPS.white;
+        let s = `<defs><linearGradient id="nnEditFill" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="${st[0]}"/><stop offset="0.55" stop-color="${st[1]}"/><stop offset="1" stop-color="${st[2]}"/></linearGradient></defs>`;
+        for (const g of result.groups) s += `<path class="ed-fill" fill-rule="evenodd" d="${pathD([F(g.outer), ...g.holes.map(F)])}"/>`;
+        // the plate's box with its size, and a 5 mm ruler along the bottom
+        const b = result.bbox, [x0, y0] = toScreen(b.minX, b.maxY), [x1, y1] = toScreen(b.maxX, b.minY);
+        s += `<rect class="ed-box" x="${(x0 - 4).toFixed(1)}" y="${(y0 - 4).toFixed(1)}" width="${(x1 - x0 + 8).toFixed(1)}" height="${(y1 - y0 + 8).toFixed(1)}"/>`;
+        let ticks = '';
+        for (let mm = 0; mm <= result.width + 1e-6; mm++) { const major = mm % 5 === 0; if (major || ed.s >= 4) ticks += `M${(x0 + mm * ed.s).toFixed(1)} ${(y1 + 10).toFixed(1)}v${major ? 7 : 4}`; }
+        s += `<path class="ed-dim" d="${ticks}M${x0.toFixed(1)} ${(y1 + 10).toFixed(1)}H${x1.toFixed(1)}"/>`;
+        for (const t of result.thin) s += `<path class="ed-thin" fill-rule="evenodd" d="${pathD(t)}"/>`;
+        for (const lz of result.loose) { const g = result.groups[lz.group]; if (g) s += `<path class="ed-loose" fill-rule="evenodd" d="${pathD([F(g.outer), ...g.holes.map(F)])}"/>`; }
+        if (ed.hover && !isSelected(ed.hover)) {
+          if (ed.hover.type === 'letter') { const l = letterOf(ed.hover.index); if (l) s += `<path class="ed-hover" fill-rule="evenodd" d="${pathD(l.body)}"/>`; }
+          else if (ed.hover.type === 'dot') { const l = letterOf(ed.hover.index); if (l) s += `<path class="ed-hover" fill-rule="evenodd" d="${pathD(l.dotPaths)}"/>`; }
+          else { const lp = loopOf(ed.hover.side); if (lp) s += `<path class="ed-hover" fill-rule="evenodd" d="${pathD([lp.outerPath, lp.holePath])}"/>`; }
+        }
+        for (const sel of ed.selection) {
+          if (sel.type === 'letter') {
+            const l = letterOf(sel.index); if (!l) continue;
+            const [a0, b0] = toScreen(l.bbox.minX, l.bbox.maxY), [a1, b1] = toScreen(l.bbox.maxX, l.bbox.minY);
+            s += `<path class="ed-sel" fill-rule="evenodd" d="${pathD(l.body)}"/><rect class="ed-selbox" x="${(a0 - 3).toFixed(1)}" y="${(b0 - 3).toFixed(1)}" width="${(a1 - a0 + 6).toFixed(1)}" height="${(b1 - b0 + 6).toFixed(1)}"/>`;
+          } else if (sel.type === 'dot') { const l = letterOf(sel.index); if (l && l.dotPaths.length) s += `<path class="ed-sel" fill-rule="evenodd" d="${pathD(l.dotPaths)}"/>`; }
+          else { const lp = loopOf(sel.side); if (lp) s += `<path class="ed-sel" fill-rule="evenodd" d="${pathD([lp.outerPath, lp.holePath])}"/>`; }
+        }
+        if (ed.selection.length && ed.tool !== 'move') { const sb = selectionBox(); if (sb) { const [px, py] = toScreen((sb.minX + sb.maxX) / 2, (sb.minY + sb.maxY) / 2); s += `<circle class="ed-pivot" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3"/>`; } }
+        editSvg.innerHTML = s;
+        editDims.textContent = `${result.width.toFixed(2)} × ${result.height.toFixed(2)} mm · ${design.thickness.toFixed(1)} mm thick${final ? '' : ' · updating'}`;
+        renderLetterPanel();
+      };
+      ed.onBuild = () => {
+        ed.selection = ed.selection.filter((sel) => (sel.type === 'loop' ? !!loopOf(sel.side) : sel.type === 'dot' ? !!(letterOf(sel.index) && letterOf(sel.index).dotPaths.length) : !!letterOf(sel.index)));
+        if (view === 'letters') { if (!ed.drag) { const b = result.bbox, [x0, y0] = toScreen(b.minX, b.maxY), [x1, y1] = toScreen(b.maxX, b.minY), { W, H } = stageSize(); if (x0 < 10 || y0 < 60 || x1 > W - 10 || y1 > H - 60 || x1 - x0 < W * 0.3) ed.fit(); } ed.render(); }
+      };
+      editor = ed;
+      if (window.ResizeObserver) new ResizeObserver(() => { if (view === 'letters') { ed.fit(); ed.render(); } }).observe(stage);
+
+      // --- editing: the adjustment record of a selected item (a letter, its dot, or a loop)
+      function adjOf(sel) {
+        if (sel.type === 'loop') return design.loops[sel.side];
+        const L = design.letters;
+        while (L.length <= sel.index) L.push(null);
+        if (!L[sel.index]) L[sel.index] = N.defaultLetter();
+        if (sel.type === 'dot') return L[sel.index].dot || (L[sel.index].dot = { dx: 0, dy: 0 });
+        return L[sel.index];
+      }
+      // Apply a tool to every selected item from a snapshot, so drags don't drift.
+      function applyTool(base, tool, amount) {
+        design = clone(base);
+        for (const sel of ed.selection) {
+          const a = adjOf(sel);
+          if (tool === 'move') {
+            // On a curved name a letter's own moves happen before the bend: turn the screen move into its slant.
+            const l = sel.type === 'loop' ? null : letterOf(sel.index), ang = l ? l.angle || 0 : 0;
+            const mx = amount.dx * Math.cos(ang) + amount.dy * Math.sin(ang), my = -amount.dx * Math.sin(ang) + amount.dy * Math.cos(ang);
+            a.dx = round((a.dx || 0) + mx, 3); a.dy = round((a.dy || 0) + my, 3);
+          } else if (sel.type === 'letter' && tool === 'rotate') a.rot = round(normDeg((a.rot || 0) + amount), 2);
+          else if (sel.type === 'letter' && tool === 'scale') a.scale = round(clamp((a.scale || 1) * amount, N.SCALE_RANGE[0], N.SCALE_RANGE[1]), 4);
+        }
+      }
+      editSvg.addEventListener('pointerdown', (e) => {
+        if (!result || e.button > 0) return;
+        e.preventDefault();
+        editSvg.focus({ preventScroll: true });
+        const p = toWorld(e), hit = N.hitTest(result, p.x, p.y);
+        if (!hit) { if (!e.shiftKey) { ed.selection = []; ed.render(); } return; }
+        if (e.shiftKey) {
+          if (isSelected(hit)) { ed.selection = ed.selection.filter((x) => !sameSel(x, hit)); ed.render(); return; }
+          ed.selection.push(hit);
+        } else if (!isSelected(hit)) ed.selection = [hit];
+        const b = selectionBox();
+        ed.drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, p0: p, base: clone(design), moved: false, c: b ? { x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2 } : p };
+        editSvg.setPointerCapture(e.pointerId);
+        editSvg.classList.add('dragging');
+        ed.render();
+      });
+      editSvg.addEventListener('pointermove', (e) => {
+        if (!result) return;
+        const p = toWorld(e);
+        if (!ed.drag) {
+          const h = N.hitTest(result, p.x, p.y);
+          editSvg.classList.toggle('over', !!h);
+          if ((h && (!ed.hover || !sameSel(h, ed.hover))) || (!h && ed.hover)) { ed.hover = h; ed.render(); }
+          return;
+        }
+        if (!ed.drag.moved && Math.hypot(e.clientX - ed.drag.x0, e.clientY - ed.drag.y0) < 3) return;
+        if (!ed.drag.moved) { pushUndo(); ed.drag.moved = true; }
+        if (ed.tool !== 'move' && !ed.selection.some((x) => x.type === 'letter')) { say('Dots and loops only move. Choose Move.'); return; }
+        if (ed.tool === 'move') applyTool(ed.drag.base, 'move', { dx: p.x - ed.drag.p0.x, dy: p.y - ed.drag.p0.y });
+        else if (ed.tool === 'rotate') { const a0 = Math.atan2(ed.drag.p0.y - ed.drag.c.y, ed.drag.p0.x - ed.drag.c.x), a1 = Math.atan2(p.y - ed.drag.c.y, p.x - ed.drag.c.x); applyTool(ed.drag.base, 'rotate', normDeg(((a1 - a0) * 180) / Math.PI)); }
+        else { const d0 = Math.hypot(ed.drag.p0.x - ed.drag.c.x, ed.drag.p0.y - ed.drag.c.y) || 1, d1 = Math.hypot(p.x - ed.drag.c.x, p.y - ed.drag.c.y); applyTool(ed.drag.base, 'scale', d1 / d0); }
+        schedule();
+      });
+      const endDrag = () => { if (!ed.drag) return; ed.drag = null; editSvg.classList.remove('dragging'); ed.render(); };
+      editSvg.addEventListener('pointerup', endDrag);
+      editSvg.addEventListener('pointercancel', endDrag);
+      editSvg.addEventListener('pointerleave', () => { if (!ed.drag && ed.hover) { ed.hover = null; editSvg.classList.remove('over'); ed.render(); } });
+      function setTool(t) { ed.tool = t; toolRail.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tool === t))); ed.render(); }
+      toolRail.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
+      editSvg.addEventListener('keydown', (e) => {
+        if (!result) return;
+        const k = e.key.toLowerCase();
+        if (k === 'm' || k === 'r' || k === 's') { setTool({ m: 'move', r: 'rotate', s: 'scale' }[k]); e.preventDefault(); return; }
+        if (k === 'escape') { ed.selection = []; ed.render(); return; }
+        if (!ed.selection.length) return;
+        const step = e.shiftKey ? 0.5 : 0.1;
+        const d = { arrowleft: [-step, 0], arrowright: [step, 0], arrowup: [0, step], arrowdown: [0, -step] }[k];
+        if (!d) return;
+        e.preventDefault(); pushUndo('nudge');
+        applyTool(design, 'move', { dx: d[0], dy: d[1] });
+        schedule();
+      });
+
+      // --- the Style section's letter panel: the numbers behind the selected letter
+      const panel = document.createElement('fieldset');
+      panel.className = 'nn__group nn__letters'; panel.id = 'letterPanel';
+      panel.innerHTML = `<legend class="nn__label">Letters <small>staff · select on the stage's Letters view</small></legend>
+        <p class="nn__note" id="letterSel">Nothing selected. Switch the stage to Letters and click a letter.</p>
+        <div class="nn__pair nn__pair--4" id="letterNums" hidden>
+          <label for="ltDx">Across</label><input type="number" id="ltDx" class="nn__num" step="0.1" min="-50" max="50"><span class="nn__unit">mm</span>
+          <label for="ltDy">Up</label><input type="number" id="ltDy" class="nn__num" step="0.1" min="-50" max="50"><span class="nn__unit">mm</span>
+          <label for="ltRot">Turn</label><input type="number" id="ltRot" class="nn__num" step="1" min="-180" max="180"><span class="nn__unit">°</span>
+          <label for="ltScale">Scale</label><input type="number" id="ltScale" class="nn__num" step="0.01" min="${N.SCALE_RANGE[0]}" max="${N.SCALE_RANGE[1]}"><span class="nn__unit">×</span>
+        </div>
+        <div class="nn__row">
+          <button type="button" class="nn__mini" id="ltReset" hidden>Reset this letter</button>
+          <button type="button" class="nn__mini" id="ltResetAll">Reset all letters</button>
+        </div>`;
+      const thickGroup = $('thickSeg').closest('fieldset');
+      thickGroup.parentNode.insertBefore(panel, thickGroup.nextSibling);
+      const ltSel = panel.querySelector('#letterSel'), ltNums = panel.querySelector('#letterNums'), ltReset = panel.querySelector('#ltReset');
+      const chars = () => Array.from(design.text);
+      function renderLetterPanel() {
+        const one = ed.selection.length === 1 && ed.selection[0].type === 'letter' ? ed.selection[0] : null;
+        ltNums.hidden = !one; ltReset.hidden = !one;
+        if (!one) { ltSel.textContent = ed.selection.length ? `${ed.selection.length} items selected: drag them together, or arrows nudge.` : 'Nothing selected. Switch the stage to Letters and click a letter.'; return; }
+        const a = (design.letters[one.index]) || {};
+        ltSel.textContent = `Letter ${one.index + 1}: “${chars()[one.index] || ''}”`;
+        const setIf = (id, v) => { const el = panel.querySelector('#' + id); if (document.activeElement !== el) el.value = v; };
+        setIf('ltDx', round(a.dx || 0, 2)); setIf('ltDy', round(a.dy || 0, 2)); setIf('ltRot', round(a.rot || 0, 1)); setIf('ltScale', round(a.scale == null ? 1 : a.scale, 3));
+      }
+      const numInput = (id, key, lo, hi) => panel.querySelector('#' + id).addEventListener('input', () => {
+        const one = ed.selection.length === 1 && ed.selection[0].type === 'letter' ? ed.selection[0] : null;
+        const v = parseFloat(panel.querySelector('#' + id).value);
+        if (!one || !Number.isFinite(v) || v < lo || v > hi) return;
+        pushUndo('lt' + key); adjOf(one)[key] = key === 'scale' ? round(v, 4) : round(v, 3); schedule();
+      });
+      numInput('ltDx', 'dx', -50, 50); numInput('ltDy', 'dy', -50, 50); numInput('ltRot', 'rot', -180, 180); numInput('ltScale', 'scale', N.SCALE_RANGE[0], N.SCALE_RANGE[1]);
+      ltReset.addEventListener('click', () => { const one = ed.selection[0]; if (!one || one.type !== 'letter') return; pushUndo(); design.letters[one.index] = null; schedule(); });
+      panel.querySelector('#ltResetAll').addEventListener('click', () => { if (!design.letters.some(Boolean)) return; pushUndo(); design.letters = []; schedule(); });
+      $('heightIn').step = '0.1'; $('curveIn').step = '1'; $('curveRange').step = '1';
+      $('paneAdvanced').open = true;
+
+      // --- the cost figures in Review (the quote carries them for this token)
+      const fig = document.createElement('div');
+      fig.className = 'nn__staff'; fig.id = 'staffFigures'; fig.hidden = true;
+      $('summary').parentNode.insertBefore(fig, $('summary').nextSibling);
+      renderStaffFigures = () => {
+        const st = price && price.staff;
+        if (!st) { fig.hidden = true; return; }
+        const row = (name, p) => p ? `<tr><td>${esc(name)}</td><td>${p.weightGrams.toFixed(2)} g</td><td>${money(p.perGram)}/g</td><td>${money(p.costExGst)}</td><td>×${p.multiplier.toFixed(2)}</td><td>${money(p.priceIncGst)}</td></tr>` : '';
+        const paid = STAFF.meta && typeof STAFF.meta.price === 'number' ? STAFF.meta.price : null;
+        const diff = paid == null || !price ? '' : price.price === paid ? 'Same price as paid.' : `${price.price > paid ? 'Up' : 'Down'} ${money(Math.abs(price.price - paid))} on the ${money(paid)} paid.`;
+        fig.innerHTML = `<div class="nn__label">Staff · cost and markup</div>
+          <table class="nn__staff-t"><thead><tr><th></th><th>Weight</th><th>Metal</th><th>Cost ex GST</th><th>Markup</th><th>Price inc</th></tr></thead>
+          <tbody>${row('Nameplate', st.plate)}${row('Chain', st.chain)}</tbody></table>
+          <p class="nn__note">${diff ? esc(diff) + ' ' : ''}Metal prices ${st.metalPriceAt ? 'of ' + esc(new Date(st.metalPriceAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })) : ''}. Not shown to customers.</p>`;
+        fig.hidden = false;
+      };
+
+      // --- hand the design back to the dashboard
+      saveToOrder = async () => {
+        if (adding) return;
+        adding = true; say('Checking the design…'); renderSaveState();
+        await whenFinal();
+        const b = blocker();
+        if (b) { adding = false; renderSaveState(); showBlocker(b); return; }
+        await whenPriced();
+        if (!price) { adding = false; renderSaveState(); say('The price has not come back yet. Try again in a moment.', true); return; }
+        let picture = '';
+        try { picture = preview.snapshot(1000); } catch (e) { picture = ''; }
+        const msg = { type: 'nn-revision', build: STAFF.build, design: JSON.parse(N.designJSON(design)), alloy: alloy.key, chain: chainPayload(), note: orderNote.value.trim().slice(0, 300), preview: picture && picture.length < 800000 ? picture : '', price: price.price };
+        const opener = window.opener;
+        adding = false; renderSaveState();
+        if (!opener) { say("Open this page from the dashboard's order to save back to it.", true); return; }
+        let sent = 0;
+        for (const o of ORDER_ORIGINS) { try { opener.postMessage(msg, o); sent++; } catch (e) { /* not that origin */ } }
+        say(sent ? 'Sent to the dashboard: it is repricing and writing the new STL. You can close this tab.' : 'Could not reach the dashboard window.', !sent);
+      };
+    }
+
     /* ---------- boot ---------- */
-    app.setAttribute('aria-busy', 'false');
-    $('loading').hidden = true;
-    restoreDraft();
-    setAlloy(alloy.key);
-    chainPicker.set(chain.alloy.key, true);
-    renderChainTiles();
-    renderChainGauges();
-    renderChainLengths();
-    syncControls();
-    openBlock(1, { scroll: false });
-    schedule();
-    renderSaveState();
-    queueLift();
-    threeReady.then(attachPreview); // with or without three.js: without it the close-up stays a flat drawing
+    function boot() {
+      app.setAttribute('aria-busy', 'false');
+      $('loading').hidden = true;
+      if (!STAFF) restoreDraft();
+      setAlloy(alloy.key);
+      chainPicker.set(chain.alloy.key, true);
+      renderChainTiles();
+      renderChainGauges();
+      renderChainLengths();
+      syncControls();
+      openBlock(STAFF ? 2 : 1, { scroll: false });
+      schedule();
+      renderSaveState();
+      queueLift();
+      threeReady.then(attachPreview); // with or without three.js: without it the close-up stays a flat drawing
+    }
+    if (STAFF) loadOrder().then(boot, boot); else boot();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
