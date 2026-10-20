@@ -1,12 +1,15 @@
 {%- comment -%}
-  Burrows Wedding Ring Builder. Infinity Rings' 53 styles, personalised in 3D: five steps, one open at a time
-  (1 style · 2 metal · 3 shape · 4 size & engraving · 5 review) with a price bar that stays on screen.
+  Burrows Wedding Ring Builder. Opens on a gallery of Infinity Rings' 53 styles (collection chips, photo, "from $"
+  price); picking one opens the designer: five steps, one open at a time (1 style · 2 metal · 3 shape · 4 size &
+  engraving · 5 review) with a price bar that stays on screen. A share link, a saved draft or the dashboard's staff
+  mode open the designer directly.
 
   The designer is a React/three.js app whose source lives in wedding-builder/ in this repo; `npm run build` there
   writes assets/wedding-ring-builder.js and .css, which this section loads (Shopify's GitHub sync ignores the
   source folder). Models and photos come from Shopify Files (URLs baked into wedding-builder/src/data/*.ts).
 
-  Prices come from the wedding ring API on the droplet ({{ api_base }}/price), which asks Infinity's configurator.
+  Prices come from the wedding ring API on the droplet ({{ api_base }}/price), which asks Infinity's configurator;
+  the gallery's "from $" figures (9ct yellow gold at each style's narrowest width) come from {{ api_base }}/from-prices.
   "Pay deposit" adds the fixed "Made-to-Order Ring Deposit" variant to the cart with the whole design as line item
   properties (plus a hidden _Preview picture saved through {{ api_base }}/preview); the balance is settled in store
   once the size and design are confirmed. The design also lives in the page URL, so a reload or a shared link

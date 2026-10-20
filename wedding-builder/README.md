@@ -1,7 +1,8 @@
 # Wedding ring builder (source)
 
-The designer on `/pages/wedding-ring-builder`: Infinity Rings' 53 styles personalised in 3D, priced live, secured
-with a $200 deposit in the normal cart. This folder is the **source**; the theme loads the **built** files
+The builder on `/pages/wedding-ring-builder`: a gallery of Infinity Rings' 53 styles (collection chips, photos,
+"from $" prices), then the designer for the chosen style — personalised in 3D, priced live, secured with a $200
+deposit in the normal cart. This folder is the **source**; the theme loads the **built** files
 `assets/wedding-ring-builder.js` and `assets/wedding-ring-builder.css` from `sections/wedding-ring-builder.liquid`.
 Shopify's GitHub sync ignores this folder, so it lives in the repo without reaching the theme.
 
@@ -26,14 +27,19 @@ other theme file.
 
 | Where | What |
 |---|---|
-| `src/components/Designer.tsx` | the page: five steps, stage, price bar, add to cart, share link |
+| `src/components/App.tsx` | gallery first, then the designer; a share link, a draft or staff mode skip the gallery; browser back returns to it |
+| `src/components/Gallery.tsx` | the style gallery: collection chips, tiles with photo, name and "from $" (from the API's `/from-prices`) |
+| `src/data/collections.ts` | which styles sit in Plain / Patterned / Two-tone / Diamond-set (classified from the photos) |
+| `src/components/Designer.tsx` | the designer: five steps, stage, price bar, add to cart, share link; step 1 shows the chosen style with "Change style" |
+| `src/components/StageBoundary.tsx` | keeps the page up when a 3D model fails to load (photo + note instead) |
+| `src/lib/session.ts` | staff mode flags, the localStorage draft, which design a visit starts with |
 | `src/components/Ring3D.tsx` | the 3D ring (react-three-fiber) |
 | `src/lib/design.ts` | the design and its rules: defaults, clamping, summary rows, cart properties, URL state |
 | `src/lib/api.ts` | price lookups, order picture upload, `/cart/add.js` |
 | `src/lib/pricing/ring-price.ts`, `sku-options.ts` | Infinity's option snapshot and request rules (shared with the server, see below) |
 | `src/data/rings.ts`, `ring-models.ts` | the 53 styles, their photos and models on Shopify Files, per-model calibration |
 | `src/styles.css` | the section's styles (same shapes as `assets/name-necklace.css`) |
-| `test/` | a local harness: `node test/serve-harness.cjs` then open http://localhost:8791/test/harness.html (mock `/cart/add.js`, real Infinity prices through the server code); `node test/shot.cjs` / `node test/cart.cjs` drive it with Playwright |
+| `test/` | a local harness: `node test/serve-harness.cjs` then open http://localhost:8791/test/harness.html (mock `/cart/add.js`, real Infinity prices through the server code); `node test/shot.cjs` / `node test/cart.cjs` / `node test/gallery.cjs` (gallery → designer → back, drafts, staff mode, a blocked model) drive it with Playwright |
 
 ## How it fits together
 
