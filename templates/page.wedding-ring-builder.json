@@ -29,6 +29,7 @@
         "deposit_product": "made-to-order-ring-deposit",
         "cart_enabled": true,
         "api_base": "https://dashboard.burrowsjewellers.com.au/wedding-ring/api",
+        "script_url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wedding-ring-builder.js?v=1792471651",
         "booking_label": "Book a fitting"
       }
     },
