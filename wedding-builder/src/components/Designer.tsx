@@ -6,7 +6,15 @@ import { FINGER_SIZES, PROFILES } from "../lib/ring-options";
 import { METALS_3D, innerDiameterMm } from "../lib/ring-3d-options";
 import { ENGRAVING_FONTS, ENGRAVING_MAX, cleanEngraving } from "../lib/engraving";
 import { addDepositToCart, money, snapshot, uploadPreview, useRingPrice, type BuilderConfig } from "../lib/api";
-import { cartProperties, defaultDesign, derive, designFromParams, designToParams, FINISHES, FIT_LABELS, METAL_IDS, STONE_COLOURS, summaryRows, WIDTH_MAX, WIDTH_MIN, WIDTH_STEP, type Design } from "../lib/design";
+import { cartProperties, defaultDesign, derive, designFromParams, designToParams, FINISHES, FIT_LABELS, METAL_IDS, sizesFor, STONE_COLOURS, summaryRows, WIDTH_MAX, WIDTH_MIN, WIDTH_STEP, type Design } from "../lib/design";
+
+// Staff mode: the dashboard's Custom Orders tab opens this page with ?staff=1&order=<id> (and the design in the
+// query string). Every supplier size and width is offered, the supplier figures are shown, and "Save to order"
+// hands the design back to the dashboard window that opened the page instead of adding a deposit to the cart.
+const STAFF_ORIGINS = ["https://dashboard.burrowsjewellers.com.au", "http://localhost:5173", "http://localhost:4000", "http://localhost:8791"];
+const staffQuery = () => { try { return new URLSearchParams(window.location.search); } catch { return new URLSearchParams(); } };
+const STAFF = staffQuery().get("staff") === "1";
+const STAFF_ORDER = (staffQuery().get("order") || "").slice(0, 40);
 
 const Ring3D = lazy(() => import("./Ring3D"));
 
@@ -114,9 +122,9 @@ function RingTile({ ring, on, onClick }: { ring: Ring; on: boolean; onClick: () 
 
 export function Designer({ config }: { config: BuilderConfig }) {
   const [design, setDesign] = useState<Design>(() => {
-    try { return designFromParams(new URLSearchParams(window.location.search)) ?? loadDraft() ?? defaultDesign(CLASSIC_RINGS[0]!.id); } catch { return defaultDesign(CLASSIC_RINGS[0]!.id); }
+    try { return designFromParams(new URLSearchParams(window.location.search), { staff: STAFF }) ?? (STAFF ? null : loadDraft()) ?? defaultDesign(CLASSIC_RINGS[0]!.id); } catch { return defaultDesign(CLASSIC_RINGS[0]!.id); }
   });
-  const d = useMemo(() => derive(design), [design]);
+  const d = useMemo(() => derive(design, { staff: STAFF }), [design]);
   const set = useCallback((patch: Partial<Design>) => setDesign((prev) => ({ ...prev, ...patch })), []);
   const price = useRingPrice(config.apiBase, d.priceConfig);
   const lastPrice = useRef<number | null>(null);
@@ -135,6 +143,7 @@ export function Designer({ config }: { config: BuilderConfig }) {
   // left alone while designing, so analytics don't count every change as a page view).
   const params = useMemo(() => designToParams(design, d).toString(), [design, d]);
   useEffect(() => {
+    if (STAFF) return;
     const t = setTimeout(() => saveDraft(design), 300);
     return () => clearTimeout(t);
   }, [design]);
@@ -160,7 +169,20 @@ export function Designer({ config }: { config: BuilderConfig }) {
     if (lastPrice.current != null) return { text: money(lastPrice.current), cls: "stale" };
     return { text: "Checking…", cls: "stale" };
   })();
-  const canBuy = config.cartEnabled && !!d.priceConfig && price.status === "ok" && !busy;
+  const canBuy = (STAFF || config.cartEnabled) && !!d.priceConfig && price.status === "ok" && !busy;
+
+  /** Staff: hand the design to the dashboard that opened this page; it reprices server-side and records it. */
+  const saveToOrder = () => {
+    if (price.status !== "ok" || !d.priceConfig) return;
+    const msg = {
+      type: "wr-design", order: STAFF_ORDER, params, priceConfig: d.priceConfig, price: price.price, basis: price.basis,
+      summary: rows, preview: snapshot(glRef.current), link: shareUrl,
+    };
+    const opener = window.opener as Window | null;
+    if (!opener) { setStatus({ text: "Open this page from the dashboard's order to save back to it.", err: true }); return; }
+    for (const o of STAFF_ORIGINS) { try { opener.postMessage(msg, o); } catch { /* not that origin */ } }
+    setStatus({ text: "Sent to the dashboard. You can close this tab." });
+  };
 
   const share = async () => {
     try {
@@ -217,7 +239,9 @@ export function Designer({ config }: { config: BuilderConfig }) {
     </div>
   );
 
-  const sizeIndex = FINGER_SIZES.indexOf(d.size);
+  // Quarter sizes (staff) draw as their whole letter; the supplier gets the exact size.
+  const sizeLetter = d.size.replace(/\d\/\d$/, "");
+  const sizeIndex = FINGER_SIZES.indexOf(sizeLetter);
 
   return (
     <>
@@ -243,7 +267,7 @@ export function Designer({ config }: { config: BuilderConfig }) {
                   widthMm={d.width}
                   thicknessMm={d.thickness}
                   stoneColor={d.stone ? STONE_COLOURS[d.stone] : undefined}
-                  innerDiameterMm={innerDiameterMm(d.size, FINGER_SIZES)}
+                  innerDiameterMm={innerDiameterMm(sizeLetter, FINGER_SIZES)}
                   profile={d.profile}
                   finish={d.finish}
                   centreMetal={d.metal}
@@ -262,7 +286,7 @@ export function Designer({ config }: { config: BuilderConfig }) {
           )}
           <div className="wr__hud wr__hud--top">
             <div className="wr__hud-left">
-              <span className="wr__hint">{d.ring.id === "in1915" ? "Reference photo" : "Drag to turn"}</span>
+              <span className="wr__hint">{STAFF ? "Staff review" : d.ring.id === "in1915" ? "Reference photo" : "Drag to turn"}</span>
             </div>
             <div className="wr__hud-right">
               <span className={`wr__stage-price ${priceText.cls}`} id="stagePrice" aria-live="polite">{d.unpriced && open < 5 ? "" : priceText.text}</span>
@@ -274,7 +298,7 @@ export function Designer({ config }: { config: BuilderConfig }) {
           </div>
         </div>
 
-        <form className="wr__panel" autoComplete="off" noValidate onSubmit={(e) => { e.preventDefault(); void buy(); }}>
+        <form className="wr__panel" autoComplete="off" noValidate onSubmit={(e) => { e.preventDefault(); if (STAFF) saveToOrder(); else void buy(); }}>
           {block(1, "Style", <>
             <fieldset className="wr__group">
               <legend className="wr__label">Classic wedding bands</legend>
@@ -337,10 +361,16 @@ export function Designer({ config }: { config: BuilderConfig }) {
           {block(3, "Shape", <>
             <div className="wr__group">
               <label className="wr__label" htmlFor="widthRange">Width <small>{d.width.toFixed(1)} mm</small></label>
-              <div className="wr__slider">
-                <input type="range" id="widthRange" min={WIDTH_MIN} max={WIDTH_MAX} step={WIDTH_STEP} value={d.width} onChange={(e) => set({ width: Number(e.target.value) })} aria-label="Ring width in millimetres" />
-                <span className="wr__readout"><b>{d.width.toFixed(1)}</b> mm</span>
-              </div>
+              {STAFF && d.supplierWidths.length ? (
+                <div className="wr__chips wr__chips--sizes" id="widthChips" role="radiogroup" aria-label="Width (supplier list)">
+                  {d.supplierWidths.map((w) => <Chip key={w} on={d.width === w} onClick={() => set({ width: w })}>{w}</Chip>)}
+                </div>
+              ) : (
+                <div className="wr__slider">
+                  <input type="range" id="widthRange" min={WIDTH_MIN} max={WIDTH_MAX} step={WIDTH_STEP} value={d.width} onChange={(e) => set({ width: Number(e.target.value) })} aria-label="Ring width in millimetres" />
+                  <span className="wr__readout"><b>{d.width.toFixed(1)}</b> mm</span>
+                </div>
+              )}
               <p className="wr__note">3 mm is fine and delicate, 8 mm is a wide, substantial band. 4 to 6 mm is the most common.</p>
               {!d.widthPriced && d.priceSku && <p className="wr__warn">This style is not made at {d.width.toFixed(1)} mm. Choose another width to see a price.</p>}
             </div>
@@ -385,7 +415,7 @@ export function Designer({ config }: { config: BuilderConfig }) {
             <fieldset className="wr__group">
               <legend className="wr__label">Finger size <small>Australian letter sizes</small></legend>
               <div className="wr__chips wr__chips--sizes" id="sizeChips" role="radiogroup" aria-label="Finger size">
-                {FINGER_SIZES.map((s) => <Chip key={s} on={d.size === s} onClick={() => set({ size: s })}>{s}</Chip>)}
+                {sizesFor(STAFF).map((s) => <Chip key={s} on={d.size === s} onClick={() => set({ size: s })}>{s}</Chip>)}
               </div>
               <details className="wr__more">
                 <summary className="wr__label">Size guide<span className="wr__pm" aria-hidden="true" /></summary>
@@ -434,6 +464,7 @@ export function Designer({ config }: { config: BuilderConfig }) {
               <p className={`wr__price ${priceText.cls}`} id="priceOut" aria-live="polite">{priceText.text}</p>
               {price.status === "ok" && <p className="wr__note">Checked {new Date(price.checkedAt).toLocaleString("en-AU", { dateStyle: "medium", timeStyle: "short" })}. Finishes and engraving included.</p>}
             </div>
+            {STAFF && <p className="wr__note" id="staffLine">Staff · supplier SKU {d.priceSku ?? "none"}{price.status === "ok" ? ` · Infinity ${price.basis || "rrp"} ${money(price.price)}` : ""}{STAFF_ORDER ? ` · order ${STAFF_ORDER}` : ""}</p>}
             {config.leadTime && <p className="wr__note wr__note--ok">{config.leadTime}</p>}
             {config.depositNote && <p className="wr__note wr__note--ok">{config.depositNote}</p>}
             {config.proofNote && <p className="wr__note wr__note--proof">{config.proofNote}</p>}
@@ -451,7 +482,7 @@ export function Designer({ config }: { config: BuilderConfig }) {
                 <span className="wr__bar-l">{d.unpriced ? "Price" : "Indicative · incl. GST"}</span>
                 <span className={`wr__bar-price ${priceText.cls}`} id="barPrice" aria-live="polite">{priceText.text}</span>
               </div>
-              <button type="submit" className="btn btn--gold" id="addBtn" disabled={!canBuy}>{busy ? "One moment…" : `Pay $${config.depositAud} deposit`}</button>
+              <button type="submit" className="btn btn--gold" id="addBtn" disabled={!canBuy}>{STAFF ? "Save to order" : busy ? "One moment…" : `Pay $${config.depositAud} deposit`}</button>
             </div>
             <p className={`wr__status${status.err ? " err" : ""}`} id="status" role="status" aria-live="polite">{status.text}</p>
           </div>

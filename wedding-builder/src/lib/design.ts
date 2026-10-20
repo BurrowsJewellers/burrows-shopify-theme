@@ -6,6 +6,7 @@ import { FINGER_SIZES, PROFILES } from "./ring-options";
 import { FINISH_ROUGHNESS, METALS_3D, ringDesignDefaults } from "./ring-3d-options";
 import { cleanEngraving, ENGRAVING_FONTS, engravingFont } from "./engraving";
 import { DEFAULT_GRADE, GRADES_FOR_METAL, PRICED_SKUS, priceSkuFor, skuOptions, STONE_SPECS, thicknessAvailable, thicknessRange, type PriceConfig } from "./pricing/ring-price";
+import { SUPPLIER_SIZES } from "./pricing/sku-options";
 
 export type Design = {
   ring: string;
@@ -44,6 +45,10 @@ export const STONE_COLOURS: Record<string, string> = {
 };
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
+
+/** Staff mode (the dashboard's order review): every supplier size, every supplier width, supplier figures shown. */
+export type DeriveOptions = { staff?: boolean };
+export const sizesFor = (staff?: boolean) => (staff ? SUPPLIER_SIZES : FINGER_SIZES);
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
 const pick = (v: string | undefined | null, list: readonly string[], d: string) => (v && list.includes(v) ? v : d);
 
@@ -74,7 +79,8 @@ export function defaultDesign(ringId: string, keep?: Partial<Design>): Design {
 }
 
 /** Everything the page derives from a design: the effective (clamped) values and the supplier pricing bits. */
-export function derive(design: Design) {
+export function derive(design: Design, opts: DeriveOptions = {}) {
+  const staff = !!opts.staff;
   const ring = findRing(design.ring) ?? RINGS[0]!;
   const isClassic = ring.range === "classic";
   const hasModel = !!RING_MODELS[ring.id];
@@ -90,10 +96,13 @@ export function derive(design: Design) {
   const pattern = styleDefaults.pattern;
   const metal = pick(design.metal, METAL_IDS, styleDefaults.centreMetal);
   const side = pick(design.side, METAL_IDS, styleDefaults.sideMetal);
-  const width = clamp(Math.round(design.width / WIDTH_STEP) * WIDTH_STEP, WIDTH_MIN, WIDTH_MAX);
-
   const baseSku = PRICED_SKUS[ring.id];
   const priceSku = baseSku ? priceSkuFor(baseSku, profile) : null;
+  // Customers get 3–8 mm in half steps; staff may pick any width the supplier lists for the SKU.
+  const supplierWidths = priceSku ? skuOptions(priceSku)?.widths ?? [] : [];
+  const width = staff && supplierWidths.includes(round1(design.width))
+    ? round1(design.width)
+    : clamp(Math.round(design.width / WIDTH_STEP) * WIDTH_STEP, WIDTH_MIN, WIDTH_MAX);
   const tRange = (priceSku && thicknessRange(priceSku, width)) || { min: 1.2, max: 3 };
   const thickness = round1(clamp(design.thickness, tRange.min, tRange.max));
   const widthPriced = !!priceSku && thicknessAvailable(priceSku, width, thickness);
@@ -107,7 +116,7 @@ export function derive(design: Design) {
   const grade = grades.includes(design.grade) ? design.grade : DEFAULT_GRADE[metal] ?? "";
   const sideGrade = sideGrades.includes(design.sideGrade) ? design.sideGrade : DEFAULT_GRADE[side] ?? "";
   const finish = pick(design.finish, FINISHES, "Polished");
-  const size = pick(design.size, FINGER_SIZES, "P");
+  const size = pick(design.size, sizesFor(staff), "P");
   const engraving = cleanEngraving(design.engraving).trim();
   const font = engravingFont(design.font);
 
@@ -118,7 +127,7 @@ export function derive(design: Design) {
   const unpriced = !baseSku ? "Priced on enquiry" : !priceSku ? "Not priced for this profile" : !widthPriced ? "Width not listed for this style" : "";
 
   return {
-    ring, isClassic, hasModel, classicFlat, profile, twoTone, pattern, metal, side, width, thickness, tRange, widthPriced,
+    ring, isClassic, hasModel, classicFlat, profile, twoTone, pattern, metal, side, width, thickness, tRange, widthPriced, staff, supplierWidths,
     baseSku, priceSku, stoneOpts, stone, stoneSpec, stoneSize, stoneLabel, grades, sideGrades, grade, sideGrade, finish, size,
     engraving, font, priceConfig, unpriced,
     metalLabel: METALS_3D[metal]?.label ?? metal,
@@ -201,7 +210,7 @@ export function designToParams(design: Design, d: Derived): URLSearchParams {
 const num = (v: string | null, d: number) => { const n = Number(v); return v && Number.isFinite(n) ? n : d; };
 
 /** A design from a share link or the page URL; null when the URL carries no design. Every value is re-validated by derive(). */
-export function designFromParams(q: URLSearchParams): Design | null {
+export function designFromParams(q: URLSearchParams, opts: DeriveOptions = {}): Design | null {
   const ring = findRing(q.get(Q.ring));
   if (!ring) return null;
   const base = defaultDesign(ring.id);
@@ -217,7 +226,7 @@ export function designFromParams(q: URLSearchParams): Design | null {
     thickness: num(q.get(Q.t), base.thickness),
     profile: pick(q.get(Q.profile), PROFILES, base.profile),
     finish: pick(q.get(Q.finish), FINISHES, base.finish),
-    size: pick(q.get(Q.size), FINGER_SIZES, base.size),
+    size: pick(q.get(Q.size), sizesFor(opts.staff), base.size),
     engraving: cleanEngraving(q.get(Q.eng) ?? ""),
     font: pick(q.get(Q.font), ENGRAVING_FONTS.map((f) => f.id), base.font),
     stone: (q.get(Q.stone) ?? "").slice(0, 40),

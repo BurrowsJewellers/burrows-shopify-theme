@@ -98,3 +98,20 @@ describe("design", () => {
     expect(props["Finger size"]).toContain("free ring sizer requested");
   });
 });
+
+describe("staff mode", () => {
+  it("accepts quarter sizes and any supplier width; customers get neither", () => {
+    const design = { ...defaultDesign("ac6"), size: "P1/2", width: 2.7 };
+    const staff = derive(design, { staff: true });
+    expect(staff.size).toBe("P1/2");
+    expect(staff.width).toBe(2.7);
+    expect(staff.priceConfig).toMatchObject({ sku: "AC", size: "P1/2", width: 2.7 });
+    expect(staff.supplierWidths).toContain(10);
+    const cust = derive(design);
+    expect(cust.size).toBe("P");
+    expect(cust.width).toBe(3);
+    const q = designToParams(design, staff);
+    expect(designFromParams(q, { staff: true })!.size).toBe("P1/2");
+    expect(derive(designFromParams(q)!).size).toBe("P");
+  });
+});
