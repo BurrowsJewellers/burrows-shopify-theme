@@ -1,0 +1,27 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "builder": {
+      "type": "wedding-ring-builder",
+      "settings": {
+        "view": "catalogue",
+        "deposit_product": "made-to-order-ring-deposit",
+        "api_base": "https://dashboard.burrowsjewellers.com.au/wedding-ring/api",
+        "builder_path": "/pages/wedding-ring-builder",
+        "catalogue_path": "/pages/wedding-ring-catalogue",
+        "script_url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wedding-ring-builder-7563f14a.js?v=1792497841"
+      }
+    }
+  },
+  "order": [
+    "builder"
+  ]
+}

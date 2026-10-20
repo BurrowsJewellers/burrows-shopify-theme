@@ -1,59 +1,43 @@
 {%- comment -%}
-  Burrows Wedding Ring Builder. Opens on a gallery of Infinity Rings' 53 styles (collection chips, photo, "from $"
-  price); picking one opens the designer: five steps, one open at a time (1 style · 2 metal · 3 shape · 4 size &
-  engraving · 5 review) with a price bar that stays on screen. A share link, a saved draft or the dashboard's staff
-  mode open the designer directly.
+  Burrows Wedding Ring Builder: Mark's designer (BurrowsJewellers/ring-magic-studio), exactly as he built it, on the
+  website. Between the shop's header and footer the page is his: "Design Your Wedding Ring", the 3D designer and
+  "Your ring" (or, with the View setting on Catalogue, his "The Collection" page). The only additions are ordering
+  (Pay deposit adds the deposit to the shop's cart with the design as line item properties and goes to the cart)
+  and the dashboard's staff mode (?staff=1).
 
-  The designer is a React/three.js app whose source lives in wedding-builder/ in this repo; `npm run build` there
-  writes assets/wedding-ring-builder.js and .css, which this section loads (Shopify's GitHub sync ignores the
-  source folder). Models and photos come from Shopify Files (URLs baked into wedding-builder/src/data/*.ts).
+  Source: wedding-ring-mark/ in this repo. mark/src is his repo's src, copied unchanged; shop/ is the adapter
+  (cart, price API, CDN photos and models, staff mode); `npm run build` there writes assets/wedding-ring-builder.js.
+  The page is mounted in a shadow root so his styles apply exactly and the theme's CSS can't reach in.
+  This section adds no styles of its own: what you see is his.
 
-  Prices come from the wedding ring API on the droplet ({{ api_base }}/price), which asks Infinity's configurator;
-  the gallery's "from $" figures (9ct yellow gold at each style's narrowest width) come from {{ api_base }}/from-prices.
-  "Pay deposit" adds the fixed "Made-to-Order Ring Deposit" variant to the cart with the whole design as line item
-  properties (plus a hidden _Preview picture saved through {{ api_base }}/preview); the balance is settled in store
-  once the size and design are confirmed. The design also lives in the page URL, so a reload or a shared link
-  brings it back.
+  Prices: {{ api_base }}/price (the wedding ring API on the droplet, Infinity's configurator). Order pictures:
+  {{ api_base }}/preview.
 {%- endcomment -%}
 {%- assign s = section.settings -%}
 {%- assign api_base = s.api_base | strip | default: 'https://dashboard.burrowsjewellers.com.au/wedding-ring/api' -%}
 {%- assign deposit_variant = s.deposit_product.selected_or_first_available_variant -%}
-{{ 'wedding-ring-builder.css' | asset_url | stylesheet_tag }}
+{%- assign builder_path = s.builder_path | strip | default: '/pages/wedding-ring-builder' -%}
+{%- assign catalogue_path = s.catalogue_path | strip | default: '/pages/wedding-ring-catalogue' -%}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap">
-<section class="full-width wr" id="weddingRingBuilder" data-wedding-ring-builder>
-  <div class="wr__inner">
-    <header class="wr__head">
-      {%- if s.eyebrow != blank -%}<div class="eyebrow">{{ s.eyebrow }}</div>{%- endif -%}
-      <h1 class="wr__title">{{ s.heading }}</h1>
-      {%- if s.intro != blank -%}<p class="wr__intro lede">{{ s.intro }}</p>{%- endif -%}
-    </header>
-    <div class="wr__host" data-wr-app aria-busy="true">
-      <div class="wr__loading"><span class="wr__spin"></span>Loading the ring designer…</div>
-    </div>
-    <noscript><p class="wr__intro">The ring designer needs JavaScript. Call us on {{ settings.store_phone_display }} and we will design it with you.</p></noscript>
-  </div>
-  <script type="application/json" data-wr-config>
-    {
-      "apiBase": {{ api_base | json }},
-      "depositVariantId": {{ deposit_variant.id | default: 0 }},
-      "depositAud": {{ deposit_variant.price | default: 20000 | divided_by: 100 }},
-      "cartEnabled": {{ s.cart_enabled }},
-      "contactUrl": {{ s.contact_url | default: '/pages/contact' | json }},
-      "bookingUrl": {{ settings.booking_url | json }},
-      "bookingLabel": {{ s.booking_label | json }},
-      "phone": {{ settings.store_phone_display | json }},
-      "leadTime": {{ s.lead_time | json }},
-      "depositNote": {{ s.deposit_note | json }},
-      "proofNote": {{ s.proof_note | json }},
-      "priceNote": {{ s.price_note | json }},
-      "pageUrl": {{ shop.url | append: page.url | json }}
-    }
-  </script>
-</section>
-{%- comment -%} The built bundle is 1.4 MB. Until it is committed to assets/ (it needs a real git push, not the API), it is
-    served from Shopify Files; the "Script URL" setting points there. Clear the setting once assets/wedding-ring-builder.js exists. {%- endcomment -%}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Cormorant+Garamond:wght@400;500;600&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap">
+<div class="wr-mark" data-wr-app aria-busy="true" style="display:block;min-height:80vh;background:oklch(0.985 0.004 90);">
+  <div data-wr-fallback style="padding:96px 24px;text-align:center;font-family:Jost,system-ui,sans-serif;color:#6b6890;">Loading the ring designer…</div>
+</div>
+<noscript><p style="padding:24px;text-align:center;">The ring designer needs JavaScript. Call us on {{ settings.store_phone_display }} and we will design it with you.</p></noscript>
+<script type="application/json" data-wr-config>
+  {
+    "view": {{ s.view | default: 'designer' | json }},
+    "apiBase": {{ api_base | json }},
+    "depositVariantId": {{ deposit_variant.id | default: 0 }},
+    "depositAud": {{ deposit_variant.price | default: 20000 | divided_by: 100 }},
+    "pageUrl": {{ shop.url | append: builder_path | json }},
+    "catalogueUrl": {{ shop.url | append: catalogue_path | json }}
+  }
+</script>
+{%- comment -%} The built bundle is 1.5 MB. While a new build waits for a real git push (the GitHub API can't carry it),
+    it is served from Shopify Files through the Script URL setting; clear the setting once assets/wedding-ring-builder.js
+    is the new build. {%- endcomment -%}
 {%- if s.script_url != blank -%}
 <script src="{{ s.script_url }}" type="module"></script>
 {%- else -%}
@@ -67,22 +51,14 @@
   "class": "section-wedding-ring-builder",
   "limit": 1,
   "settings": [
-    { "type": "header", "content": "Copy" },
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Infinity Rings · Australian made" },
-    { "type": "text", "id": "heading", "label": "Heading", "default": "Design your wedding ring" },
-    { "type": "textarea", "id": "intro", "label": "Intro", "default": "Pick a style, your metal, width and finish, add an engraving and see it turn in 3D. Secure it with a deposit and we confirm the size on your finger in store before it is made." },
-    { "type": "text", "id": "lead_time", "label": "Lead time line", "default": "Made to order" },
-    { "type": "text", "id": "deposit_note", "label": "Deposit line", "default": "The $200 deposit secures your order and comes off the final price. We confirm everything with you in store before crafting begins." },
-    { "type": "textarea", "id": "proof_note", "label": "Note under the price", "default": "Indicative retail price, including GST. Finishes and engraving at no extra cost. We confirm the final price with you before your ring is made." },
-    { "type": "text", "id": "price_note", "label": "Price label (review step)", "default": "Indicative price · AUD incl. GST" },
-
+    { "type": "select", "id": "view", "label": "View", "default": "designer", "options": [ { "value": "designer", "label": "Designer" }, { "value": "catalogue", "label": "Catalogue (The Collection)" } ] },
     { "type": "header", "content": "Ordering" },
     { "type": "product", "id": "deposit_product", "label": "Deposit product", "info": "The fixed-price deposit product (Made-to-Order Ring Deposit). Its first variant is added to the cart with the design as line item properties." },
-    { "type": "checkbox", "id": "cart_enabled", "label": "Show Pay deposit", "default": true, "info": "Turn off to take enquiries only." },
     { "type": "text", "id": "api_base", "label": "Wedding ring API base URL", "default": "https://dashboard.burrowsjewellers.com.au/wedding-ring/api" },
-    { "type": "text", "id": "script_url", "label": "Script URL (optional)", "info": "Leave blank to load assets/wedding-ring-builder.js from the theme. Set to a Shopify Files URL to load the built script from Files instead." },
-    { "type": "url", "id": "contact_url", "label": "Enquiry link", "info": "Defaults to the contact page" },
-    { "type": "text", "id": "booking_label", "label": "Booking button label", "default": "Book a fitting" }
+    { "type": "header", "content": "Pages" },
+    { "type": "text", "id": "builder_path", "label": "Designer page path", "default": "/pages/wedding-ring-builder" },
+    { "type": "text", "id": "catalogue_path", "label": "Catalogue page path", "default": "/pages/wedding-ring-catalogue" },
+    { "type": "text", "id": "script_url", "label": "Script URL (optional)", "info": "Leave blank to load assets/wedding-ring-builder.js from the theme. Set to a Shopify Files URL to load a new build from Files until it is committed." }
   ],
   "presets": [ { "name": "Wedding ring builder" } ]
 }

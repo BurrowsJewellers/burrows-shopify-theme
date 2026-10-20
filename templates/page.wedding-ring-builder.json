@@ -9,78 +9,19 @@
  */
 {
   "sections": {
-    "main": {
-      "type": "main-page",
-      "settings": {
-        "show_title": false,
-        "show_breadcrumbs": true
-      }
-    },
     "builder": {
       "type": "wedding-ring-builder",
       "settings": {
-        "eyebrow": "Infinity Rings · Australian made",
-        "heading": "Design your wedding ring",
-        "intro": "Pick a style, your metal, width and finish, add an engraving and see it turn in 3D. Secure it with a deposit and we confirm the size on your finger in store before it is made.",
-        "lead_time": "Made to order",
-        "deposit_note": "The $200 deposit secures your order and comes off the final price. We confirm everything with you in store before crafting begins.",
-        "proof_note": "Indicative retail price, including GST. Finishes and engraving at no extra cost. We confirm the final price with you before your ring is made.",
-        "price_note": "Indicative price · AUD incl. GST",
+        "view": "designer",
         "deposit_product": "made-to-order-ring-deposit",
-        "cart_enabled": true,
         "api_base": "https://dashboard.burrowsjewellers.com.au/wedding-ring/api",
-        "booking_label": "Book a fitting"
-      }
-    },
-    "faq": {
-      "type": "faq",
-      "blocks": {
-        "q_1": {
-          "type": "question",
-          "settings": {
-            "question": "What can I choose?",
-            "answer": "<p>Fifty-three Infinity Rings styles, from plain classic bands to patterned and diamond-set designs. Yellow, white or rose gold in 9ct, 14ct or 18ct, platinum, palladium, sterling silver, titanium, tantalum or zirconium. Widths from 3 to 8 mm, your thickness, a polished, satin, brushed or matte finish, and an engraving inside the band at no extra cost.</p>"
-          }
-        },
-        "q_2": {
-          "type": "question",
-          "settings": {
-            "question": "How does the deposit work?",
-            "answer": "<p>The price you see is indicative and includes GST. A $200 deposit secures your order and comes off the final price. We confirm the design, size and final price with you before the ring is made, and the balance is settled in store.</p>"
-          }
-        },
-        "q_3": {
-          "type": "question",
-          "settings": {
-            "question": "How do I get the size right?",
-            "answer": "<p>Pick your nearest size in the designer, then book a fitting. Wedding bands are worn every day, so we size your finger in store rather than guessing from a chart. If you are not sure, tick the free ring sizer and we will post one to you.</p>"
-          }
-        },
-        "q_4": {
-          "type": "question",
-          "settings": {
-            "question": "I want a band that sits against my engagement ring. Can you match it?",
-            "answer": "<p>Yes. Bring the engagement ring in or book a consultation, and we will shape the band to sit flush against it.</p>"
-          }
-        }
-      },
-      "block_order": [
-        "q_1",
-        "q_2",
-        "q_3",
-        "q_4"
-      ],
-      "settings": {
-        "heading": "Questions before you start",
-        "open_first": false,
-        "background": "sand",
-        "image": "shopify://shop_images/petr-ovralov-jNpttMRlb_Y-unsplash.jpg"
+        "builder_path": "/pages/wedding-ring-builder",
+        "catalogue_path": "/pages/wedding-ring-catalogue",
+        "script_url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wedding-ring-builder-7563f14a.js?v=1792497841"
       }
     }
   },
   "order": [
-    "main",
-    "builder",
-    "faq"
+    "builder"
   ]
 }
