@@ -10,6 +10,25 @@ import { cartProperties, defaultDesign, derive, designFromParams, designToParams
 
 const Ring3D = lazy(() => import("./Ring3D"));
 
+// The draft: the design as last left, kept in this browser for a week so a reload or a return visit picks it up.
+const DRAFT_KEY = "wr-draft-v1";
+const DRAFT_DAYS = 7;
+function loadDraft(): Design | null {
+  try {
+    const raw = window.localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const j = JSON.parse(raw) as { at?: number; q?: string };
+    if (!j.q || !j.at || Date.now() - j.at > DRAFT_DAYS * 86_400_000) return null;
+    return designFromParams(new URLSearchParams(j.q));
+  } catch { return null; }
+}
+function saveDraft(design: Design) {
+  try { window.localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), q: designToParams(design, derive(design)).toString() })); } catch { /* storage off */ }
+}
+function clearDraft() {
+  try { window.localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+}
+
 const STEPS = ["Style", "Metal", "Shape", "Size & engraving", "Review"] as const;
 
 /** Metal swatch colours for the tiles (the 3D colours are tuned for lighting, these read better as flat discs). */
@@ -95,7 +114,7 @@ function RingTile({ ring, on, onClick }: { ring: Ring; on: boolean; onClick: () 
 
 export function Designer({ config }: { config: BuilderConfig }) {
   const [design, setDesign] = useState<Design>(() => {
-    try { return designFromParams(new URLSearchParams(window.location.search)) ?? defaultDesign(CLASSIC_RINGS[0]!.id); } catch { return defaultDesign(CLASSIC_RINGS[0]!.id); }
+    try { return designFromParams(new URLSearchParams(window.location.search)) ?? loadDraft() ?? defaultDesign(CLASSIC_RINGS[0]!.id); } catch { return defaultDesign(CLASSIC_RINGS[0]!.id); }
   });
   const d = useMemo(() => derive(design), [design]);
   const set = useCallback((patch: Partial<Design>) => setDesign((prev) => ({ ...prev, ...patch })), []);
@@ -112,14 +131,13 @@ export function Designer({ config }: { config: BuilderConfig }) {
   const onLoaded = useCallback(() => setModelReady(true), []);
   const blockRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // The URL carries the design, so a reload or a shared link brings it back.
+  // A shared link carries the design in its query string; a reload gets it back from the saved draft (the URL is
+  // left alone while designing, so analytics don't count every change as a page view).
   const params = useMemo(() => designToParams(design, d).toString(), [design, d]);
   useEffect(() => {
-    const t = setTimeout(() => {
-      try { window.history.replaceState(window.history.state, "", `${window.location.pathname}?${params}${window.location.hash}`); } catch { /* ignore */ }
-    }, 300);
+    const t = setTimeout(() => saveDraft(design), 300);
     return () => clearTimeout(t);
-  }, [params]);
+  }, [design]);
   const shareUrl = `${config.pageUrl || window.location.origin + window.location.pathname}?${params}`;
 
   const goTo = (n: number) => {
@@ -161,6 +179,7 @@ export function Designer({ config }: { config: BuilderConfig }) {
       const props = cartProperties(design, d, { price: money(price.price), link: shareUrl, preview });
       setStatus({ text: "Adding the deposit to your cart…" });
       await addDepositToCart(config.depositVariantId, props);
+      clearDraft();
       window.location.href = "/cart";
     } catch (e) {
       setStatus({ text: `${e instanceof Error ? e.message : "Something went wrong."} Call us on ${config.phone} and we will take it from here.`, err: true });
