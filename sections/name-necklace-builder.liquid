@@ -10,6 +10,11 @@
   hidden Shopify product at the quoted price; the theme adds that variant to the cart with the design details as
   line item properties.
 
+  Staff mode: the dashboard's Custom Orders tab opens this page with ?build=<id>&t=<token>. The paid design loads
+  from the API, the stage gains a "Letters" view (move, turn, scale single letters), every thickness is offered,
+  Review shows the cost figures, and the price bar's button sends the revised design back to the dashboard
+  (postMessage) instead of adding to the cart. All of it is built by name-necklace.js; nothing here changes.
+
   Script order matters. The geometry core looks for opentype.js, clipper-lib and earcut the moment it runs, so
   those three load (deferred, in order) before it. three.js is fetched by name-necklace.js only when the page is
   up, for the order picture; until then the (hidden) close-up is drawn as a flat metal shape.

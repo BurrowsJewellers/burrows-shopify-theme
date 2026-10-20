@@ -214,6 +214,46 @@ shopify-chat::part(dialog) { translate: 0 var(--nn-chat-lift, 0px); }
 .nn__closeup-cap { display: flex; justify-content: space-between; gap: 8px; padding: 5px 8px 6px; border-top: 1px solid rgba(255, 255, 255, .12); font-size: 11px; letter-spacing: .06em; color: rgba(255, 255, 255, .7); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; }
 .nn__closeup-cap span:first-child { text-transform: uppercase; letter-spacing: .14em; color: rgba(255, 255, 255, .5); }
 
+/* Staff mode (the dashboard's order review): the order bar, the Letters view on the stage, the letter panel, the cost figures */
+.nn__orderbar { display: flex; flex-direction: column; gap: 10px; margin: 0 0 18px; padding: 12px 16px; background: var(--ink); color: var(--cream); }
+.nn__orderbar.err { background: var(--nn-warn); }
+.nn__orderbar-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; font-size: 13.5px; }
+.nn__orderbar-row b { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 500; }
+.nn__orderbar-note { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px; }
+.nn__orderbar-note span { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255, 255, 255, .62); white-space: nowrap; }
+.nn__orderbar-note .nn__text { padding: 9px 12px; font-size: 14px; }
+.nn__viewseg { display: inline-flex; border: 1px solid rgba(255, 255, 255, .28); background: rgba(11, 14, 42, .62); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.nn__viewseg button { appearance: none; border: 0; background: none; color: #fff; font: inherit; font-size: 12px; font-family: var(--font-body); padding: 7px 11px; cursor: pointer; letter-spacing: .04em; }
+.nn__viewseg button[aria-pressed="true"] { background: var(--gold); color: var(--navy); font-weight: 500; }
+.nn__edit { position: absolute; inset: 0; background: radial-gradient(120% 100% at 50% 30%, #fbf8f1 0%, #ece6d8 70%, #ddd5c2 100%); }
+.nn__edit-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: default; touch-action: none; outline: none; }
+.nn__edit-svg.over { cursor: grab; }
+.nn__edit-svg.dragging { cursor: grabbing; }
+.nn__edit-svg:focus-visible { box-shadow: inset 0 0 0 2px var(--gold); }
+.nn__edit .ed-fill { fill: url(#nnEditFill); stroke: rgba(0, 0, 0, .25); stroke-width: .6; }
+.nn__edit .ed-box { fill: none; stroke: rgba(23, 29, 80, .25); stroke-dasharray: 4 4; }
+.nn__edit .ed-dim { fill: none; stroke: rgba(23, 29, 80, .45); stroke-width: 1; }
+.nn__edit .ed-hover { fill: rgba(214, 175, 53, .35); stroke: var(--gold-dark); stroke-width: 1.2; pointer-events: none; }
+.nn__edit .ed-sel { fill: rgba(23, 29, 80, .22); stroke: var(--ink); stroke-width: 1.4; pointer-events: none; }
+.nn__edit .ed-selbox { fill: none; stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
+.nn__edit .ed-thin { fill: rgba(200, 40, 40, .45); stroke: #b42020; stroke-width: 1; pointer-events: none; }
+.nn__edit .ed-loose { fill: none; stroke: #b42020; stroke-width: 2; stroke-dasharray: 5 3; pointer-events: none; }
+.nn__edit .ed-pivot { fill: var(--gold); stroke: var(--ink); stroke-width: 1; }
+.nn__tools { position: absolute; left: 14px; bottom: 56px; display: flex; flex-direction: column; gap: 4px; }
+.nn__tools button { appearance: none; height: 34px; padding: 0 12px; border: 1px solid var(--nn-line); background: rgba(255, 255, 255, .92); color: var(--ink); font: inherit; font-size: 12.5px; font-family: var(--font-body); cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 104px; }
+.nn__tools button kbd { font: inherit; font-size: 10.5px; color: var(--muted); border: 1px solid var(--nn-line); padding: 0 4px; line-height: 1.4; }
+.nn__tools button[aria-pressed="true"] { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+.nn__tools button[aria-pressed="true"] kbd { color: rgba(255, 255, 255, .7); border-color: rgba(255, 255, 255, .3); }
+.nn__edit-dims { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); font-size: 12px; color: var(--ink); background: rgba(255, 255, 255, .85); padding: 6px 10px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.nn__letters { border-top: 1px dashed rgba(var(--gold-dark-rgb), .35); padding-top: 14px; }
+.nn__pair--4 { grid-template-columns: auto auto auto auto auto auto; }
+.nn__pair--4 .nn__num { width: 5.2em; }
+.nn__staff { margin-top: 14px; padding: 12px 14px; background: #fff; border: 1px dashed rgba(var(--gold-dark-rgb), .45); }
+.nn__staff-t { width: 100%; border-collapse: collapse; margin: 8px 0 6px; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.nn__staff-t th { font-weight: 500; color: var(--muted); text-align: right; padding: 4px 6px; border-bottom: 1px solid rgba(var(--gold-dark-rgb), .25); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.nn__staff-t th:first-child, .nn__staff-t td:first-child { text-align: left; }
+.nn__staff-t td { padding: 6px; text-align: right; color: var(--ink); border-bottom: 1px solid rgba(var(--gold-dark-rgb), .12); }
+
 @media (max-width: 1023px) {
   .nn { padding: 28px var(--gutter-mobile) var(--section-pad-mobile); }
   .nn__app { grid-template-columns: minmax(0, 1fr); gap: 22px; min-height: 0; }
@@ -255,3 +295,8 @@ shopify-chat::part(dialog) { translate: 0 var(--nn-chat-lift, 0px); }
 .nn__stage-price.err { opacity: .7; }
 .nn__note--proof { margin-top: 4px; }
 @media (max-width: 520px) { .nn__stage-price { font-size: 18px; padding: 7px 10px; } .nn__stage-price.stale { font-size: 15px; } }
+@media (max-width: 760px) {
+  .nn__pair--4 { grid-template-columns: auto auto auto; }
+  .nn__orderbar-note { grid-template-columns: 1fr; gap: 6px; }
+  .nn__tools { bottom: 52px; }
+}
