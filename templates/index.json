@@ -61,6 +61,70 @@
       ],
       "settings": {}
     },
+    "name_necklace": {
+      "type": "image-with-text",
+      "blocks": {
+        "s1": {
+          "type": "step",
+          "settings": {
+            "title": "Type the name",
+            "text": "one name, up to 14 letters, in six fonts"
+          }
+        },
+        "s2": {
+          "type": "step",
+          "settings": {
+            "title": "Pick the metal and chain",
+            "text": "sterling silver or 9ct, 14ct and 18ct gold, with a cable, belcher or curb chain"
+          }
+        },
+        "s3": {
+          "type": "step",
+          "settings": {
+            "title": "See it to scale, with the price",
+            "text": "on a real neck, before you order"
+          }
+        },
+        "b1": {
+          "type": "button",
+          "settings": {
+            "label": "Design your name necklace",
+            "url": "shopify://pages/name-necklace-builder",
+            "use_booking_url": false,
+            "style": "gold"
+          }
+        },
+        "b2": {
+          "type": "button",
+          "settings": {
+            "label": "Shop necklaces",
+            "url": "shopify://collections/necklace",
+            "use_booking_url": false,
+            "style": "link"
+          }
+        }
+      },
+      "block_order": [
+        "s1",
+        "s2",
+        "s3",
+        "b1",
+        "b2"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/name-necklace-home.jpg",
+        "image_url": "",
+        "image_alt": "A gold name necklace reading Charlotte, worn on a 45 cm chain",
+        "image_position": "right",
+        "min_height": 640,
+        "background": "sand",
+        "badge": "New · Name necklace builder",
+        "eyebrow": "",
+        "heading": "Her name, in gold or silver, made in our workshop",
+        "text": "<p>Design a name necklace online in a few minutes. Every piece is cast from your design, finished by hand in Mildura, and priced live from today's metal price, with no guesswork.</p>",
+        "anchor": "name-necklace"
+      }
+    },
     "workshop": {
       "type": "image-with-text",
       "blocks": {
@@ -377,6 +441,7 @@
   "order": [
     "hero",
     "trust",
+    "name_necklace",
     "workshop",
     "anatomy",
     "wedding",
