@@ -56,6 +56,38 @@ export function useRingPrice(apiBase: string, config: PriceConfig | null): Price
   return state;
 }
 
+export type FromPrices = Record<string, { price: number; width: number; thickness: number }>;
+export type FromPricesState = { status: "loading" } | { status: "ok"; prices: FromPrices; checkedAt: string | null } | { status: "unavailable" };
+
+/** The gallery's "from $" figures: one request per page view (the API's answer is cacheable for five minutes). If the
+ *  server is still gathering them (just restarted), it is asked again a few times, ten seconds apart. */
+export function useFromPrices(apiBase: string, enabled = true): FromPricesState {
+  const [state, setState] = useState<FromPricesState>({ status: "loading" });
+  useEffect(() => {
+    if (!enabled) return;
+    const ctrl = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const load = async (attempt: number) => {
+      try {
+        const res = await fetch(`${apiBase}/from-prices`, { signal: ctrl.signal, cache: attempt ? "no-store" : "default" });
+        const j = (await res.json()) as { prices?: unknown; checkedAt?: unknown; refreshing?: unknown };
+        if (!res.ok || !j.prices || typeof j.prices !== "object") throw new Error();
+        const prices: FromPrices = {};
+        for (const [sku, v] of Object.entries(j.prices as Record<string, { price?: unknown; width?: unknown; thickness?: unknown }>)) {
+          if (typeof v?.price === "number" && v.price > 0) prices[sku] = { price: v.price, width: Number(v.width) || 0, thickness: Number(v.thickness) || 0 };
+        }
+        if (Object.keys(prices).length === 0 && j.refreshing && attempt < 6) { timer = setTimeout(() => void load(attempt + 1), 10_000); return; }
+        setState({ status: "ok", prices, checkedAt: typeof j.checkedAt === "string" ? j.checkedAt : null });
+      } catch {
+        if (!ctrl.signal.aborted) setState({ status: "unavailable" });
+      }
+    };
+    void load(0);
+    return () => { ctrl.abort(); if (timer) clearTimeout(timer); };
+  }, [apiBase, enabled]);
+  return state;
+}
+
 export const aud = new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD", maximumFractionDigits: 0 });
 /** "$1,890" rather than "A$1,890" (Intl adds the A on some platforms). */
 export const money = (n: number) => aud.format(n).replace(/^A\$/, "$");

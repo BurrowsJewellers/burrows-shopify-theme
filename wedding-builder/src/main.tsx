@@ -1,7 +1,7 @@
-// Entry point: mounts the designer into the section's [data-wr-app] element, reading its config from the
+// Entry point: mounts the gallery + designer into the section's [data-wr-app] element, reading its config from the
 // <script type="application/json" data-wr-config> block that sections/wedding-ring-builder.liquid writes.
 import { createRoot } from "react-dom/client";
-import { Designer } from "./components/Designer";
+import { App } from "./components/App";
 import type { BuilderConfig } from "./lib/api";
 import "./styles.css";
 
@@ -32,7 +32,7 @@ function mount() {
   const config = readConfig();
   host.removeAttribute("aria-busy");
   host.innerHTML = "";
-  createRoot(host).render(<Designer config={config} />);
+  createRoot(host).render(<App config={config} />);
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);

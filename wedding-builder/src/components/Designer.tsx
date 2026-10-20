@@ -6,36 +6,13 @@ import { FINGER_SIZES, PROFILES } from "../lib/ring-options";
 import { METALS_3D, innerDiameterMm } from "../lib/ring-3d-options";
 import { ENGRAVING_FONTS, ENGRAVING_MAX, cleanEngraving } from "../lib/engraving";
 import { addDepositToCart, money, snapshot, uploadPreview, useRingPrice, type BuilderConfig } from "../lib/api";
-import { cartProperties, defaultDesign, derive, designFromParams, designToParams, FINISHES, FIT_LABELS, METAL_IDS, sizesFor, STONE_COLOURS, summaryRows, WIDTH_MAX, WIDTH_MIN, WIDTH_STEP, type Design } from "../lib/design";
+import { cartProperties, defaultDesign, derive, designToParams, FINISHES, FIT_LABELS, METAL_IDS, sizesFor, STONE_COLOURS, summaryRows, WIDTH_MAX, WIDTH_MIN, WIDTH_STEP, type Design } from "../lib/design";
 
-// Staff mode: the dashboard's Custom Orders tab opens this page with ?staff=1&order=<id> (and the design in the
-// query string). Every supplier size and width is offered, the supplier figures are shown, and "Save to order"
-// hands the design back to the dashboard window that opened the page instead of adding a deposit to the cart.
-const STAFF_ORIGINS = ["https://dashboard.burrowsjewellers.com.au", "http://localhost:5173", "http://localhost:4000", "http://localhost:8791"];
-const staffQuery = () => { try { return new URLSearchParams(window.location.search); } catch { return new URLSearchParams(); } };
-const STAFF = staffQuery().get("staff") === "1";
-const STAFF_ORDER = (staffQuery().get("order") || "").slice(0, 40);
+import { clearDraft, saveDraft, STAFF, STAFF_ORDER, STAFF_ORIGINS } from "../lib/session";
+import { tilePhoto } from "../data/collections";
+import { StageBoundary } from "./StageBoundary";
 
 const Ring3D = lazy(() => import("./Ring3D"));
-
-// The draft: the design as last left, kept in this browser for a week so a reload or a return visit picks it up.
-const DRAFT_KEY = "wr-draft-v1";
-const DRAFT_DAYS = 7;
-function loadDraft(): Design | null {
-  try {
-    const raw = window.localStorage.getItem(DRAFT_KEY);
-    if (!raw) return null;
-    const j = JSON.parse(raw) as { at?: number; q?: string };
-    if (!j.q || !j.at || Date.now() - j.at > DRAFT_DAYS * 86_400_000) return null;
-    return designFromParams(new URLSearchParams(j.q));
-  } catch { return null; }
-}
-function saveDraft(design: Design) {
-  try { window.localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), q: designToParams(design, derive(design)).toString() })); } catch { /* storage off */ }
-}
-function clearDraft() {
-  try { window.localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
-}
 
 const STEPS = ["Style", "Metal", "Shape", "Size & engraving", "Review"] as const;
 
@@ -120,17 +97,27 @@ function RingTile({ ring, on, onClick }: { ring: Ring; on: boolean; onClick: () 
   );
 }
 
-export function Designer({ config }: { config: BuilderConfig }) {
-  const [design, setDesign] = useState<Design>(() => {
-    try { return designFromParams(new URLSearchParams(window.location.search), { staff: STAFF }) ?? (STAFF ? null : loadDraft()) ?? defaultDesign(CLASSIC_RINGS[0]!.id); } catch { return defaultDesign(CLASSIC_RINGS[0]!.id); }
-  });
+export type DesignerProps = {
+  config: BuilderConfig;
+  /** The design to start from (App decides: the share link, the draft, or the style picked in the gallery). */
+  initialDesign: Design;
+  /** Which step opens first: 1 normally, 2 when the style was just picked in the gallery. */
+  initialStep?: number;
+  /** Back to the gallery. Absent in staff mode, where the small style pickers are shown instead. */
+  onChangeStyle?: () => void;
+  /** Every change, so App can carry size, engraving etc. over to the next style picked in the gallery. */
+  onDesign?: (design: Design) => void;
+};
+
+export function Designer({ config, initialDesign, initialStep = 1, onChangeStyle, onDesign }: DesignerProps) {
+  const [design, setDesign] = useState<Design>(initialDesign);
   const d = useMemo(() => derive(design, { staff: STAFF }), [design]);
   const set = useCallback((patch: Partial<Design>) => setDesign((prev) => ({ ...prev, ...patch })), []);
   const price = useRingPrice(config.apiBase, d.priceConfig);
   const lastPrice = useRef<number | null>(null);
   if (price.status === "ok") lastPrice.current = price.price;
 
-  const [open, setOpen] = useState(1);
+  const [open, setOpen] = useState(initialStep);
   const [status, setStatus] = useState<{ text: string; err?: boolean }>({ text: "" });
   const [busy, setBusy] = useState(false);
   const [modelReady, setModelReady] = useState(false);
@@ -143,9 +130,11 @@ export function Designer({ config }: { config: BuilderConfig }) {
   // left alone while designing, so analytics don't count every change as a page view).
   const params = useMemo(() => designToParams(design, d).toString(), [design, d]);
   useEffect(() => {
+    onDesign?.(design);
     if (STAFF) return;
     const t = setTimeout(() => saveDraft(design), 300);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [design]);
   const shareUrl = `${config.pageUrl || window.location.origin + window.location.pathname}?${params}`;
 
@@ -261,6 +250,7 @@ export function Designer({ config }: { config: BuilderConfig }) {
             </figure>
           ) : (
             <div className="wr__gl">
+              <StageBoundary resetKey={d.ring.id} photo={tilePhoto(d.ring)} onError={onLoaded}>
               <Suspense fallback={<Loading />}>
                 <Ring3D
                   key={d.ring.id}
@@ -281,6 +271,7 @@ export function Designer({ config }: { config: BuilderConfig }) {
                   onLoaded={onLoaded}
                 />
               </Suspense>
+              </StageBoundary>
               {!modelReady && d.hasModel && <Loading />}
             </div>
           )}
@@ -299,7 +290,18 @@ export function Designer({ config }: { config: BuilderConfig }) {
         </div>
 
         <form className="wr__panel" autoComplete="off" noValidate onSubmit={(e) => { e.preventDefault(); if (STAFF) saveToOrder(); else void buy(); }}>
-          {block(1, "Style", <>
+          {block(1, "Style", onChangeStyle ? <>
+            <div className="wr__chosen" id="chosenStyle">
+              <span className="wr__chosen-img"><img src={tilePhoto(d.ring)} alt="" width={160} height={160} /></span>
+              <span className="wr__chosen-text">
+                <b>{d.ring.displayName ?? d.ring.name}</b>
+                {d.ring.displayName && <small>{d.ring.name}</small>}
+                <span className="wr__note">Made to order by Infinity Rings, Australian made, in your metal, width and size.</span>
+              </span>
+              <button type="button" className="wr__mini wr__mini--dark" id="changeStyle" onClick={onChangeStyle}>Change style</button>
+            </div>
+            <button type="button" className="wr__next" onClick={() => goTo(2)}>Next: Metal</button>
+          </> : <>
             <fieldset className="wr__group">
               <legend className="wr__label">Classic wedding bands</legend>
               <div className="wr__rings" role="radiogroup" aria-label="Classic wedding bands">

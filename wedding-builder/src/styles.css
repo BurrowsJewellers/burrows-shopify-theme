@@ -213,6 +213,40 @@ shopify-chat::part(dialog) { translate: 0 var(--nn-chat-lift, 0px); }
 .wr__stage-price.stale { opacity: .72; }
 .wr__stage-price.err { font-family: var(--font-body); font-size: 12.5px; font-weight: 300; opacity: .85; white-space: normal; }
 
+/* Gallery: the page opens here; a tile opens the designer with that style */
+.wr-g { display: flex; flex-direction: column; gap: 26px; }
+.wr-g__top { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+.wr-g__h { font-family: var(--font-heading); font-weight: 500; font-size: clamp(24px, 2.6vw, 30px); line-height: 1.15; color: var(--ink); margin: 0; }
+.wr-g__blurb { margin: 0; max-width: 560px; font-size: 14px; color: var(--muted); font-weight: 300; line-height: 1.6; min-height: 1.6em; }
+.wr-g__chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+.wr-g__chips .wr__chip small { font-size: 11px; opacity: .7; margin-left: 2px; }
+.wr-g__chips .wr__chip.on small { opacity: .85; }
+.wr-g__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.wr-g__tile { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 14px 12px 16px; border: 1px solid var(--wr-line); background: #fff; font: inherit; font-family: var(--font-body); color: var(--body); text-align: center; cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .15s; }
+.wr-g__tile:hover, .wr-g__tile:focus-visible { border-color: var(--gold); box-shadow: 0 10px 28px rgba(11, 14, 42, .08); transform: translateY(-2px); }
+.wr-g__tile:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.wr-g__img { display: block; width: 100%; aspect-ratio: 1; overflow: hidden; margin-bottom: 8px; }
+.wr-g__img img { width: 100%; height: 100%; object-fit: contain; display: block; transition: transform .25s; }
+.wr-g__tile:hover .wr-g__img img { transform: scale(1.04); }
+.wr-g__name { font-family: var(--font-heading); font-size: 17px; line-height: 1.2; color: var(--ink); }
+.wr-g__code { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.wr-g__from { margin-top: 6px; font-size: 13.5px; color: var(--gold-dark); font-weight: 500; font-variant-numeric: tabular-nums; }
+.wr-g__from--enq, .wr-g__from--none { color: var(--muted); font-weight: 300; }
+.wr-g__from--wait { color: var(--muted); }
+.wr-g__cta { margin-top: 10px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink); font-weight: 500; opacity: .55; transition: opacity .15s; }
+.wr-g__tile:hover .wr-g__cta, .wr-g__tile:focus-visible .wr-g__cta { opacity: 1; }
+.wr-g__foot { margin: 6px auto 0; max-width: 720px; text-align: center; font-size: 12.5px; color: var(--muted); font-weight: 300; line-height: 1.6; }
+
+/* The chosen style in step 1 (the gallery picked it) */
+.wr__chosen { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 12px; border: 1px solid var(--wr-line); background: #fff; }
+.wr__chosen-img { display: block; width: 96px; aspect-ratio: 1; background: #fff; }
+.wr__chosen-img img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.wr__chosen-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.wr__chosen-text b { font-family: var(--font-heading); font-weight: 500; font-size: 18px; color: var(--ink); line-height: 1.2; }
+.wr__chosen-text small { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.wr__mini--dark { margin-left: 0; background: transparent; color: var(--ink); border-color: var(--ink); -webkit-backdrop-filter: none; backdrop-filter: none; height: 36px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; }
+.wr__mini--dark:hover { background: var(--ink); color: var(--cream); }
+
 @media (max-width: 1023px) {
   .wr { padding: 28px var(--gutter-mobile) var(--section-pad-mobile); }
   .wr__app { grid-template-columns: minmax(0, 1fr); gap: 22px; min-height: 0; }
@@ -222,6 +256,7 @@ shopify-chat::part(dialog) { translate: 0 var(--nn-chat-lift, 0px); }
   .wr__steps button span { font-size: 12px; }
   .wr__steps li.on button { font-size: 11px; gap: 8px; }
   .wr__metal-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .wr-g__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
   .wr__bar { margin-left: calc(-1 * var(--gutter-mobile, 16px)); margin-right: calc(-1 * var(--gutter-mobile, 16px)); }
 }
 @media (max-width: 520px) {
@@ -233,6 +268,13 @@ shopify-chat::part(dialog) { translate: 0 var(--nn-chat-lift, 0px); }
   .wr__seg label { flex: 1 1 calc(50% - 8px); }
   .wr__seg span { padding: 0 8px; }
   .wr__rings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wr-g__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .wr-g__tile { padding: 10px 8px 12px; }
+  .wr-g__name { font-size: 15px; }
+  .wr-g__cta { display: none; }
+  .wr__chosen { grid-template-columns: 72px minmax(0, 1fr); }
+  .wr__chosen-img { width: 72px; }
+  .wr__chosen .wr__mini--dark { grid-column: 1 / -1; justify-self: start; }
   .wr__fits { grid-template-columns: minmax(0, 1fr); }
   .wr__sizes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .wr__font-list .fname { font-size: 19px; }
