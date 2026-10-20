@@ -1,6 +1,0 @@
-node_modules/
-test/previews/
-test/cart-adds.json
-test/*.png
-test/*.log
-test/dbg*.cjs

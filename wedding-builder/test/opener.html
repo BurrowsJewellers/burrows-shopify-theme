@@ -1,6 +1,0 @@
-<!doctype html><title>dashboard stand-in</title>
-<button id="open">Open builder</button><pre id="out"></pre>
-<script>
-  window.addEventListener('message', (ev) => { if (ev.data && ev.data.type === 'wr-design') { const d = ev.data; d.preview = d.preview ? d.preview.slice(0, 40) + '… (' + d.preview.length + ')' : ''; document.getElementById('out').textContent = JSON.stringify(d, null, 1); } });
-  document.getElementById('open').onclick = () => window.open('/test/harness.html?staff=1&order=CO-7&ring=ac6&metal=yellow-gold&size=P1%2F2&w=2.7&t=1.4', 'builder');
-</script>

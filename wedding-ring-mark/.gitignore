@@ -1,0 +1,6 @@
+node_modules/
+test/compare/
+test/net-cache/
+test/previews/
+test/cart-adds.json
+test/*.log

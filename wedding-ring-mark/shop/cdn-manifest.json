@@ -1,0 +1,562 @@
+{
+  "models": {
+    "ac6": {
+      "id": "gid://shopify/Model3d/50286910570801",
+      "url": "https://cdn.shopify.com/3d/models/31c00e2dbd1885a0/wr-ac6.glb"
+    },
+    "ad7": {
+      "id": "gid://shopify/Model3d/50286927380785",
+      "url": "https://cdn.shopify.com/3d/models/7863d919afb721fd/wr-ad7.glb"
+    },
+    "ag2": {
+      "id": "gid://shopify/Model3d/50286919745841",
+      "url": "https://cdn.shopify.com/3d/models/f1f19c94902ebb4e/wr-ag2.glb"
+    },
+    "ah2": {
+      "id": "gid://shopify/Model3d/50286919975217",
+      "url": "https://cdn.shopify.com/3d/models/50e0c8f42ad5a9cf/wr-ah2.glb"
+    },
+    "ak1": {
+      "id": "gid://shopify/Model3d/50286927511857",
+      "url": "https://cdn.shopify.com/3d/models/0d5d5b3cabba506a/wr-ak1.glb"
+    },
+    "as2": {
+      "id": "gid://shopify/Model3d/50286919844145",
+      "url": "https://cdn.shopify.com/3d/models/d099531bfd502c78/wr-as2.glb"
+    },
+    "ea": {
+      "id": "gid://shopify/Model3d/50286927544625",
+      "url": "https://cdn.shopify.com/3d/models/5d1a6a6c0cf01cb3/wr-ea.glb"
+    },
+    "fb6": {
+      "id": "gid://shopify/Model3d/50286934163761",
+      "url": "https://cdn.shopify.com/3d/models/429cffc50ccda94f/wr-fb6.glb"
+    },
+    "in1004": {
+      "id": "gid://shopify/Model3d/50286934130993",
+      "url": "https://cdn.shopify.com/3d/models/ce431287f67792b3/wr-in1004.glb"
+    },
+    "in1008": {
+      "id": "gid://shopify/Model3d/50286955200817",
+      "url": "https://cdn.shopify.com/3d/models/575b371419076cd1/wr-in1008.glb"
+    },
+    "in1034": {
+      "id": "gid://shopify/Model3d/50286955102513",
+      "url": "https://cdn.shopify.com/3d/models/1dfd7c64499bd45f/wr-in1034.glb"
+    },
+    "in1036": {
+      "id": "gid://shopify/Model3d/50286927479089",
+      "url": "https://cdn.shopify.com/3d/models/0c702902fe9b5b09/wr-in1036.glb"
+    },
+    "in1038": {
+      "id": "gid://shopify/Model3d/50286919876913",
+      "url": "https://cdn.shopify.com/3d/models/8359d7824ec4dcbb/wr-in1038.glb"
+    },
+    "in1045": {
+      "id": "gid://shopify/Model3d/50286942093617",
+      "url": "https://cdn.shopify.com/3d/models/18ee9b16494cb3c2/wr-in1045.glb"
+    },
+    "in1046": {
+      "id": "gid://shopify/Model3d/50286927348017",
+      "url": "https://cdn.shopify.com/3d/models/0db19933e3634084/wr-in1046.glb"
+    },
+    "in1049": {
+      "id": "gid://shopify/Model3d/50286933868849",
+      "url": "https://cdn.shopify.com/3d/models/3cd23e9e3f11e7ce/wr-in1049.glb"
+    },
+    "in1058": {
+      "id": "gid://shopify/Model3d/50286934032689",
+      "url": "https://cdn.shopify.com/3d/models/4c97d69208ce3393/wr-in1058.glb"
+    },
+    "in1074": {
+      "id": "gid://shopify/Model3d/50286919942449",
+      "url": "https://cdn.shopify.com/3d/models/12785a0eed958dc1/wr-in1074.glb"
+    },
+    "in1076": {
+      "id": "gid://shopify/Model3d/50286954905905",
+      "url": "https://cdn.shopify.com/3d/models/fa3a5f475a81f738/wr-in1076.glb"
+    },
+    "in1080": {
+      "id": "gid://shopify/Model3d/50286919909681",
+      "url": "https://cdn.shopify.com/3d/models/63622fa2ff6905a6/wr-in1080.glb"
+    },
+    "in1107": {
+      "id": "gid://shopify/Model3d/50286942126385",
+      "url": "https://cdn.shopify.com/3d/models/1b03d74d26994736/wr-in1107.glb"
+    },
+    "in1108": {
+      "id": "gid://shopify/Model3d/50286955135281",
+      "url": "https://cdn.shopify.com/3d/models/06c63d577a0b37c4/wr-in1108.glb"
+    },
+    "in1243": {
+      "id": "gid://shopify/Model3d/50286933999921",
+      "url": "https://cdn.shopify.com/3d/models/85f68c25bcf2c7ce/wr-in1243.glb"
+    },
+    "in1275": {
+      "id": "gid://shopify/Model3d/50286942060849",
+      "url": "https://cdn.shopify.com/3d/models/0401af0f9bd124fb/wr-in1275.glb"
+    },
+    "in1277": {
+      "id": "gid://shopify/Model3d/50286919778609",
+      "url": "https://cdn.shopify.com/3d/models/487ee39daaa425fc/wr-in1277.glb"
+    },
+    "in1344": {
+      "id": "gid://shopify/Model3d/50286942257457",
+      "url": "https://cdn.shopify.com/3d/models/e8b3e1f65b9c268d/wr-in1344.glb"
+    },
+    "in1345": {
+      "id": "gid://shopify/Model3d/50286919713073",
+      "url": "https://cdn.shopify.com/3d/models/6d85389de448f7cd/wr-in1345.glb"
+    },
+    "in1379": {
+      "id": "gid://shopify/Model3d/50286927315249",
+      "url": "https://cdn.shopify.com/3d/models/6c28a2932f02e6ef/wr-in1379.glb"
+    },
+    "in1381": {
+      "id": "gid://shopify/Model3d/50286954971441",
+      "url": "https://cdn.shopify.com/3d/models/828a774ca7897272/wr-in1381.glb"
+    },
+    "in1382": {
+      "id": "gid://shopify/Model3d/50286933967153",
+      "url": "https://cdn.shopify.com/3d/models/95d631b763cf05c2/wr-in1382.glb"
+    },
+    "in1388": {
+      "id": "gid://shopify/Model3d/50286942159153",
+      "url": "https://cdn.shopify.com/3d/models/1c5e280eb705f790/wr-in1388.glb"
+    },
+    "in1394": {
+      "id": "gid://shopify/Model3d/50286954938673",
+      "url": "https://cdn.shopify.com/3d/models/93ffd46f05e0c0de/wr-in1394.glb"
+    },
+    "in1398": {
+      "id": "gid://shopify/Model3d/50286942028081",
+      "url": "https://cdn.shopify.com/3d/models/14c3781cbca2a1d5/wr-in1398.glb"
+    },
+    "in1432": {
+      "id": "gid://shopify/Model3d/50286927577393",
+      "url": "https://cdn.shopify.com/3d/models/fff4cf8c0568977a/wr-in1432.glb"
+    },
+    "in1610": {
+      "id": "gid://shopify/Model3d/50286934098225",
+      "url": "https://cdn.shopify.com/3d/models/45eb8efcb3c4a1a4/wr-in1610.glb"
+    },
+    "in1617": {
+      "id": "gid://shopify/Model3d/50286955036977",
+      "url": "https://cdn.shopify.com/3d/models/0405f46ed6e9e24e/wr-in1617.glb"
+    },
+    "in1760": {
+      "id": "gid://shopify/Model3d/50286927610161",
+      "url": "https://cdn.shopify.com/3d/models/7fb56624a09f3023/wr-in1760.glb"
+    },
+    "in1765": {
+      "id": "gid://shopify/Model3d/50286933901617",
+      "url": "https://cdn.shopify.com/3d/models/435852a4d121cb25/wr-in1765.glb"
+    },
+    "in1849": {
+      "id": "gid://shopify/Model3d/50286927446321",
+      "url": "https://cdn.shopify.com/3d/models/b4a7b10f00cecda5/wr-in1849.glb"
+    },
+    "in1886": {
+      "id": "gid://shopify/Model3d/50286955168049",
+      "url": "https://cdn.shopify.com/3d/models/0ac772af10a33e82/wr-in1886.glb"
+    },
+    "in1914": {
+      "id": "gid://shopify/Model3d/50286942290225",
+      "url": "https://cdn.shopify.com/3d/models/8b46a4955eca813f/wr-in1914.glb"
+    },
+    "in1915": {
+      "id": "gid://shopify/Model3d/50286934065457",
+      "url": "https://cdn.shopify.com/3d/models/d4522a5dd53208a8/wr-in1915.glb"
+    },
+    "in1918": {
+      "id": "gid://shopify/Model3d/50286955004209",
+      "url": "https://cdn.shopify.com/3d/models/f2190b98bc157a8b/wr-in1918.glb"
+    },
+    "in6001": {
+      "id": "gid://shopify/Model3d/50286942224689",
+      "url": "https://cdn.shopify.com/3d/models/a3ebd122392511ba/wr-in6001.glb"
+    },
+    "in6002": {
+      "id": "gid://shopify/Model3d/50286955233585",
+      "url": "https://cdn.shopify.com/3d/models/53dd35a12636b189/wr-in6002.glb"
+    },
+    "in6003": {
+      "id": "gid://shopify/Model3d/50286933934385",
+      "url": "https://cdn.shopify.com/3d/models/7a182bbe77106375/wr-in6003.glb"
+    },
+    "in6004": {
+      "id": "gid://shopify/Model3d/50286955069745",
+      "url": "https://cdn.shopify.com/3d/models/c7a502705d0afa8b/wr-in6004.glb"
+    },
+    "in6006": {
+      "id": "gid://shopify/Model3d/50286927413553",
+      "url": "https://cdn.shopify.com/3d/models/2eda596cb06e1553/wr-in6006.glb"
+    },
+    "in6007": {
+      "id": "gid://shopify/Model3d/50286919811377",
+      "url": "https://cdn.shopify.com/3d/models/053924742514e147/wr-in6007.glb"
+    },
+    "in6010": {
+      "id": "gid://shopify/Model3d/50286942191921",
+      "url": "https://cdn.shopify.com/3d/models/a55ce09e926a1af6/wr-in6010.glb"
+    },
+    "in8018": {
+      "id": "gid://shopify/Model3d/50286920007985",
+      "url": "https://cdn.shopify.com/3d/models/5e8473f6519f4c64/wr-in8018.glb"
+    },
+    "in8021": {
+      "id": "gid://shopify/Model3d/50286941995313",
+      "url": "https://cdn.shopify.com/3d/models/66470ec43b480204/wr-in8021.glb"
+    }
+  },
+  "images": {
+    "0189cebd-in1345-titanium.png": {
+      "id": "gid://shopify/MediaImage/50286956773681",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1345-titanium.png?v=1792467223"
+    },
+    "04359000-in6001-tantalum.jpg": {
+      "id": "gid://shopify/MediaImage/50286956806449",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in6001-tantalum.jpg?v=1792467223"
+    },
+    "0a242aac-AS-2-classic-wedding-ring-australia.jpg": {
+      "id": "gid://shopify/MediaImage/50286956839217",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-AS-2-classic-wedding-ring-australia.jpg?v=1792467223"
+    },
+    "0b0a1944-EA-mens-classic-wedding-ring.jpg": {
+      "id": "gid://shopify/MediaImage/50286956871985",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-EA-mens-classic-wedding-ring.jpg?v=1792467223"
+    },
+    "0ecc4214-AK-1-mens-classic-wedding-ring.jpg": {
+      "id": "gid://shopify/MediaImage/50286956904753",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-AK-1-mens-classic-wedding-ring.jpg?v=1792467223"
+    },
+    "1aa0aba2-in1849-tantalum.png": {
+      "id": "gid://shopify/MediaImage/50286956937521",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1849-tantalum.png?v=1792467224"
+    },
+    "1cd280dc-in1058-gold.png": {
+      "id": "gid://shopify/MediaImage/50286956970289",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1058-gold.png?v=1792467223"
+    },
+    "1d2e1669-in1004-titanium.jpg": {
+      "id": "gid://shopify/MediaImage/50286957003057",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1004-titanium.jpg?v=1792467223"
+    },
+    "24e2dba6-in1008-tantalum.jpg": {
+      "id": "gid://shopify/MediaImage/50286957035825",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1008-tantalum.jpg?v=1792467223"
+    },
+    "29f4dfe9-in6002-tantalum.jpg": {
+      "id": "gid://shopify/MediaImage/50286957068593",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in6002-tantalum.jpg?v=1792467223"
+    },
+    "2b974d07-in1760-silver.jpg": {
+      "id": "gid://shopify/MediaImage/50286957101361",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1760-silver.jpg?v=1792467223"
+    },
+    "2ca7d9ef-in1036-titanium.jpg": {
+      "id": "gid://shopify/MediaImage/50286957134129",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1036-titanium.jpg?v=1792467223"
+    },
+    "30a1a381-in8018-zirconium.jpg": {
+      "id": "gid://shopify/MediaImage/50286957166897",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in8018-zirconium.jpg?v=1792467223"
+    },
+    "317f8c25-in1344-titanium.jpg": {
+      "id": "gid://shopify/MediaImage/50286957199665",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1344-titanium.jpg?v=1792467223"
+    },
+    "3427069e-in1381-platinum.jpg": {
+      "id": "gid://shopify/MediaImage/50286957232433",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1381-platinum.jpg?v=1792467223"
+    },
+    "35ef2b59-in1046-zirconium.png": {
+      "id": "gid://shopify/MediaImage/50286957265201",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1046-zirconium.png?v=1792467223"
+    },
+    "390fd2e4-in1049-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286957297969",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1049-gold.jpg?v=1792467223"
+    },
+    "3d45e00e-in8018-silver.jpg": {
+      "id": "gid://shopify/MediaImage/50286957330737",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in8018-silver.jpg?v=1792467223"
+    },
+    "3dc9e35c-in6006-tantalum.jpg": {
+      "id": "gid://shopify/MediaImage/50286957363505",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in6006-tantalum.jpg?v=1792467223"
+    },
+    "4a4041a7-in1076-titanium.jpg": {
+      "id": "gid://shopify/MediaImage/50286957396273",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1076-titanium.jpg?v=1792467223"
+    },
+    "4a8b4776-AG-2-classic-wedding-ring.jpg": {
+      "id": "gid://shopify/MediaImage/50286957429041",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-AG-2-classic-wedding-ring.jpg?v=1792467223"
+    },
+    "4aee832e-in1008-gold.png": {
+      "id": "gid://shopify/MediaImage/50286957461809",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1008-gold.png?v=1792467223"
+    },
+    "5c9f90dd-in1432-silver.jpg": {
+      "id": "gid://shopify/MediaImage/50286958215473",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1432-silver.jpg?v=1792467243"
+    },
+    "5cc0ba35-in1914-silver.jpg": {
+      "id": "gid://shopify/MediaImage/50286958248241",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1914-silver.jpg?v=1792467243"
+    },
+    "61b9929a-in6010-zirconium.jpg": {
+      "id": "gid://shopify/MediaImage/50286958281009",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in6010-zirconium.jpg?v=1792467243"
+    },
+    "666b5126-in1108-titanium.jpg": {
+      "id": "gid://shopify/MediaImage/50286958313777",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1108-titanium.jpg?v=1792467243"
+    },
+    "6c9a6e40-in1918-zirconium.jpg": {
+      "id": "gid://shopify/MediaImage/50286958346545",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1918-zirconium.jpg?v=1792467243"
+    },
+    "6d154563-in1074-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286958379313",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1074-gold.jpg?v=1792467243"
+    },
+    "70e0ecf1-in1080-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286958412081",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1080-gold.jpg?v=1792467243"
+    },
+    "710cf887-in1760-tantalum.png": {
+      "id": "gid://shopify/MediaImage/50286958444849",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1760-tantalum.png?v=1792467243"
+    },
+    "74a9b89d-in1076-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286958477617",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1076-gold.jpg?v=1792467243"
+    },
+    "76b7e2b3-in1886-zirconium.jpg": {
+      "id": "gid://shopify/MediaImage/50286958510385",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1886-zirconium.jpg?v=1792467243"
+    },
+    "7b8691f2-in1046-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286958543153",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1046-gold.jpg?v=1792467243"
+    },
+    "7d6895af-in1275-platinum.png": {
+      "id": "gid://shopify/MediaImage/50286958575921",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1275-platinum.png?v=1792467243"
+    },
+    "7e133422-AC-6-mens-classic-wedding-ring.jpg": {
+      "id": "gid://shopify/MediaImage/50286958608689",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-AC-6-mens-classic-wedding-ring.jpg?v=1792467243"
+    },
+    "7f370b52-in1243-titanium.png": {
+      "id": "gid://shopify/MediaImage/50286958641457",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1243-titanium.png?v=1792467243"
+    },
+    "81ed2e72-in1610-zirconium.png": {
+      "id": "gid://shopify/MediaImage/50286958674225",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1610-zirconium.png?v=1792467243"
+    },
+    "8331a792-in1277-silver.jpg": {
+      "id": "gid://shopify/MediaImage/50286958706993",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1277-silver.jpg?v=1792467243"
+    },
+    "8353b916-in1394-silver.jpg": {
+      "id": "gid://shopify/MediaImage/50286958739761",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1394-silver.jpg?v=1792467243"
+    },
+    "844abef9-in1382-platinum.jpg": {
+      "id": "gid://shopify/MediaImage/50286958772529",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1382-platinum.jpg?v=1792467243"
+    },
+    "875244c7-in1915-zirconium.jpg": {
+      "id": "gid://shopify/MediaImage/50286958805297",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1915-zirconium.jpg?v=1792467243"
+    },
+    "8a5d2ddb-in1036-platinum.jpg": {
+      "id": "gid://shopify/MediaImage/50286958838065",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1036-platinum.jpg?v=1792467243"
+    },
+    "8b9f236b-in1275-titanium.jpg": {
+      "id": "gid://shopify/MediaImage/50286958870833",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1275-titanium.jpg?v=1792467243"
+    },
+    "8c0a7aeb-in1038-gold.png": {
+      "id": "gid://shopify/MediaImage/50286958903601",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1038-gold.png?v=1792467243"
+    },
+    "8fb63b8a-AB-2-classic-wedding-band.jpg": {
+      "id": "gid://shopify/MediaImage/50286960312625",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-AB-2-classic-wedding-band.jpg?v=1792467268"
+    },
+    "9280e366-in1034-gold.png": {
+      "id": "gid://shopify/MediaImage/50286960345393",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1034-gold.png?v=1792467268"
+    },
+    "98098035-in1045-platinum.png": {
+      "id": "gid://shopify/MediaImage/50286960378161",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1045-platinum.png?v=1792467268"
+    },
+    "987977ac-in1382-silver.jpg": {
+      "id": "gid://shopify/MediaImage/50286960410929",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1382-silver.jpg?v=1792467268"
+    },
+    "98c4c33b-in1277-titanium.png": {
+      "id": "gid://shopify/MediaImage/50286960443697",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1277-titanium.png?v=1792467269"
+    },
+    "9957631c-in1432-tantalum.jpg": {
+      "id": "gid://shopify/MediaImage/50286960476465",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1432-tantalum.jpg?v=1792467268"
+    },
+    "9dc802bd-in1046-titanium.png": {
+      "id": "gid://shopify/MediaImage/50286960509233",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1046-titanium.png?v=1792467268"
+    },
+    "a041e765-in1046-platinum.png": {
+      "id": "gid://shopify/MediaImage/50286960542001",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1046-platinum.png?v=1792467268"
+    },
+    "a1b9356e-in1045-titanium.png": {
+      "id": "gid://shopify/MediaImage/50286960574769",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1045-titanium.png?v=1792467268"
+    },
+    "ac4ab036-in1277-tantalum.jpg": {
+      "id": "gid://shopify/MediaImage/50286960607537",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1277-tantalum.jpg?v=1792467268"
+    },
+    "af4e9ebd-in1432-platinum.jpg": {
+      "id": "gid://shopify/MediaImage/50286960640305",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1432-platinum.jpg?v=1792467268"
+    },
+    "b2685aaa-in1394-zirconium.png": {
+      "id": "gid://shopify/MediaImage/50286960673073",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1394-zirconium.png?v=1792467269"
+    },
+    "b7949c35-in1914-zirconium.png": {
+      "id": "gid://shopify/MediaImage/50286960705841",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1914-zirconium.png?v=1792467268"
+    },
+    "bc2c2bfc-in1398-platinum.png": {
+      "id": "gid://shopify/MediaImage/50286960738609",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1398-platinum.png?v=1792467269"
+    },
+    "c1d59df7-in1379-silver.jpg": {
+      "id": "gid://shopify/MediaImage/50286960771377",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1379-silver.jpg?v=1792467268"
+    },
+    "c2e2fdcd-in1382-tantalum.png": {
+      "id": "gid://shopify/MediaImage/50286960804145",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1382-tantalum.png?v=1792467269"
+    },
+    "c3217379-in1107-titanium.png": {
+      "id": "gid://shopify/MediaImage/50286960836913",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1107-titanium.png?v=1792467269"
+    },
+    "cb305e78-in1765-zirconium.png": {
+      "id": "gid://shopify/MediaImage/50286960869681",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1765-zirconium.png?v=1792467269"
+    },
+    "cd4663b4-in1004-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286915223857",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1004-gold.jpg?v=1792466549"
+    },
+    "cfea0937-in1849-zirconium.png": {
+      "id": "gid://shopify/MediaImage/50286960902449",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1849-zirconium.png?v=1792467268"
+    },
+    "classic-AB-2-yellow-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286960935217",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-AB-2-yellow-gold.jpg?v=1792467268"
+    },
+    "classic-AC-6-yellow-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286960967985",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-AC-6-yellow-gold.jpg?v=1792467268"
+    },
+    "classic-AH-2-rose-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286961000753",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-AH-2-rose-gold.jpg?v=1792467270"
+    },
+    "classic-AS-2-yellow-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286962508081",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-AS-2-yellow-gold.jpg?v=1792467287"
+    },
+    "classic-EA-yellow-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286962540849",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-EA-yellow-gold.jpg?v=1792467287"
+    },
+    "classic-FB-6-tantalum.jpg": {
+      "id": "gid://shopify/MediaImage/50286962573617",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-FB-6-tantalum.jpg?v=1792467288"
+    },
+    "d25a4b09-in1046-silver.jpg": {
+      "id": "gid://shopify/MediaImage/50286962606385",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1046-silver.jpg?v=1792467287"
+    },
+    "d5302e3c-in6003-tantalum.jpg": {
+      "id": "gid://shopify/MediaImage/50286962639153",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in6003-tantalum.jpg?v=1792467287"
+    },
+    "d6a30f98-in1277-platinum.png": {
+      "id": "gid://shopify/MediaImage/50286962671921",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1277-platinum.png?v=1792467287"
+    },
+    "d6ab0c8a-AH-2-classic-wedding-ring-australia.jpg": {
+      "id": "gid://shopify/MediaImage/50286962704689",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-AH-2-classic-wedding-ring-australia.jpg?v=1792467287"
+    },
+    "dc30428f-in1617-silver.jpg": {
+      "id": "gid://shopify/MediaImage/50286962737457",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1617-silver.jpg?v=1792467287"
+    },
+    "dc92177c-in1388-platinum.png": {
+      "id": "gid://shopify/MediaImage/50286962770225",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1388-platinum.png?v=1792467287"
+    },
+    "de78bb42-in6007-tantalum.jpg": {
+      "id": "gid://shopify/MediaImage/50286962802993",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in6007-tantalum.jpg?v=1792467287"
+    },
+    "dfb5668c-in1394-platinum.jpg": {
+      "id": "gid://shopify/MediaImage/50286962835761",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1394-platinum.jpg?v=1792467288"
+    },
+    "e33ab025-in1036-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286962868529",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1036-gold.jpg?v=1792467287"
+    },
+    "eb7d0620-in6004-tantalum.jpg": {
+      "id": "gid://shopify/MediaImage/50286962901297",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in6004-tantalum.jpg?v=1792467287"
+    },
+    "eeb20728-FB-6-classic-wedding-ring-australia.jpg": {
+      "id": "gid://shopify/MediaImage/50286962934065",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-FB-6-classic-wedding-ring-australia.jpg?v=1792467287"
+    },
+    "f3f0d1c9-in1045-gold.jpg": {
+      "id": "gid://shopify/MediaImage/50286962966833",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1045-gold.jpg?v=1792467288"
+    },
+    "f5b86bbc-in1038-platinum.png": {
+      "id": "gid://shopify/MediaImage/50286962999601",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1038-platinum.png?v=1792467287"
+    },
+    "f5bf13e9-in8021-silver.jpg": {
+      "id": "gid://shopify/MediaImage/50286963032369",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in8021-silver.jpg?v=1792467287"
+    },
+    "f70de32c-in1074-zirconium.png": {
+      "id": "gid://shopify/MediaImage/50286963065137",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1074-zirconium.png?v=1792467287"
+    },
+    "f8edc404-AD-7-classic-wedding-ring-australia.jpg": {
+      "id": "gid://shopify/MediaImage/50286963097905",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-AD-7-classic-wedding-ring-australia.jpg?v=1792467287"
+    },
+    "fb75ef5b-in1038-silver.jpg": {
+      "id": "gid://shopify/MediaImage/50286963130673",
+      "url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wr-in1038-silver.jpg?v=1792467288"
+    }
+  }
+}

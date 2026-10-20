@@ -17,7 +17,7 @@
         "api_base": "https://dashboard.burrowsjewellers.com.au/wedding-ring/api",
         "builder_path": "/pages/wedding-ring-builder",
         "catalogue_path": "/pages/wedding-ring-catalogue",
-        "script_url": "https://cdn.shopify.com/s/files/1/0687/1557/7649/files/wedding-ring-builder-7563f14a.js?v=1792497841"
+        "script_url": ""
       }
     }
   },
