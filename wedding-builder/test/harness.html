@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wedding ring builder harness</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@200;300;400;500;600;700;800&display=swap">
+<style>
+  :root {
+    --navy: #0f1233; --navy-2: #191e4a; --navy-3: #141838; --ink: #171d50; --body: #484b66; --muted: #7f829b;
+    --cream: #f6f1e7; --sand: #ece3d2; --gold: #d6af35; --gold-2: #d9bc55; --gold-3: #e4c355; --gold-dark: #8f7420;
+    --cream-rgb: 246, 241, 231; --navy-rgb: 15, 18, 51; --gold-rgb: 214, 175, 53; --gold-dark-rgb: 143, 116, 32;
+    --font-heading: 'Cormorant Garamond', Georgia, serif; --font-body: 'Manrope', system-ui, sans-serif;
+    --page-max: 1240px; --gutter: 56px; --gutter-mobile: 20px; --section-pad: 96px; --section-pad-mobile: 64px; --header-height: 100px;
+  }
+  @media (max-width: 1023px) { :root { --gutter: var(--gutter-mobile); --section-pad: var(--section-pad-mobile); --header-height: 70px; } }
+</style>
+<link rel="stylesheet" href="/assets/base.css">
+<link rel="stylesheet" href="/assets/wedding-ring-builder.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap">
+</head>
+<body>
+<div style="height:100px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 56px;font-family:var(--font-heading);font-size:28px">Burrows Jewellers (harness header)</div>
+<section class="full-width wr" id="weddingRingBuilder" data-wedding-ring-builder>
+  <div class="wr__inner">
+    <header class="wr__head">
+      <div class="eyebrow">Infinity Rings · Australian made</div>
+      <h1 class="wr__title">Design your wedding ring</h1>
+      <p class="wr__intro lede">Pick a style, your metal, width and finish, add an engraving and see it turn in 3D. Secure it with a deposit and we confirm the size on your finger in store before it is made.</p>
+    </header>
+    <div class="wr__host" data-wr-app aria-busy="true">
+      <div class="wr__loading"><span class="wr__spin"></span>Loading the ring designer…</div>
+    </div>
+  </div>
+  <script type="application/json" data-wr-config>
+    {
+      "apiBase": "/wedding-ring/api",
+      "depositVariantId": 56711642382641,
+      "depositAud": 200,
+      "cartEnabled": true,
+      "contactUrl": "/pages/contact",
+      "bookingUrl": "https://calendly.example/burrows",
+      "bookingLabel": "Book a fitting",
+      "phone": "03 5023 2357",
+      "leadTime": "Made to order · about 4 weeks",
+      "depositNote": "Made to order. The deposit secures your order and comes off the final price. We confirm everything with you in store before crafting begins.",
+      "proofNote": "Indicative retail price, including GST. Finishes and engraving at no extra cost. We confirm the final price with you before your ring is made.",
+      "priceNote": "Indicative price · AUD incl. GST",
+      "pageUrl": "http://localhost:8791/test/harness.html"
+    }
+  </script>
+</section>
+<div style="height:400px;background:var(--sand);padding:40px 56px;font-family:var(--font-body)">(FAQ section would follow)</div>
+<script src="/assets/wedding-ring-builder.js" type="module"></script>
+</body>
+</html>

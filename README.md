@@ -40,6 +40,10 @@ Our own builder, replacing the Nivoda Connect app block: `sections/ring-builder.
 - The design is mirrored in the URL (`?mount=…&shape=…&metal=…&size=…&stone=…`) so it can be shared or saved; "Copy a link to this design" uses that.
 - `snippets/ring-builder-capture.liquid` (Klaviyo save-design popup) still targets the old `/apps/ring-creator/` path and needs re-pointing once the flow is final.
 
+## Wedding ring builder
+
+`/pages/wedding-ring-builder` (template `page.wedding-ring-builder.json`) runs our own designer for Infinity Rings' 53 wedding band styles in place of the old CustomVirtual iframe: `sections/wedding-ring-builder.liquid` loads `assets/wedding-ring-builder.js` / `.css`, which are **built** from the React/three.js source in [`wedding-builder/`](wedding-builder/README.md) (`npm run build` there; commit the assets with the source). Five steps like the name necklace builder: style, metal, shape, size & engraving, review. Prices come from the wedding ring API on the droplet (`https://dashboard.burrowsjewellers.com.au/wedding-ring/api`, source in `name-necklace-builder/wedding-ring-server`), which asks Infinity's configurator; "Pay $200 deposit" adds the *Made-to-Order Ring Deposit* product to the cart with the design as line item properties and a hidden `_Preview` picture. Models and photos live in Shopify Files. Details, limits and the pricing switch: the folder's README.
+
 ## Integrations
 
 All switchable under Theme settings → Integrations: Google Tag Manager, Google Customer Reviews badge, Calendly booking tracking (Meta Pixel / GA4 / dataLayer), and the Klaviyo persona / saved-design capture popup on the ring builder (`snippets/ring-builder-capture.liquid`, ported verbatim). App embeds carried over from the old theme in `config/settings_data.json`: Klaviyo, Shopify Inbox, Microsoft Clarity, Instafeed, countdown timers. Product pages and the ring builder page accept app blocks (`@app`) for Stamped reviews, Afterpay messaging, Nivoda and similar.

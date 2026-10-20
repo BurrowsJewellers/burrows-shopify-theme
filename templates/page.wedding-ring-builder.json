@@ -16,40 +16,20 @@
         "show_breadcrumbs": true
       }
     },
-    "text": {
-      "type": "rich-text",
-      "blocks": {
-        "rt_1": {
-          "type": "heading",
-          "settings": {
-            "text": "Design your wedding bands online, then we size them in store",
-            "level": "h1"
-          }
-        },
-        "rt_2": {
-          "type": "text",
-          "settings": {
-            "text": "<p>Choose the metal, profile, width and finish. Order online, or book a fitting and we check the size on your finger before anything is made.</p>"
-          }
-        }
-      },
-      "block_order": [
-        "rt_1",
-        "rt_2"
-      ],
+    "builder": {
+      "type": "wedding-ring-builder",
       "settings": {
-        "background": "cream",
-        "align": "center",
-        "width": "narrow"
-      }
-    },
-    "custom": {
-      "type": "custom-liquid",
-      "settings": {
-        "liquid": "<!-- Iframe container with scroll-friendly styling -->\n<div style=\"width: 100vw; max-width: calc(100vw - 40px); margin: 0 auto !important; padding: 0; position: relative; left: 50%; transform: translateX(-50%); overflow: hidden;\">\n  <iframe\n    id=\"iframe\"\n    style=\"width: 100%; height: 1800px; border: none; display: block; overflow: auto;\"\n    src=\"https://twmco.customvirtual.app/iframe/0c2c15cda1e58c855e47dce1018924122fc96cbd/client/jewelry\"\n    scrolling=\"yes\">\n  </iframe>\n</div>\n\n<style>\n  /* Adjust max-width for smaller screens */\n  @media screen and (max-width: 767px) {\n    div[style*=\"width: 100vw\"] {\n      max-width: calc(100vw - 20px) !important;\n    }\n  }\n\n  /* Progressive height increases for small devices */\n  @media screen and (max-width: 1024px) {\n    #iframe {\n      height: 2000px !important;\n    }\n  }\n\n  @media screen and (max-width: 599px) {\n    #iframe {\n      height: 2400px !important;\n    }\n  }\n\n  @media screen and (max-width: 479px) {\n    #iframe {\n      height: 2600px !important;\n    }\n  }\n\n  .page-width--narrow {\n    max-width: 100%;\n    padding: 0;\n  }\n</style>\n\n<script>\n  // Shopify's Cart Data\n  let cart = { items: [] };\n\n  // Function to extract numeric product ID from gid format\n  function extractProductId(gid) {\n      const id = gid.split('/').pop();\n      return parseInt(id, 10);\n  }\n\n  // Function to add items to Shopify cart using AJAX API\n  function addToShopifyCart(variantId, quantity, properties) {\n      fetch('/cart/add.js', {\n          method: 'POST',\n          headers: { 'Content-Type': 'application/json' },\n          body: JSON.stringify({\n              id: variantId,\n              quantity: quantity,\n              properties: properties || {},\n          }),\n      })\n      .then((response) => {\n          if (!response.ok) {\n              throw new Error(`HTTP error! status: ${response.status}`);\n          }\n          return response.json();\n      })\n      .then((data) => {\n          console.log('Shopify cart updated:', data);\n\n          cart.items = data.items;\n\n          const iframe = document.getElementById('iframe');\n          iframe.contentWindow.postMessage({ type: 'cart-updated', cart: cart }, '*');\n\n          window.location.href = '/cart';\n      })\n      .catch((error) => {\n          console.error('Error updating Shopify cart:', error);\n      });\n  }\n\n  // Listen for messages from the iframe\n  window.addEventListener('message', (event) => {\n      if (event.data.type === 'add-to-cart') {\n          console.log('Message received from iframe:', event.data);\n\n          const product = event.data.product;\n          const numericId = extractProductId(product.id);\n          addToShopifyCart(numericId, product.quantity, product.properties);\n      }\n  });\n\n  // Send initial cart data to iframe\n  function sendCartData() {\n      const iframe = document.getElementById('iframe');\n      iframe.contentWindow.postMessage({ type: 'cart-data', cart }, '*');\n  }\n\n  window.onload = sendCartData;\n</script>",
-        "width": "full",
-        "background": "cream",
-        "padding": true
+        "eyebrow": "Infinity Rings · Australian made",
+        "heading": "Design your wedding ring",
+        "intro": "Pick a style, your metal, width and finish, add an engraving and see it turn in 3D. Secure it with a deposit and we confirm the size on your finger in store before it is made.",
+        "lead_time": "Made to order",
+        "deposit_note": "The $200 deposit secures your order and comes off the final price. We confirm everything with you in store before crafting begins.",
+        "proof_note": "Indicative retail price, including GST. Finishes and engraving at no extra cost. We confirm the final price with you before your ring is made.",
+        "price_note": "Indicative price · AUD incl. GST",
+        "deposit_product": "made-to-order-ring-deposit",
+        "cart_enabled": true,
+        "api_base": "https://dashboard.burrowsjewellers.com.au/wedding-ring/api",
+        "booking_label": "Book a fitting"
       }
     },
     "faq": {
@@ -59,17 +39,24 @@
           "type": "question",
           "settings": {
             "question": "What can I choose?",
-            "answer": "<p>Yellow, white or rose gold, or platinum. Flat, half-round or comfort-fit profiles. Polished, brushed or hammered finishes. Engraving is available.</p>"
+            "answer": "<p>Fifty-three Infinity Rings styles, from plain classic bands to patterned and diamond-set designs. Yellow, white or rose gold in 9ct, 14ct or 18ct, platinum, palladium, sterling silver, titanium, tantalum or zirconium. Widths from 3 to 8 mm, your thickness, a polished, satin, brushed or matte finish, and an engraving inside the band at no extra cost.</p>"
           }
         },
         "q_2": {
           "type": "question",
           "settings": {
-            "question": "How do I get the size right?",
-            "answer": "<p>Book a fitting. Wedding bands are worn every day, so we size your finger in store rather than guessing from a chart.</p>"
+            "question": "How does the deposit work?",
+            "answer": "<p>The price you see is indicative and includes GST. A $200 deposit secures your order and comes off the final price. We confirm the design, size and final price with you before the ring is made, and the balance is settled in store.</p>"
           }
         },
         "q_3": {
+          "type": "question",
+          "settings": {
+            "question": "How do I get the size right?",
+            "answer": "<p>Pick your nearest size in the designer, then book a fitting. Wedding bands are worn every day, so we size your finger in store rather than guessing from a chart. If you are not sure, tick the free ring sizer and we will post one to you.</p>"
+          }
+        },
+        "q_4": {
           "type": "question",
           "settings": {
             "question": "I want a band that sits against my engagement ring. Can you match it?",
@@ -80,7 +67,8 @@
       "block_order": [
         "q_1",
         "q_2",
-        "q_3"
+        "q_3",
+        "q_4"
       ],
       "settings": {
         "heading": "Questions before you start",
@@ -92,8 +80,7 @@
   },
   "order": [
     "main",
-    "text",
-    "custom",
+    "builder",
     "faq"
   ]
 }
