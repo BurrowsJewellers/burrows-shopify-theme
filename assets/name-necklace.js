@@ -405,21 +405,9 @@
     const stage = $('stage'), closeupView = $('closeupView'), closeupSvg = $('closeupSvg');
     const noPreview = { ok: false, set() {}, setMetal() {}, setFinish() {}, snapshot() { return ''; } };
     let preview = noPreview;
-    // three.js arrives after the page is up (it is the biggest download); until then the close-up is drawn flat.
-    function createPreview(host) {
-      if (typeof THREE === 'undefined') return noPreview;
-      let renderer;
-      try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: false }); }
-      catch (e) { return noPreview; }
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      renderer.outputEncoding = THREE.sRGBEncoding;
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.05;
-      renderer.setClearColor(0x000000, 0);
-      host.appendChild(renderer.domElement);
-      renderer.domElement.setAttribute('aria-hidden', 'true');
-
-      const scene = new THREE.Scene();
+    // The metal look shared by the close-up and the staff 3D view: a soft studio environment, a key light, the metal
+    // material and the three finishes.
+    function metalStudio(renderer, scene) {
       // Soft studio environment for metal reflections, drawn on a canvas (same as the ring tool), brighter around
       // the horizon: the face looks straight at the middle of this map, and a dark horizon made silver look grey.
       const c = document.createElement('canvas'); c.width = 512; c.height = 256;
@@ -435,8 +423,6 @@
       scene.environment = pm.fromEquirectangular(tex).texture;
       tex.dispose(); pm.dispose();
       const key = new THREE.DirectionalLight(0xffffff, 0.55); key.position.set(30, 60, 25); scene.add(key);
-      // Front light: a soft hotspot upper left, so the flat face reads as polished metal.
-      const front = new THREE.PointLight(0xffffff, 1, 0, 2); scene.add(front);
 
       const COLORS = { yellow: 0xF0B550, rose: 0xE8A080, white: 0xE3E7EA };
       const mat = new THREE.MeshStandardMaterial({ color: COLORS.yellow, metalness: 1, roughness: 0.28 });
@@ -462,6 +448,35 @@
         brushed: { roughness: 0.78, map: brushTex, bump: 0.012 },
         satin: { roughness: 0.6, map: null, bump: 0 },
       };
+      return {
+        key, mat,
+        setMetal(m) { mat.color.setHex(COLORS[m] || COLORS.white); },
+        setFinish(f) {
+          const F = FINISHES[f] || FINISHES.polished;
+          mat.roughness = F.roughness; mat.roughnessMap = F.map; mat.bumpMap = F.map; mat.bumpScale = F.bump;
+          mat.needsUpdate = true;
+        },
+      };
+    }
+    // three.js arrives after the page is up (it is the biggest download); until then the close-up is drawn flat.
+    function createPreview(host) {
+      if (typeof THREE === 'undefined') return noPreview;
+      let renderer;
+      try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: false }); }
+      catch (e) { return noPreview; }
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.05;
+      renderer.setClearColor(0x000000, 0);
+      host.appendChild(renderer.domElement);
+      renderer.domElement.setAttribute('aria-hidden', 'true');
+
+      const scene = new THREE.Scene();
+      const studio = metalStudio(renderer, scene), mat = studio.mat;
+      // Front light: a soft hotspot upper left, so the flat face reads as polished metal.
+      const front = new THREE.PointLight(0xffffff, 1, 0, 2); scene.add(front);
+
       const mesh3 = new THREE.Mesh(new THREE.BufferGeometry(), mat);
       scene.add(mesh3);
       const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 1000);
@@ -501,12 +516,8 @@
           box = { ...bbox, T };
           frame(); request();
         },
-        setMetal(m) { mat.color.setHex(COLORS[m] || COLORS.white); request(); },
-        setFinish(f) {
-          const F = FINISHES[f] || FINISHES.polished;
-          mat.roughness = F.roughness; mat.roughnessMap = F.map; mat.bumpMap = F.map; mat.bumpScale = F.bump;
-          mat.needsUpdate = true; request();
-        },
+        setMetal(m) { studio.setMetal(m); request(); },
+        setFinish(f) { studio.setFinish(f); request(); },
         // A square picture of the plate, face on, for the product in the cart. Rendered at a fixed size into the
         // same canvas (CSS keeps it stretched to the close-up, so nothing moves on screen), copied out at once,
         // then the close-up size is put back. Returns a JPEG data URL, or '' if anything is missing.
@@ -547,6 +558,138 @@
       preview.setMetal(settings.metal);
       preview.setFinish(design.finish || 'polished');
       if (result) preview.set(N.buildDisplay(result, design.thickness), design.thickness, result.bbox);
+    }
+    /* ---------- staff 3D view ---------- */
+    // The plate in perspective on a navy case, as the old STL maker showed it: drag to turn it any way (front, edge,
+    // back), scroll or pinch to zoom, double-click to go back to the starting angle. It turns slowly on its own until
+    // it is touched. It follows every rebuild, metal and finish; it only draws while it is open.
+    function createViewer3d(host) {
+      const msg = host.querySelector('#view3dMsg'), dims = host.querySelector('#view3dDims');
+      let v = null, on = false, dirty = true, tried = false;
+      const say = (t) => { msg.textContent = t; msg.hidden = !t; };
+      function make() {
+        if (typeof THREE === 'undefined') return null;
+        let renderer;
+        try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); } catch (e) { return null; }
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.05;
+        renderer.setClearColor(0x000000, 0);
+        const cv = renderer.domElement;
+        cv.className = 'nn__3d-gl'; cv.setAttribute('aria-label', 'The nameplate in 3D: drag to turn, scroll to zoom'); cv.setAttribute('role', 'img');
+        host.insertBefore(cv, host.firstChild);
+        const scene = new THREE.Scene();
+        const studio = metalStudio(renderer, scene);
+        studio.key.intensity = 1.1; // no front hotspot here: the key light does the modelling
+        const mesh = new THREE.Mesh(new THREE.BufferGeometry(), studio.mat);
+        scene.add(mesh);
+        const cam = new THREE.PerspectiveCamera(30, 1, 1, 3000);
+        // Orbit around the plate's centre: azimuth, polar angle, distance. The start is a little right of and below
+        // front on, so the face catches the bright top of the studio and the edge shows.
+        const START = { az: Math.atan2(0.3, 0.92), pol: Math.acos(-0.22 / Math.hypot(0.3, 0.22, 0.92)) };
+        // z is the zoom as a share of the distance that fits the plate, so it survives a resize.
+        const o = { az: START.az, pol: START.pol, z: 1, fit: 100, target: new THREE.Vector3(), spin: !reduceMotion };
+        const zoom = (f) => { o.z = Math.min(Math.max(o.z * f, 0.3), 4); };
+        let metal = '', finish = '', raf = 0;
+        function place() {
+          const sp = Math.sin(o.pol);
+          const r = o.fit * o.z;
+          cam.position.set(o.target.x + r * sp * Math.sin(o.az), o.target.y + r * Math.cos(o.pol), o.target.z + r * sp * Math.cos(o.az));
+          cam.lookAt(o.target);
+        }
+        function frame(box) {
+          const w = Math.max(box.maxX - box.minX, 1), h = Math.max(box.maxY - box.minY, 1);
+          o.fit = (Math.max(w / cam.aspect, h) * 0.5) / Math.tan((cam.fov * Math.PI) / 360) * 1.35;
+        }
+        function resize() {
+          const W = host.clientWidth, H = host.clientHeight;
+          if (!W || !H) return;
+          renderer.setSize(W, H, false);
+          cam.aspect = W / H; cam.updateProjectionMatrix();
+          if (result) frame(result.bbox);
+        }
+        function tick() {
+          raf = 0;
+          if (!on) return;
+          if (settings.metal !== metal) { metal = settings.metal; studio.setMetal(metal); }
+          const f = design.finish || 'polished';
+          if (f !== finish) { finish = f; studio.setFinish(f); }
+          if (o.spin) o.az += 0.0045;
+          place();
+          try { renderer.render(scene, cam); } catch (e) { /* context lost */ }
+          raf = requestAnimationFrame(tick);
+        }
+        // Pointer: one finger or the mouse turns, two fingers pinch to zoom.
+        const pts = new Map();
+        let pinch = 0;
+        const stop = () => { o.spin = false; };
+        cv.addEventListener('pointerdown', (e) => { stop(); pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); try { cv.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ } if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = Math.hypot(a.x - b.x, a.y - b.y); } });
+        cv.addEventListener('pointermove', (e) => {
+          const p = pts.get(e.pointerId);
+          if (!p) return;
+          if (pts.size === 1) {
+            o.az -= (e.clientX - p.x) * 0.008;
+            o.pol = Math.min(Math.max(o.pol - (e.clientY - p.y) * 0.008, 0.05), Math.PI - 0.05);
+          }
+          p.x = e.clientX; p.y = e.clientY;
+          if (pts.size === 2) {
+            const [a, b] = [...pts.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
+            if (pinch && d) zoom(pinch / d);
+            pinch = d;
+          }
+        });
+        const up = (e) => { pts.delete(e.pointerId); pinch = 0; };
+        cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+        cv.addEventListener('wheel', (e) => { e.preventDefault(); stop(); zoom(Math.exp(e.deltaY * 0.0012)); }, { passive: false });
+        cv.addEventListener('dblclick', () => { o.az = START.az; o.pol = START.pol; o.z = 1; o.spin = !reduceMotion; });
+        if (window.ResizeObserver) new ResizeObserver(resize).observe(host); else window.addEventListener('resize', resize);
+        return {
+          set(d, T, box) {
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.BufferAttribute(d.positions, 3));
+            geo.setAttribute('normal', new THREE.BufferAttribute(d.normals, 3));
+            const uv = new Float32Array((d.positions.length / 3) * 2);
+            for (let i = 0, j = 0; i < d.positions.length; i += 3, j += 2) { uv[j] = d.positions[i] / 16; uv[j + 1] = d.positions[i + 1] / 16; }
+            geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+            geo.setIndex(new THREE.BufferAttribute(d.indices, 1));
+            mesh.geometry.dispose();
+            mesh.geometry = geo;
+            o.target.set((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, T / 2);
+            resize(); frame(box);
+          },
+          run() { if (!raf) raf = requestAnimationFrame(tick); },
+          resize,
+        };
+      }
+      function refresh() {
+        if (!v || !result) return;
+        v.set(N.buildDisplay(result, design.thickness), design.thickness, result.bbox);
+        dirty = false;
+        dims.textContent = `${result.width.toFixed(2)} × ${result.height.toFixed(2)} mm · ${design.thickness.toFixed(1)} mm thick${final ? '' : ' · updating'}`;
+      }
+      return {
+        show(yes) {
+          on = yes;
+          if (!yes) return;
+          if (!v && !tried) {
+            say('Loading 3D…');
+            threeReady.then(() => {
+              tried = true;
+              v = make();
+              if (!v) { say("3D can't run in this browser (WebGL is off or three.js didn't load)."); return; }
+              say('');
+              if (on) { v.resize(); refresh(); v.run(); }
+            });
+            return;
+          }
+          if (!v) return;
+          v.resize();
+          if (dirty) refresh();
+          v.run();
+        },
+        update() { dirty = true; if (on && v) refresh(); },
+      };
     }
     // The flat close-up: the plate's outline filled with a metal gradient, scaled to the close-up.
     const FLAT_STOPS = { yellow: ['#F6DFA6', '#E2B35A', '#B9893A'], rose: ['#F5D2C2', '#DFA084', '#B47258'], white: ['#F4F6F7', '#CDD1D2', '#9CA3A6'] };
@@ -1207,20 +1350,30 @@
         <div class="nn__edit-dims" id="editDims"></div>`;
       stage.insertBefore(editView, stage.querySelector('.nn__hud--top'));
       const editSvg = editView.querySelector('#editSvg'), toolRail = editView.querySelector('#toolRail'), editDims = editView.querySelector('#editDims');
+      // --- the 3D view on the stage: the plate as it will be cast, in the chosen metal and finish, turned with the
+      // mouse or a finger. Made the first time it is opened (three.js has loaded by then, or it says so).
+      const view3d = document.createElement('div');
+      view3d.className = 'nn__3d'; view3d.id = 'view3d'; view3d.hidden = true;
+      view3d.innerHTML = `<div class="nn__3d-msg" id="view3dMsg" hidden></div><div class="nn__edit-dims nn__3d-dims" id="view3dDims"></div>`;
+      stage.insertBefore(view3d, stage.querySelector('.nn__hud--top'));
+      const viewer3d = createViewer3d(view3d);
       const sizeView = $('sizeView'), hint = $('hint');
       const seg = document.createElement('div');
       seg.className = 'nn__viewseg'; seg.setAttribute('role', 'radiogroup'); seg.setAttribute('aria-label', 'Stage view');
-      seg.innerHTML = `<button type="button" data-view="neck" aria-pressed="true">On a neck</button><button type="button" data-view="letters" aria-pressed="false">Letters</button>`;
+      seg.innerHTML = `<button type="button" data-view="neck" aria-pressed="true">On a neck</button><button type="button" data-view="letters" aria-pressed="false">Letters</button><button type="button" data-view="3d" aria-pressed="false">3D</button>`;
       stage.querySelector('.nn__hud-left').insertBefore(seg, hint);
       let view = 'neck';
       function setView(v) {
         view = v;
         seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
         editView.hidden = v !== 'letters';
-        sizeView.hidden = v === 'letters';
-        $('sizeBar').hidden = v === 'letters';
-        hint.textContent = v === 'letters' ? 'Click a letter · drag to move · Shift-click for more · arrows nudge' : 'Shown to scale';
+        view3d.hidden = v !== '3d';
+        sizeView.hidden = v !== 'neck';
+        $('sizeBar').hidden = v !== 'neck';
+        hint.textContent = v === 'letters' ? 'Click a letter · drag to move · Shift-click for more · arrows nudge'
+          : v === '3d' ? 'Drag to turn · scroll to zoom · double-click to reset' : 'Shown to scale';
         if (v === 'letters') { ed.fit(); ed.render(); }
+        viewer3d.show(v === '3d');
       }
       seg.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
 
@@ -1292,6 +1445,7 @@
       };
       ed.onBuild = () => {
         ed.selection = ed.selection.filter((sel) => (sel.type === 'loop' ? !!loopOf(sel.side) : sel.type === 'dot' ? !!(letterOf(sel.index) && letterOf(sel.index).dotPaths.length) : !!letterOf(sel.index)));
+        viewer3d.update();
         if (view === 'letters') { if (!ed.drag) { const b = result.bbox, [x0, y0] = toScreen(b.minX, b.maxY), [x1, y1] = toScreen(b.maxX, b.minY), { W, H } = stageSize(); if (x0 < 10 || y0 < 60 || x1 > W - 10 || y1 > H - 60 || x1 - x0 < W * 0.3) ed.fit(); } ed.render(); }
       };
       editor = ed;
