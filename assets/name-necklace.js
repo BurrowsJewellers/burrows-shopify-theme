@@ -86,7 +86,10 @@
     const showStl = !!cfg.showStl && !!$('saveBtn');
     const apiBase = String(cfg.apiBase || '').replace(/\/$/, '');
     const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    const money = (v) => '$' + v.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    // Prices: a whole-dollar total reads $90 (the API rounds necklace totals up to the next $5); anything with cents
+    // keeps both places ($61.52). money2 always shows cents, for the staff cost table.
+    const money2 = (v) => '$' + v.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const money = (v) => (Math.abs(v - Math.round(v)) < 0.005 ? '$' + Math.round(v).toLocaleString('en-AU') : money2(v));
     // Staff mode: the dashboard opens the page with the build id and its token (the same token that unlocks the STL).
     const query = (() => { try { return new URLSearchParams(location.search); } catch (e) { return new URLSearchParams(); } })();
     const STAFF = query.get('build') && query.get('t') ? { build: String(query.get('build')).slice(0, 40), t: String(query.get('t')).slice(0, 80), meta: null } : null;
@@ -352,7 +355,7 @@
     /* ---------- chain ---------- */
     // Every necklace comes with a chain: a style (cable, belcher, curb) in a thickness (fine, medium, heavy), a
     // length and its own metal (no platinum). The server prices it on its weight like the plate; gaugePrices
-    // (from the last quote) labels the thickness buttons. A price server from before gauges (no gauge in its
+    // (from the last quote: the whole necklace's total with each thickness) labels the thickness buttons. A price server from before gauges (no gauge in its
     // reply) only makes Medium, so the thickness row hides and Medium is used.
     const chain = { style: Chains.byKey(Chains.DEFAULT.style), gauge: Chains.DEFAULT.gauge || 'medium', lengthCm: Chains.DEFAULT.lengthCm, alloy: Alloys.byKey('ag925') || Alloys.ALLOYS[0] };
     let gaugePrices = null, gaugePricesFresh = false, gaugesOn = true;
@@ -1574,7 +1577,7 @@
       renderStaffFigures = () => {
         const st = price && price.staff;
         if (!st) { fig.hidden = true; return; }
-        const row = (name, p) => p ? `<tr><td>${esc(name)}</td><td>${p.weightGrams.toFixed(2)} g</td><td>${money(p.perGram)}/g</td><td>${money(p.costExGst)}</td><td>×${p.multiplier.toFixed(2)}</td><td>${money(p.priceIncGst)}</td></tr>` : '';
+        const row = (name, p) => p ? `<tr><td>${esc(name)}</td><td>${p.weightGrams.toFixed(2)} g</td><td>${money2(p.perGram)}/g</td><td>${money2(p.costExGst)}</td><td>×${p.multiplier.toFixed(2)}</td><td>${money2(p.priceIncGst)}</td></tr>` : '';
         const paid = STAFF.meta && typeof STAFF.meta.price === 'number' ? STAFF.meta.price : null;
         const diff = paid == null || !price ? '' : price.price === paid ? 'Same price as paid.' : `${price.price > paid ? 'Up' : 'Down'} ${money(Math.abs(price.price - paid))} on the ${money(paid)} paid.`;
         fig.innerHTML = `<div class="nn__label">Staff · cost and markup</div>
