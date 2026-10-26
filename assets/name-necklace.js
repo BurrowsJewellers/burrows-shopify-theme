@@ -125,6 +125,7 @@
       if (!undoStack.length) return;
       design = JSON.parse(undoStack.pop());
       design.reinforce = true;
+      standardLoops();
       lastPush = { tag: null, t: 0 };
       $('undoBtn').disabled = !undoStack.length;
       syncControls();
@@ -166,8 +167,7 @@
       $('ovRange').value = design.overlap; $('ovIn').value = design.overlap.toFixed(2);
       setRadio('thickness', design.thickness);
       $('curveRange').value = design.curve || 0; $('curveIn').value = design.curve || 0;
-      $('loopL').checked = design.loops.left.on; $('loopR').checked = design.loops.right.on;
-      $('loopOuter').value = design.loops.outer; $('loopHole').value = design.loops.hole;
+      syncLoopInputs();
       $('loopWarn').hidden = true;
       setRadio('dots', design.dots);
       setRadio('finish', design.finish || 'polished');
@@ -236,6 +236,11 @@
     $('curveIn').addEventListener('input', () => { const v = parseFloat($('curveIn').value); if (Number.isFinite(v)) { $('curveRange').value = clamp(v, 0, 180); setCurve(v); } });
     $('curveIn').addEventListener('change', () => { $('curveIn').value = design.curve || 0; });
     radios('thickness').forEach((el) => el.addEventListener('change', () => { pushUndo(); design.thickness = +el.value; schedule(); }));
+    {
+      const group = $('loopL').closest('fieldset');
+      if (!STAFF) group.style.display = 'none'; // customers don't choose loops (see standardLoops)
+      else { const note = document.createElement('p'); note.className = 'nn__note'; note.id = 'loopStd'; group.appendChild(note); }
+    }
     $('loopL').addEventListener('change', () => { pushUndo(); design.loops.left.on = $('loopL').checked; schedule(); });
     $('loopR').addEventListener('change', () => { pushUndo(); design.loops.right.on = $('loopR').checked; schedule(); });
     function loopInput() {
@@ -248,7 +253,7 @@
       warn.textContent = msg ? msg + ` Using ${design.loops.outer} / ${design.loops.hole} mm until then.` : '';
       warn.hidden = !msg;
       if (msg || (o === design.loops.outer && h === design.loops.hole)) return;
-      pushUndo('loopsize'); design.loops.outer = o; design.loops.hole = h; schedule();
+      pushUndo('loopsize'); design.loops.outer = o; design.loops.hole = h; design.loops.custom = true; syncLoopInputs(); schedule();
     }
     $('loopOuter').addEventListener('input', loopInput);
     $('loopHole').addEventListener('input', loopInput);
@@ -376,7 +381,27 @@
     }
     const chainPicker = makeMetalPicker($('chainAlloyChips'), { exclude: Chains.EXCLUDED_ALLOYS, label: 'Chain metal', onChange: (a) => { chain.alloy = a; chainChanged(); } });
     function setChainStyle(key) { const st = Chains.byKey(key); if (!st || st === chain.style) return; chain.style = st; chainChanged(); }
-    function setChainGauge(key) { if (key === chain.gauge || !(Chains.spec && Chains.spec(chain.style, key))) return; chain.gauge = key; chainChanged(); }
+    function setChainGauge(key) {
+      if (key === chain.gauge || !(Chains.spec && Chains.spec(chain.style, key))) return;
+      chain.gauge = key;
+      if (standardLoops()) { syncLoopInputs(); schedule(); }
+      chainChanged();
+    }
+    // The chain loops (CAD review, Oct 2026) follow the chain's thickness: a 2.4 mm loop with a 1.0 mm hole for
+    // fine and medium chains, 3.0 / 1.4 mm for heavy (N.loopSizeFor). Customers always get both, unmoved, and see
+    // no loop options; the server enforces the same. Staff keep a size they typed (loops.custom). True if changed.
+    function standardLoops() {
+      const before = JSON.stringify(design.loops), std = N.loopSizeFor(chain.gauge);
+      if (!STAFF) design.loops = { outer: std.outer, hole: std.hole, left: { on: true, dx: 0, dy: 0 }, right: { on: true, dx: 0, dy: 0 } };
+      else if (!design.loops.custom) Object.assign(design.loops, std);
+      return JSON.stringify(design.loops) !== before;
+    }
+    function syncLoopInputs() {
+      $('loopL').checked = design.loops.left.on; $('loopR').checked = design.loops.right.on;
+      $('loopOuter').value = design.loops.outer; $('loopHole').value = design.loops.hole;
+      const std = N.loopSizeFor(chain.gauge), note = $('loopStd');
+      if (note) note.textContent = `Standard for a ${chain.gauge} chain: ${std.outer.toFixed(1)} mm, ${std.hole.toFixed(1)} mm hole.${design.loops.custom ? ' These loops were set by hand.' : ''}`;
+    }
     function setChainLength(cm) { if (!Chains.LENGTHS_CM.includes(cm) || cm === chain.lengthCm) return; chain.lengthCm = cm; chainChanged(); }
     // A straight run of links across a tile, spaced at the pitch (6.5 px per mm), with a gentle sag.
     const tileRun = (sp) => { const pts = [], step = Chains.pitch(sp) * 6.5; for (let x = 6; x <= 114; x += step) pts.push([x, 13 + 2.2 * Math.sin((x / 120) * Math.PI)]); return pts; };
@@ -1173,7 +1198,7 @@
           'Chain': ch ? cap(`${ch.lengthCm} cm ${ch.gaugeName ? ch.gaugeName.toLowerCase() + ' ' : ''}${ch.widthMm ? (+ch.widthMm).toFixed(1) + ' mm ' : ''}${String(ch.styleName).toLowerCase()} chain, ${ch.alloyName}`) : cap(chainText()),
           'Finish': cap(design.finish || 'polished'), 'Lead time': cfg.leadTime || '',
           // Underscore: Shopify keeps these off the cart, checkout and customer emails; staff see them on the order.
-          '_Thin joints': result.reinforced && result.reinforced.passes > 0 ? `Reinforced to ${N.MIN_FEATURE} mm` : '',
+          '_Thin joints': result.reinforced && result.reinforced.passes > 0 ? `Reinforced to ${result.minFeature || N.MIN_FEATURE} mm` : '',
           '_STL': stlAbsolute(j.stl_url || ''),
         };
         if (!props['Lead time']) delete props['Lead time'];
@@ -1613,6 +1638,7 @@
       app.setAttribute('aria-busy', 'false');
       $('loading').hidden = true;
       if (!STAFF) restoreDraft();
+      standardLoops();
       setAlloy(alloy.key);
       chainPicker.set(chain.alloy.key, true);
       renderChainTiles();

@@ -196,12 +196,22 @@ const Nameplate = (() => {
   const triangulate = typeof earcut !== 'undefined' ? earcut : require('earcut');
   const IO = typeof StlIO !== 'undefined' ? StlIO : require('../../shared/stl-io.js');
 
-  // Limits to confirm with the casting house or laser cutter.
-  const MIN_FEATURE = 0.6;     // mm: strokes narrower than this are flagged (and what reinforcement widens them to)
+  // Limits from our CAD designer's review (Oct 2026). Strokes narrower than the minimum are flagged, and
+  // reinforcement widens them to it: 0.8 mm as cast, 1.0 mm from 16 mm high up (long, delicate letters bend in
+  // wear). Casting clean-up can take up to 0.2 mm, so less than this doesn't last. The bold fonts are already wider.
+  const MIN_FEATURE = 0.8;       // mm
+  const MIN_FEATURE_LARGE = 1.0; // mm, for names LARGE_FROM high and up
+  const LARGE_FROM = 16;         // mm
+  const minFeatureFor = (height) => (height >= LARGE_FROM - 1e-9 ? MIN_FEATURE_LARGE : MIN_FEATURE);
   const REINFORCE_STEP = 0.1;  // mm: each reinforcement pass widens the thin parts by this much per side
-  const REINFORCE_PASSES = 8;  // enough for a hairline to reach MIN_FEATURE
+  const REINFORCE_PASSES = 8;  // enough for a hairline to reach the minimum
   const REINFORCE_SMOOTH = 0.04; // mm: closing radius that rounds off the joins after widening
-  const MIN_LOOP_WALL = 0.6;   // mm: (outer - hole) / 2
+  const MIN_LOOP_WALL = 0.6;   // mm: (outer - hole) / 2. Loops are wire, not lettering: they have their own minimum.
+  // Standard loops by chain thickness (CAD review): 0.7 mm wire with a 1.0 mm hole takes a fine or medium chain's
+  // jump ring; a heavy chain gets 0.8 mm wire with a 1.4 mm hole. Customers don't choose; staff can override.
+  const LOOP_SIZES = { fine: { outer: 2.4, hole: 1.0 }, medium: { outer: 2.4, hole: 1.0 }, heavy: { outer: 3.0, hole: 1.4 } };
+  const loopSizeFor = (gauge) => Object.assign({}, LOOP_SIZES[gauge] || LOOP_SIZES.medium);
+  const LOOP_HEIGHT = 0.67;    // loops sit two-thirds of the way up the end letters, so a flat pendant doesn't flip
   const LOOP_MIN_JOIN = 0.1;   // mm: a loop always overlaps the outline by at least this, so overlap 0 can't leave it touching at a point
   const MIN_JOIN_AREA = 0.002; // mm²: two neighbouring letters sharing less than this don't count as joined
   const MAX_JOIN_MOVE = 4;     // mm: auto-join moves a dot, accent or stray stroke at most this far onto its letter
@@ -215,7 +225,7 @@ const Nameplate = (() => {
   const HEIGHT_RANGE = [6, 25];
   const THICKNESSES = [0.8, 1.0, 1.2, 1.5, 2.0];
   const OVERLAP_RANGE = [0.1, 1]; // mm; 0.1 like LOOP_MIN_JOIN: at 0 letters only touch at a point and cast apart
-  const LOOP_OUTER_RANGE = [2.5, 5];
+  const LOOP_OUTER_RANGE = [2.4, 5];
   const LOOP_HOLE_RANGE = [1.0, 2.5];
   const SCALE_RANGE = [0.5, 2];
   const CURVE_RANGE = [-180, 180]; // degrees of arc the name bends through
@@ -235,7 +245,7 @@ const Nameplate = (() => {
   function defaultDesign() {
     return {
       version: 1, text: 'Charlotte', font: 'greatvibes', height: 12, thickness: 1.2, overlap: 0.3,
-      loops: { outer: 3.2, hole: 1.4, left: { on: true, dx: 0, dy: 0 }, right: { on: true, dx: 0, dy: 0 } },
+      loops: { outer: 2.4, hole: 1.0, left: { on: true, dx: 0, dy: 0 }, right: { on: true, dx: 0, dy: 0 } },
       dots: 'keep', curve: 0, finish: 'polished', reinforce: true, letters: [],
     };
   }
@@ -766,59 +776,23 @@ const Nameplate = (() => {
     const text = unionInt(allLetterPaths, { strict: true });
     const textF = text.map(toFloat);
 
-    // 9. Loops, placed level with the outline's leftmost / rightmost point.
-    const loops = [];
+    // 9. Reinforcement, when the design asks for it: the lettering's thin parts are widened to the minimum
+    // (minFeatureFor(height)). Loops are added after, so their wire keeps its own size and holes stay open.
+    const minW = minFeatureFor(design.height);
+    let textInt = text, reinforced = null;
+    if (design.reinforce) {
+      const all = treeGroups(unionInt(text, { tree: true })).filter((g) => g.area > CRUMB).flatMap((g) => [g.outer, ...g.holes]);
+      const r = reinforceThin(all, tol, minW);
+      reinforced = { passes: r.passes, addedArea: r.addedArea };
+      if (r.passes) textInt = r.paths;
+    }
+
+    // 9b. Loops on the upper part of the end letters (see placeLoop). Holes are cut last, so nothing fills them.
     const L = design.loops || {};
     const loopErr = loopWallError(L.outer, L.hole);
-    if (!loopErr && textF.length) {
-      // Only substantial pieces count, so a loop never hangs off an accent, an apostrophe or a dot.
-      const textGroups = treeGroups(unionInt(text, { tree: true }));
-      const big = Math.max(...textGroups.map((g) => g.area));
-      const anchor = textGroups.filter((g) => g.area >= 0.15 * big).map((g) => toFloat(g.outer));
-      const R = L.outer / 2, join = Math.max(design.overlap, LOOP_MIN_JOIN);
-      const tb = bboxOf(anchor);
-      // Height of the extreme point. A vertical edge counts as one extreme (use its middle); when separate
-      // points tie (an S's two bowls often share their leftmost x), take the one nearest mid-height.
-      const levelAt = (x) => {
-        const mid = (tb.minY + tb.maxY) / 2, runs = [];
-        for (const p of anchor) {
-          const on = p.map(([px]) => Math.abs(px - x) <= 1e-3);
-          const startAt = on.findIndex((v, i) => v && !on[(i - 1 + p.length) % p.length]);
-          if (startAt < 0) { if (on[0]) runs.push(bboxOf([p])); continue; }
-          for (let k = 0; k < p.length; k++) {
-            const i = (startAt + k) % p.length;
-            if (!on[i]) continue;
-            if (!on[(i - 1 + p.length) % p.length]) runs.push([]);
-            runs[runs.length - 1].push(p[i]);
-          }
-        }
-        const levels = runs.map((r) => (Array.isArray(r) ? (Math.min(...r.map((q) => q[1])) + Math.max(...r.map((q) => q[1]))) / 2 : (r.minY + r.maxY) / 2));
-        return levels.reduce((best, y) => (Math.abs(y - mid) < Math.abs(best - mid) ? y : best));
-      };
-      for (const side of ['left', 'right']) {
-        const cfg = L[side];
-        if (!cfg || !cfg.on) continue;
-        const edge = side === 'left' ? tb.minX : tb.maxX;
-        const cx = side === 'left' ? edge - R + join : edge + R - join;
-        loops.push({ side, cx: cx + (cfg.dx || 0), cy: levelAt(edge) + (cfg.dy || 0), outer: L.outer, hole: L.hole });
-      }
-    }
-    for (const lp of loops) {
-      lp.outerPath = circle(lp.cx, lp.cy, lp.outer / 2, tol);
-      lp.holePath = circle(lp.cx, lp.cy, lp.hole / 2, tol);
-    }
-    // Union the discs with the text, then subtract the holes so nothing can fill them.
-    let tree = clip(text.concat(loops.map((lp) => toInt(lp.outerPath))), loops.map((lp) => toInt(lp.holePath)), CL.ClipType.ctDifference, { tree: true, strict: true });
-
-    // 9b. Reinforcement, when the design asks for it: thin parts are widened, then the loop holes are cut again
-    // so a widened stroke can never close one.
-    let reinforced = null;
-    if (design.reinforce) {
-      const all = treeGroups(tree).filter((g) => g.area > CRUMB).flatMap((g) => [g.outer, ...g.holes]);
-      const r = reinforceThin(all, tol);
-      reinforced = { passes: r.passes, addedArea: r.addedArea };
-      if (r.passes) tree = clip(r.paths, loops.map((lp) => toInt(lp.holePath)), CL.ClipType.ctDifference, { tree: true, strict: true });
-    }
+    const bodies = letters.filter((l) => l.paths.length && !isSpace(l.ch)).map((l) => ({ paths: l.paths, bbox: bboxOf(l.paths), angle: l.angle || 0 }));
+    const loops = loopErr ? [] : loopsFor(textInt, bodies, L, design.overlap, tol);
+    const tree = withLoops(textInt, loops);
 
     // 10. Pieces.
     const groups = treeGroups(tree).filter((g) => g.area > CRUMB);
@@ -834,13 +808,100 @@ const Nameplate = (() => {
       letters: letters.map((l) => ({ index: l.index, ch: l.ch, angle: l.angle || 0, paths: l.paths.concat(l.dotPaths), body: l.paths, dotPaths: l.dotPaths, bbox: bboxOf(l.paths.concat(l.dotPaths)), adj: l.adj })),
       pairs, loops, loopError: loopErr, groups, pieces: groups.length, area, bbox,
       width: bbox.maxX - bbox.minX, height: bbox.maxY - bbox.minY,
-      loose: [], thin: [], thinArea: 0, reinforced, joins,
+      loose: [], thin: [], thinArea: 0, reinforced, joins, minFeature: minW,
+      // what areaWithLoops needs to try another loop size on the same lettering
+      _lettering: { textInt, bodies, overlap: design.overlap },
     };
 
     // 11. Checks.
     result.loose = groups.slice(1).map((g, i) => describeLoose(result, g, i + 1));
-    if (opts.checks !== false) Object.assign(result, thinCheck(groups, tol));
+    if (opts.checks !== false) Object.assign(result, thinCheck(groups, tol, minW, loops));
     return result;
+  }
+
+  // The loops for a design's loop settings on finished lettering (integer paths) whose letter bodies are known.
+  function loopsFor(textInt, bodies, L, overlap, tol) {
+    const loops = [];
+    if (!textInt.length || !bodies.length) return loops;
+    const join = Math.max(overlap, LOOP_MIN_JOIN);
+    for (const side of ['left', 'right']) {
+      const cfg = L[side];
+      if (!cfg || !cfg.on) continue;
+      const end = bodies.reduce((m, l) => (side === 'left' ? (l.bbox.minX < m.bbox.minX ? l : m) : (l.bbox.maxX > m.bbox.maxX ? l : m)));
+      const c = placeLoop(side, end, textInt, L.outer / 2, L.hole / 2, join, tol);
+      if (c) loops.push({ side, cx: c[0] + (cfg.dx || 0), cy: c[1] + (cfg.dy || 0), outer: L.outer, hole: L.hole });
+    }
+    for (const lp of loops) {
+      lp.outerPath = circle(lp.cx, lp.cy, lp.outer / 2, tol);
+      lp.holePath = circle(lp.cx, lp.cy, lp.hole / 2, tol);
+    }
+    return loops;
+  }
+  const withLoops = (textInt, loops) => clip(textInt.concat(loops.map((lp) => toInt(lp.outerPath))), loops.map((lp) => toInt(lp.holePath)), CL.ClipType.ctDifference, { tree: true, strict: true });
+  // The plate's area (mm²) if it had other loops (e.g. the standard size for another chain thickness): the same
+  // lettering, the loops placed again. For pricing every chain thickness from one build.
+  function areaWithLoops(result, L) {
+    const x = result && result._lettering;
+    if (!x || loopWallError(L.outer, L.hole)) return result ? result.area : 0;
+    const tree = withLoops(x.textInt, loopsFor(x.textInt, x.bodies, L, x.overlap, result.tol));
+    return treeGroups(tree).filter((g) => g.area > CRUMB).reduce((sum, g) => sum + g.area, 0);
+  }
+
+  // Where a loop goes on one end of the name. In the end letter's own frame (a curved name tilts its end letters):
+  // two-thirds of the way up the letter (LOOP_HEIGHT), the disc slides in along the letter's horizontal until it
+  // overlaps the outline by as much as it would a straight edge at the join depth, so every font gets a sound
+  // joint, and never so far that the hole reaches metal. Returns the disc's centre [x, y], or null.
+  function placeLoop(side, end, textInt, R, rHole, join, tol) {
+    const a = end.angle || 0, ux = Math.cos(a), uy = Math.sin(a), vx = -uy, vy = ux;
+    const S = (p) => p[0] * ux + p[1] * uy, T = (p) => p[0] * vx + p[1] * vy;
+    const pts = end.paths.flat();
+    if (!pts.length) return null;
+    const tMin = Math.min(...pts.map(T)), tMax = Math.max(...pts.map(T));
+    const dir = side === 'left' ? -1 : 1;
+    const textF = textInt.map(toFloat);
+    // The outermost metal along the line t = level: crossings of every outline edge with it.
+    const edgeAt = (level) => {
+      let best = null;
+      for (const ring of textF) for (let i = 0; i < ring.length; i++) {
+        const p = ring[i], q = ring[(i + 1) % ring.length], tp = T(p), tq = T(q);
+        if ((tp - level) * (tq - level) > 0 || tp === tq) continue;
+        const k = (level - tp) / (tq - tp), sv = S(p) + k * (S(q) - S(p));
+        if (best === null || dir * sv > dir * best) best = sv;
+      }
+      return best;
+    };
+    // Two-thirds up; if nothing reaches that line (a gap in the letter), step toward the middle until something does.
+    const want = tMin + LOOP_HEIGHT * (tMax - tMin), mid = (tMin + tMax) / 2;
+    let level = want, sEdge = edgeAt(level);
+    for (let k = 1; sEdge === null && k <= 40; k++) { level = want + (mid - want) * (k / 40); sEdge = edgeAt(level); }
+    if (sEdge === null) return null;
+    const at = (sv) => [sv * ux + level * vx, sv * uy + level * vy];
+    // Only the metal near the loop matters: cut it out once.
+    const near = clip(textInt, [toInt(circle(...at(sEdge), 4 * R + 2, tol))], CL.ClipType.ctIntersection);
+    const overlap = (sv, r) => {
+      const hit = clip(near, [toInt(circle(...at(sv), r, Math.min(tol, 0.01)))], CL.ClipType.ctIntersection);
+      return hit.reduce((sum, p) => sum + intArea(p), 0) / (SCALE * SCALE);
+    };
+    // A disc overlapping a straight edge by the join depth j covers this much: the target.
+    const j = Math.min(join, R);
+    const target = R * R * Math.acos((R - j) / R) - (R - j) * Math.sqrt(2 * R * j - j * j);
+    // Outside: the disc clear of everything near; inside: centre on the edge. Bisect between them.
+    let out = sEdge + dir * (R + 4 * R + 2), inn = sEdge;
+    for (let k = 0; k < 30; k++) {
+      const m = (out + inn) / 2;
+      if (overlap(m, R) >= target) inn = m; else out = m;
+    }
+    let sv = inn;
+    // The hole must stay clear of the metal: if it touches, back out until it doesn't.
+    if (overlap(sv, rHole + 0.02) > 1e-6) {
+      let o2 = sEdge + dir * (R + 4 * R + 2), i2 = sv;
+      for (let k = 0; k < 30; k++) {
+        const m = (o2 + i2) / 2;
+        if (overlap(m, rHole + 0.02) > 1e-6) i2 = m; else o2 = m;
+      }
+      sv = o2;
+    }
+    return at(sv);
   }
 
   // Which letter or loop a loose piece came from, so the page can select it.
@@ -888,19 +949,27 @@ const Nameplate = (() => {
   // A small extra growth hides polygonisation slivers. Leftovers smaller than a quarter of a w x w square are
   // corner nicks, pointed terminals and small steps where letters meet, not strokes, so they are ignored.
   // Works on integer paths (outers and holes together); returns the thin parts as integer groups.
-  function thinParts(all, tol) {
-    const w = MIN_FEATURE * SCALE, slack = 0.02 * SCALE;
+  function thinParts(all, tol, minW = MIN_FEATURE) {
+    const w = minW * SCALE, slack = 0.02 * SCALE;
     if (!all.length) return [];
     const arcTol = Math.max(tol * 0.5, 0.002) * SCALE;
     const opened = offsetInt(offsetInt(all, -w / 2, arcTol), w / 2 + slack, arcTol);
     const diff = clip(all, opened, CL.ClipType.ctDifference, { tree: true });
-    const minArea = 0.25 * MIN_FEATURE * MIN_FEATURE;
+    const minArea = 0.25 * minW * minW;
     return treeGroups(diff).filter((g) => g.area >= minArea);
   }
-  function thinCheck(groups, tol) {
+  // The loops are wire with their own minimum (MIN_LOOP_WALL), so what the opening finds inside a loop's disc
+  // (and the neck where it meets the letter) isn't lettering and isn't flagged.
+  function thinCheck(groups, tol, minW = MIN_FEATURE, loops = []) {
     const thin = [];
     let thinArea = 0;
-    for (const g of thinParts(groups.flatMap((g) => [g.outer, ...g.holes]), tol)) {
+    let parts = thinParts(groups.flatMap((g) => [g.outer, ...g.holes]), tol, minW);
+    if (loops.length && parts.length) {
+      const discs = loops.map((lp) => toInt(circle(lp.cx, lp.cy, lp.outer / 2 + minW / 2, tol)));
+      const rest = clip(parts.flatMap((g) => [g.outer, ...g.holes]), discs, CL.ClipType.ctDifference, { tree: true });
+      parts = treeGroups(rest).filter((g) => g.area >= 0.25 * minW * minW);
+    }
+    for (const g of parts) {
       thinArea += g.area;
       thin.push([toFloat(g.outer), ...g.holes.map(toFloat)]);
     }
@@ -908,19 +977,19 @@ const Nameplate = (() => {
   }
 
   // Reinforcement (design.reinforce): a variable offset. At every point of the outline the local stroke width is
-  // measured with a short inward ray; where it is under MIN_FEATURE the point moves outward by half the
+  // measured with a short inward ray; where it is under the minimum the point moves outward by half the
   // shortfall, and that amount is widened a little and faded along the edge so the widened part blends into
   // the stroke. Edges stay parallel curves of the original, so the result is smooth; hairline terminals end in
   // a small round. A thin-part check afterwards catches anything the rays missed (oblique junctions) and
   // widens it the plain way, and a tiny closing rounds off the joins. Returns integer paths.
-  function reinforceThin(all, tol) {
-    const w = MIN_FEATURE, maxSeg = 0.08, margin = 0.02, grow = 0.2, fade = 0.4;
+  function reinforceThin(all, tol, minW = MIN_FEATURE) {
+    const w = minW, maxSeg = 0.08, margin = 0.02, grow = 0.2, fade = 0.4;
     const arcTol = Math.max(tol * 0.5, 0.002) * SCALE;
     const areaOf = (paths) => paths.reduce((a, p) => a + intArea(p), 0) / (SCALE * SCALE);
     const before = areaOf(all);
     // Only the parts the thin check flags are widened: the rays also see sharp corners and serifs as "thin",
     // and those are fine to cast. A point counts when it sits within reach of a flagged part.
-    const flagged = thinParts(all, tol);
+    const flagged = thinParts(all, tol, w);
     if (!flagged.length) return { paths: all, passes: 0, addedArea: 0 };
     const mask = offsetInt(flagged.flatMap((g) => [g.outer, ...g.holes]), 0.25 * SCALE, arcTol);
     const inMask = (x, y) => { const pt = { X: Math.round(x * SCALE), Y: Math.round(y * SCALE) }; for (const m of mask) if (CL.Clipper.PointInPolygon(pt, m) !== 0) return true; return false; };
@@ -1008,17 +1077,18 @@ const Nameplate = (() => {
     });
     if (!movedCount) return { paths: all, passes: 0, addedArea: 0 };
     let paths = CL.Clipper.CleanPolygons(unionInt(all.concat(moved)), 0.004 * SCALE).filter((p) => p.length > 2);
-    let passes = 1, thin = thinParts(paths, tol);
+    // A tiny closing rounds off the joins. The offsets leave edges as short as 10 nm; their cap triangles flip in
+    // 32-bit floats (STL, preview), so points closer than 2 µm merge, far below anything a casting shows. The
+    // check runs on the smoothed outline (what is cast), and anything still thin is widened again.
+    const r = REINFORCE_SMOOTH * SCALE;
+    const smooth = (ps) => CL.Clipper.CleanPolygons(offsetInt(offsetInt(ps, r, arcTol), -r, arcTol), 0.002 * SCALE).filter((p) => p.length > 2);
+    paths = smooth(paths);
+    let passes = 1, thin = thinParts(paths, tol, w);
     while (thin.length && passes < REINFORCE_PASSES) {
-      paths = unionInt(paths.concat(offsetInt(thin.flatMap((g) => [g.outer, ...g.holes]), REINFORCE_STEP * SCALE, arcTol)));
-      thin = thinParts(paths, tol);
+      paths = smooth(unionInt(paths.concat(offsetInt(thin.flatMap((g) => [g.outer, ...g.holes]), REINFORCE_STEP * SCALE, arcTol))));
+      thin = thinParts(paths, tol, w);
       passes++;
     }
-    const r = REINFORCE_SMOOTH * SCALE;
-    paths = offsetInt(offsetInt(paths, r, arcTol), -r, arcTol);
-    // The offsets leave edges as short as 10 nm; their cap triangles flip in 32-bit floats (STL, preview). Points
-    // closer than 2 µm merge, far below anything a casting shows.
-    paths = CL.Clipper.CleanPolygons(paths, 0.002 * SCALE).filter((p) => p.length > 2);
     return { paths, passes, addedArea: Math.max(0, areaOf(paths) - before) };
   }
 
@@ -1179,7 +1249,7 @@ const Nameplate = (() => {
   }
 
   return {
-    MIN_FEATURE, REINFORCE_STEP, MIN_LOOP_WALL, LOOP_MIN_JOIN, SCALE, MAX_CHARS, SCANLINES, HEIGHTS, HEIGHT_RANGE, THICKNESSES, OVERLAP_RANGE,
+    MIN_FEATURE, MIN_FEATURE_LARGE, LARGE_FROM, minFeatureFor, LOOP_SIZES, loopSizeFor, LOOP_HEIGHT, areaWithLoops, REINFORCE_STEP, MIN_LOOP_WALL, LOOP_MIN_JOIN, SCALE, MAX_CHARS, SCANLINES, HEIGHTS, HEIGHT_RANGE, THICKNESSES, OVERLAP_RANGE,
     LOOP_OUTER_RANGE, LOOP_HOLE_RANGE, SCALE_RANGE, CURVE_RANGE, DETAIL, FONTS,
     fontMeta, defaultDesign, defaultLetter, build, buildMesh, buildDisplay, loopWallError, hitTest, retainLetters,
     fileBase, designJSON, minGap, extentsAt, touchArea, flatten,
