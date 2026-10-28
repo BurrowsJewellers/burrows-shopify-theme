@@ -55,13 +55,15 @@
   }
 
   /* ---------- fonts ---------- */
-  // The six TTFs come from the API (fontsBase/<file>), parsed for geometry and registered for the font picker.
-  // The raw files are kept too, for the build workers to parse their own copies.
+  // The TTFs come from the API (fontsBase/<file>), parsed for geometry and registered for the font picker.
+  // The raw files are kept too, for the build workers to parse their own copies. A retired font (no longer offered)
+  // is only loaded in staff mode, where an order made in it can still be reviewed.
   const faceName = (f) => 'NP ' + f.name;
   function loadFonts(cfg) {
     const base = String(cfg.fontsBase || '').replace(/\/$/, '');
     const parsed = {}, raw = {};
-    return Promise.all(Nameplate.FONTS.map((f) => {
+    const staff = /[?&]build=/.test(location.search);
+    return Promise.all(Nameplate.FONTS.filter((f) => staff || !f.retired).map((f) => {
       const file = f.file.split('/').pop();
       return fetch(base + '/' + encodeURIComponent(file), { mode: 'cors' })
         .then((res) => { if (!res.ok) throw new Error('font ' + file + ' ' + res.status); return res.arrayBuffer(); })
@@ -135,9 +137,11 @@
 
     /* ---------- controls ---------- */
     const fontList = $('fontList');
-    for (const f of N.FONTS) {
+    // Customers get the fonts on offer; staff also get retired ones, so an order made in one shows its font.
+    for (const f of N.FONTS.filter((x) => STAFF || !x.retired)) {
       const lab = document.createElement('label');
-      lab.innerHTML = `<input type="radio" name="font" value="${f.key}" aria-label="${esc(f.name)}, ${esc(f.style.toLowerCase())}"><span class="fname" style="font-family:'${faceName(f)}', cursive">${esc(f.name)}</span><span class="fstyle">${esc(f.style)}</span>`;
+      const style = f.retired ? f.style + ' · retired' : f.style;
+      lab.innerHTML = `<input type="radio" name="font" value="${f.key}" aria-label="${esc(f.name)}, ${esc(style.toLowerCase())}"><span class="fname" style="font-family:'${faceName(f)}', cursive">${esc(f.name)}</span><span class="fstyle">${esc(style)}</span>`;
       fontList.appendChild(lab);
     }
     // Three plate thicknesses with plain names (the server accepts the wider list in the core; the page offers these).
@@ -1295,6 +1299,7 @@
       if (!d || !d.design || !(Date.now() - d.at < DRAFT_DAYS * 86400e3)) return false;
       const s = d.design, base = N.defaultDesign();
       if (typeof s.text !== 'string' || !s.text.trim() || !N.FONTS.some((f) => f.key === s.font)) return false;
+      if (N.fontMeta(s.font).retired) s.font = base.font; // a draft in a font no longer offered starts over in the default
       const num = (v, lo, hi, dflt) => (typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi ? v : dflt);
       const L = s.loops || {};
       design = Object.assign(base, {

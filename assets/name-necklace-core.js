@@ -231,13 +231,21 @@ const Nameplate = (() => {
   const CURVE_RANGE = [-180, 180]; // degrees of arc the name bends through
   const DETAIL = { draft: 0.03, standard: 0.01, fine: 0.005 }; // curve tolerance, mm
 
+  // The fonts, in the order the page lists them (formal to bold). A retired font is no longer offered to customers
+  // but still builds, so orders made in it can be reviewed and revised.
   const FONTS = [
     { key: 'greatvibes', name: 'Great Vibes', file: 'greatvibes/GreatVibes-Regular.ttf', style: 'Formal script' },
     { key: 'allura', name: 'Allura', file: 'allura/Allura-Regular.ttf', style: 'Formal script' },
+    { key: 'parisienne', name: 'Parisienne', file: 'parisienne/Parisienne-Regular.ttf', style: 'Formal script' },
     { key: 'alexbrush', name: 'Alex Brush', file: 'alexbrush/AlexBrush-Regular.ttf', style: 'Brush script' },
-    { key: 'pacifico', name: 'Pacifico', file: 'pacifico/Pacifico-Regular.ttf', style: 'Bold retro script' },
+    { key: 'norican', name: 'Norican', file: 'norican/Norican-Regular.ttf', style: 'Bold elegant script' },
     { key: 'dancingscript', name: 'Dancing Script', file: 'dancingscript/DancingScript[wght].ttf', style: 'Casual script' },
-    { key: 'luckiestguy', name: 'Luckiest Guy', file: 'luckiestguy/LuckiestGuy-Regular.ttf', style: 'Chunky display' },
+    { key: 'cookie', name: 'Cookie', file: 'cookie/Cookie-Regular.ttf', style: 'Soft handwriting' },
+    { key: 'playball', name: 'Playball', file: 'playball/Playball-Regular.ttf', style: 'Sporty script' },
+    { key: 'damion', name: 'Damion', file: 'damion/Damion-Regular.ttf', style: 'Bold casual script' },
+    { key: 'pacifico', name: 'Pacifico', file: 'pacifico/Pacifico-Regular.ttf', style: 'Bold retro script' },
+    { key: 'leckerlione', name: 'Leckerli One', file: 'leckerlione/LeckerliOne-Regular.ttf', style: 'Chunky script' },
+    { key: 'luckiestguy', name: 'Luckiest Guy', file: 'luckiestguy/LuckiestGuy-Regular.ttf', style: 'Chunky display', retired: true },
   ];
   const fontMeta = (key) => FONTS.find((f) => f.key === key) || FONTS[0];
 
@@ -588,8 +596,12 @@ const Nameplate = (() => {
     // Union-find over parts.
     const up = parts.map((_, i) => i);
     const find = (i) => (up[i] === i ? i : (up[i] = find(up[i])));
+    // Strokes of two different letters count as joined on any overlap: spacing (step 6) put them together and
+    // the union makes them one piece, even where the touch is a sliver at a pointed terminal (Parisienne K's leg on
+    // an "a"). A dot, an accent or a letter's own stroke has to really overlap, or it is moved in properly.
+    const minShared = (a, b) => (a.l !== b.l && a.kind !== 'dot' && b.kind !== 'dot' ? 0 : MIN_JOIN_AREA);
     for (let i = 0; i < parts.length; i++) for (let j = i + 1; j < parts.length; j++) {
-      if (find(i) !== find(j) && near(parts[i].bbox, parts[j].bbox) && sharedArea(pathsOf(parts[i]), pathsOf(parts[j])) > MIN_JOIN_AREA) up[find(i)] = find(j);
+      if (find(i) !== find(j) && near(parts[i].bbox, parts[j].bbox) && sharedArea(pathsOf(parts[i]), pathsOf(parts[j])) > minShared(parts[i], parts[j])) up[find(i)] = find(j);
     }
     const joins = [];
     for (let guard = 0; guard < parts.length; guard++) {
@@ -713,6 +725,19 @@ const Nameplate = (() => {
       l.bbox = bboxOf(l.paths);
     }
 
+    // 5b. A letter drawn in separate strokes (Great Vibes K and Q, Allura F and T, Leckerli One K, P and R,
+    // Parisienne F, K and T...) is joined into one piece first, the way step 7c joins an island: otherwise, next to a
+    // hyphen or a capital mid-name ("Ava-Rose", "McKenzie"), its strokes can each join a different neighbour and
+    // never each other, and the name casts in two. i/j dots and accents are left to step 7c.
+    const prejoins = [];
+    for (const l of letters) {
+      if (l.pathGroups.length < 2) continue;
+      const dotGroups = l.dotGroups;
+      l.dotGroups = [];
+      prejoins.push(...autoJoin([l], Math.max(design.overlap, LOOP_MIN_JOIN)));
+      l.dotGroups = dotGroups;
+    }
+
     // 6. Auto spacing: every neighbouring pair overlaps by exactly `overlap` at its closest point.
     const shiftLetter = (l, d) => {
       if (!d) return;
@@ -756,7 +781,7 @@ const Nameplate = (() => {
     // 7c. Auto-join. An island of a letter (an i/j dot, an accent, a stroke drawn apart as in some script
     // capitals) that doesn't already overlap the name moves straight toward the nearest point of its own letter
     // until it overlaps it by the letter overlap, so the piece always casts whole without any hand editing.
-    const joins = autoJoin(letters, Math.max(design.overlap, LOOP_MIN_JOIN));
+    const joins = prejoins.concat(autoJoin(letters, Math.max(design.overlap, LOOP_MIN_JOIN)));
 
     // 7b. Curve: bend the finished name along an arc. The warp is continuous and one-to-one, so every join
     // and every loose piece stays exactly as it was on the flat name.
