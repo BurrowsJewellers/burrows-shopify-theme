@@ -949,6 +949,32 @@
     const plateOnSkin = (d) => `<g style="mix-blend-mode:multiply"><path d="${d}" fill="#6b3a24" fill-rule="evenodd" opacity=".28" transform="translate(0.35,1.1)" filter="url(#nnAmbient)"/><path d="${d}" fill="#5a2e1c" fill-rule="evenodd" opacity=".4" transform="translate(0.12,0.38)" filter="url(#nnContact)"/></g>
       <g filter="url(#nnSoft)"><path d="${d}" fill="${(METAL_STOPS[settings.metal] || METAL_STOPS.white).edge}" fill-rule="evenodd" transform="translate(0.1,0.28)"/><path d="${d}" fill="url(#nnMetal)" fill-rule="evenodd"/></g>`;
     const label = (x, y, text) => `<text class="sz-l" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle">${esc(text)}</text>`;
+    // Where the chain hooks on: each loop's hole, in mm from the plate's centre (svg axes, y down), as the casting
+    // has it. A side whose loop is off (staff only) falls back to the plate's end, level with its middle.
+    const hookPoints = () => {
+      const b = result.bbox, cx = (b.minX + b.maxX) / 2, cy = (b.minY + b.maxY) / 2, half = result.width / 2 - 1.6;
+      const at = (side) => { const lp = result.loops.find((l) => l.side === side); return lp ? { x: lp.cx - cx, y: cy - lp.cy, r: lp.outer / 2, hole: lp.hole / 2 } : { x: side === 'left' ? -half : half, y: 0, r: 0, hole: 0 }; };
+      return { left: at('left'), right: at('right') };
+    };
+    // A jump ring through the hole, threaded on the chain's last link: an oval along the way the chain leaves,
+    // its near end inside the hole. Drawn over the plate so the chain reads as hooked on, not tucked under.
+    const jumpRing = (hx, hy, ux, uy, hk, pxmm) => {
+      if (!hk.r) return '';
+      const st = chainSpec(), wire = Math.max(0.35, Math.min(0.7, st.wire || 0.5));
+      const len = hk.hole + hk.r + 0.6, rx = (len / 2) * pxmm, ry = Math.max(0.55, hk.hole * 0.8) * pxmm;
+      const mx = hx + ux * (len / 2 - hk.hole * 0.6) * pxmm, my = hy + uy * (len / 2 - hk.hole * 0.6) * pxmm, ang = (Math.atan2(uy, ux) * 180) / Math.PI;
+      return `<ellipse cx="${mx.toFixed(2)}" cy="${my.toFixed(2)}" rx="${rx.toFixed(2)}" ry="${ry.toFixed(2)}" transform="rotate(${ang.toFixed(1)} ${mx.toFixed(2)} ${my.toFixed(2)})" fill="none" stroke="url(#nnLink-neck)" stroke-width="${(wire * pxmm).toFixed(2)}"/>`;
+    };
+    // One side of the chain, from the shoulder anchor (ax, ay) to the hook at (hx, hy): it ends on the far side of
+    // the jump ring, coming in from above and outside so it never crosses the lettering. Returns [chain, ring].
+    const hookedChain = (ax, ay, hx, hy, hk, out, pxmm, onSkin) => {
+      const len = hk.r ? hk.hole + hk.r + 0.6 : 0;
+      // the way the chain leaves the hook: outward and up, toward the shoulder
+      let ux = Math.sign(out) * 0.8, uy = -0.6; const l = Math.hypot(ux, uy); ux /= l; uy /= l;
+      const ex = hx + ux * len * pxmm, ey = hy + uy * len * pxmm;
+      const P = chainCurve(ax, ay, ex, ey, out);
+      return [chainSvg(P, pxmm, onSkin), jumpRing(hx, hy, ux, uy, hk, pxmm)];
+    };
     // The chain leaves the anchor (the neck's edge) heading straight down, as if coming round from behind, then
     // sweeps in to the loop.
     const chainCurve = (ax, ay, lx, ly, out) => { const d = ly - ay; return [[ax, ay], [ax + out * 0.3, ay + d * 0.42], [lx - out * 4, ly - d * 0.35], [lx, ly]]; };
@@ -1020,20 +1046,25 @@
         const L = pt(nk.left || [35, 38]), R = pt(nk.right || [65, 38]), Nn = pt(nk.notch || [50, 52]);
         const pxmm = Math.hypot(R[0] - L[0], R[1] - L[1]) / (nk.widthMm || 105);
         const py = Nn[1] + (DROP_MM[chain.lengthCm] || DROP_MM[45]) * pxmm, px = Nn[0];
-        const lx = px - (pw / 2 - 1.6) * pxmm, rx = px + (pw / 2 - 1.6) * pxmm;
+        const hk = hookPoints();
+        const left = hookedChain(L[0], L[1], px + hk.left.x * pxmm, py + hk.left.y * pxmm, hk.left, -pxmm, pxmm, true);
+        const right = hookedChain(R[0], R[1], px + hk.right.x * pxmm, py + hk.right.y * pxmm, hk.right, pxmm, pxmm, true);
         s += `<image href="${esc(photo.url)}" x="${ix.toFixed(1)}" y="${iy.toFixed(1)}" width="${iw.toFixed(1)}" height="${ih.toFixed(1)}" preserveAspectRatio="none"/>`;
         s += `<rect x="0" y="${(H - 110).toFixed(0)}" width="${W}" height="110" fill="url(#nnFade)"/>`;
         s = s.replace('</defs>', `<linearGradient id="nnFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0e2a" stop-opacity="0"/><stop offset="1" stop-color="#0b0e2a" stop-opacity=".85"/></linearGradient></defs>`);
-        s += chainSvg(chainCurve(L[0], L[1], lx, py, -pxmm), pxmm, true) + chainSvg(chainCurve(R[0], R[1], rx, py, pxmm), pxmm, true);
+        s += left[0] + right[0];
         s += `<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) scale(${pxmm.toFixed(4)})">${plateOnSkin(platePath())}</g>`;
+        s += left[1] + right[1];
       } else {
         const sc = Math.min((W - pad * 2) / NECK.w, (capY - 16 - top) / NECK.h);
         const ox = (W - NECK.w * sc) / 2 - NECK.x0 * sc, oy = top - NECK.y0 * sc;
         const py = NECK.notch[1] + (DROP_MM[chain.lengthCm] || DROP_MM[45]);
-        const [a, b] = NECK.anchors, lx = 160 - pw / 2 + 1.6, rx = 160 + pw / 2 - 1.6;
+        const [a, b] = NECK.anchors, hk = hookPoints();
+        const left = hookedChain(a[0], a[1], 160 + hk.left.x, py + hk.left.y, hk.left, -1, 1, false);
+        const right = hookedChain(b[0], b[1], 160 + hk.right.x, py + hk.right.y, hk.right, 1, 1, false);
         s += `<g transform="translate(${ox.toFixed(1)},${oy.toFixed(1)}) scale(${sc})">${neckArt()}`;
-        s += chainSvg(chainCurve(a[0], a[1], lx, py, -1), 1) + chainSvg(chainCurve(b[0], b[1], rx, py, 1), 1);
-        s += `<g transform="translate(160,${py})"><path d="${platePath()}" fill="url(#nnMetal)" fill-rule="evenodd"/></g></g>`;
+        s += left[0] + right[0];
+        s += `<g transform="translate(160,${py})"><path d="${platePath()}" fill="url(#nnMetal)" fill-rule="evenodd"/></g>${left[1] + right[1]}</g>`;
       }
       // The caption names the chain; on a narrow stage it drops the width and the metal so it fits.
       const sp = chainSpec(), gn = gaugesOn && sp.gaugeName ? sp.gaugeName.toLowerCase() + ' ' : '';
