@@ -59,7 +59,17 @@
 /* Step 2: configure */
 .rb__detail { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: start; }
 .rb__stage { background: #fff; border: 1px solid rgba(var(--gold-dark-rgb), .18); display: grid; place-items: center; padding: 28px; position: sticky; top: calc(var(--header-height, 90px) + 16px); }
-.rb__stage img { width: 100%; max-width: 520px; aspect-ratio: 1; object-fit: contain; display: block; }
+.rb__stage { grid-template-columns: 100%; gap: 16px; }
+.rb__media { width: 100%; max-width: 520px; justify-self: center; }
+.rb__stage img, .rb__media video { width: 100%; max-width: 520px; aspect-ratio: 1; object-fit: contain; display: block; background: #fff; }
+.rb__thumbs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.rb__thumbs:empty { display: none; }
+.rb__thumb { position: relative; width: 64px; height: 64px; padding: 3px; background: #fff; border: 1px solid rgba(var(--gold-dark-rgb), .25); cursor: pointer; }
+.rb__thumb img { width: 100%; height: 100%; max-width: none; aspect-ratio: auto; object-fit: contain; }
+.rb__thumb.on { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.rb__thumb:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.rb__play { position: absolute; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: rgba(16, 20, 48, .78); color: #fff; font-size: 11px; line-height: 26px; text-align: center; padding-left: 2px; pointer-events: none; }
+@media (max-width: 640px) { .rb__thumbs { gap: 6px; } .rb__thumb { width: 42px; height: 42px; padding: 2px; } }
 .rb__panel { display: flex; flex-direction: column; gap: 24px; }
 .rb__panel h2 { font-family: var(--font-heading); font-weight: 500; font-size: 34px; line-height: 1.1; color: var(--ink); margin: 0; }
 .rb__opt { display: flex; flex-direction: column; gap: 10px; }

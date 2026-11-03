@@ -23,7 +23,11 @@
   // up on the Burrows matrix there. PT = { fee, rounding, mounts: { handle: { "14ct White gold": { "1": retail, … } } } }.
   // Without it (API down, or a design with no wholesale data) the Shopify variant price is used as before.
   var PT = null;
-  var state = { step: 1, style: 'all', mount: null, shape: 'Round', metal: null, size: '', ct: null, type: cfg.defaultType || 'lab', stone: null,
+  // Photos: Smiling Rocks' six views + turntable video for each design / colour / shape / centre size, served by the
+  // API's /api/views from Shopify Files. FIRST = the first view of every design / colour / shape (grid cards);
+  // VIEWS = per-combination cache. Without them the product's own render (renderFor) is used as before.
+  var FIRST = null, VIEWS = {};
+  var state = { step: 1, view: 0, style: 'all', mount: null, shape: 'Round', metal: null, size: '', ct: null, type: cfg.defaultType || 'lab', stone: null,
     filters: { minct: 0.3, maxct: 6, colours: [], clarities: [], certified: !!cfg.certifiedOnly, sort: 'price' } };
   var stoneCache = {};
 
@@ -62,6 +66,18 @@
   function absUrl(u) { u = u || ''; if (u.indexOf('//') === 0) return 'https:' + u; if (u.indexOf('/') === 0) return location.origin + u; return u; }
   /* Metal variants are named "<carat> <colour>" ("18ct Rose gold") or just a colour ("Platinum"). */
   function parseMetal(name) { var mm = /^(\d+\s*(?:ct|k|kt))\s+(.+)$/i.exec(String(name || '').trim()); return mm ? { carat: mm[1].replace(/\s+/g, '').toLowerCase().replace(/kt?$/, 'ct'), colour: mm[2].trim() } : { carat: '', colour: String(name || '').trim() }; }
+  function viewColour(metal) { var c = parseMetal(metal).colour || ''; return /platinum/i.test(c) || /platinum/i.test(metal) ? 'White gold' : c; }
+  function sized(u, w) { return u ? u + (u.indexOf('?') > -1 ? '&' : '?') + 'width=' + w : u; }
+  function viewsKey(m, metal, shape, ct) { return [m.id, viewColour(metal), shape, bracketOf(ct == null ? 1 : ct)].join('|'); }
+  function loadViews(m, metal, shape, ct, cb) {
+    var k = viewsKey(m, metal, shape, ct);
+    if (VIEWS[k] !== undefined) return cb(VIEWS[k]);
+    var q = new URLSearchParams({ mount: m.id, colour: viewColour(metal), shape: shape, ct: String(bracketOf(ct == null ? 1 : ct)) });
+    fetch(cfg.apiBase.replace(/\/$/, '') + '/views?' + q).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { VIEWS[k] = j && j.images && j.images.length ? j : null; cb(VIEWS[k]); })
+      .catch(function () { VIEWS[k] = null; cb(null); });
+  }
+  function firstView(m, metal, shape) { return (FIRST && FIRST[m.id + '|' + viewColour(metal) + '|' + shape]) || null; }
   function normMetals(m) { (m.metals || []).forEach(function (x) { var pm = parseMetal(x.name); x.colour = x.colour || pm.colour; x.carat = x.carat == null ? pm.carat : x.carat; }); return m; }
   function coloursOf(m) { var out = []; (m.metals || []).forEach(function (x) { if (out.indexOf(x.colour) < 0) out.push(x.colour); }); return out; }
   function caratsOf(m, colour) { var out = []; (m.metals || []).forEach(function (x) { if (x.colour === colour && x.carat && out.indexOf(x.carat) < 0) out.push(x.carat); }); return out; }
@@ -214,7 +230,8 @@
       var m = c.m, metal = gridColour && coloursOf(m).indexOf(gridColour) > -1 ? gridColour : preferredColour(m);
       var shape = c.shape || (m.shapes && m.shapes.indexOf('Round') > -1 ? 'Round' : (m.shapes || SHAPES)[0]);
       var card = el('button', 'rb__card'); card.type = 'button';
-      var img = el('img'); img.src = renderFor(m, metal, shape, c.shape ? state.ct || 1 : null); img.alt = m.title + (c.shape ? ' — ' + c.shape : ''); img.loading = 'lazy'; card.appendChild(img);
+      var fv = firstView(m, metal, shape);
+      var img = el('img'); img.src = fv ? sized(fv, 600) : renderFor(m, metal, shape, c.shape ? state.ct || 1 : null); img.alt = m.title + (c.shape ? ' — ' + c.shape : ''); img.loading = 'lazy'; card.appendChild(img);
       var body = el('div', 'rb__cardbody');
       body.appendChild(el('div', 'rb__cardtitle', esc(m.title) + (c.shape ? ' <span class="rb__cardshape">&mdash; ' + esc(c.shape) + '</span>' : '')));
       body.appendChild(el('div', 'rb__cardmeta', esc(c.shape ? c.shape + ' centre · also ' + (m.shapes || SHAPES).filter(function (x) { return x !== c.shape; }).join(', ').toLowerCase() : ((m.shapes || []).length ? 'For ' + m.shapes.join(', ').toLowerCase() + ' centres' : ''))));
@@ -238,7 +255,42 @@
     state.metal = defaultMetal(m, state.metal);
     var back = el('button', 'rb__back', '&larr; All designs'); back.type = 'button'; back.addEventListener('click', function () { screenGrid(); }); app.appendChild(back);
     var d = el('div', 'rb__detail');
-    var stage = el('div', 'rb__stage'); var img = el('img'); img.alt = m.title; stage.appendChild(img); d.appendChild(stage);
+    // Stage: the chosen view large, the other views (and the video) as thumbnails underneath. The view chosen
+    // (three-quarter, front, profile…) stays the same when the shape, metal or centre size changes.
+    var stage = el('div', 'rb__stage'); var media = el('div', 'rb__media'); var img = el('img'); img.alt = m.title; media.appendChild(img); stage.appendChild(media);
+    var thumbs = el('div', 'rb__thumbs'); thumbs.setAttribute('aria-label', 'Views'); stage.appendChild(thumbs); d.appendChild(stage);
+    var VIEW_NAMES = ['Three-quarter view', 'Front view', 'Profile', 'Side view', 'Top view', 'On the hand'];
+    function showView(v, i) {
+      var n = v ? v.images.length + (v.video ? 1 : 0) : 0;
+      state.view = i >= 0 && i < n ? i : 0;
+      var old = media.querySelector('video'); if (old) { old.pause(); media.removeChild(old); }
+      if (v && state.view >= v.images.length) {
+        img.style.display = 'none';
+        var vid = document.createElement('video'); vid.src = v.video.mp4; if (v.video.poster) vid.poster = v.video.poster;
+        vid.muted = true; vid.loop = true; vid.autoplay = true; vid.playsInline = true; vid.controls = true; vid.setAttribute('playsinline', '');
+        media.appendChild(vid); var pr = vid.play(); if (pr && pr.catch) pr.catch(function () {});
+      } else {
+        img.style.display = '';
+        if (v) { img.src = sized(v.images[state.view], 1000); img.alt = m.title + ' — ' + (VIEW_NAMES[state.view] || 'view ' + (state.view + 1)); }
+      }
+      Array.prototype.forEach.call(thumbs.children, function (b, j) { b.classList.toggle('on', j === state.view); b.setAttribute('aria-pressed', j === state.view ? 'true' : 'false'); });
+    }
+    function drawViews(v) {
+      thumbs.innerHTML = '';
+      if (!v) { var old = media.querySelector('video'); if (old) media.removeChild(old); img.style.display = ''; return; }
+      v.images.forEach(function (u, j) {
+        var b = el('button', 'rb__thumb'); b.type = 'button'; b.setAttribute('aria-label', VIEW_NAMES[j] || 'View ' + (j + 1));
+        var t = el('img'); t.src = sized(u, 160); t.alt = ''; t.loading = 'lazy'; b.appendChild(t);
+        b.addEventListener('click', function () { showView(v, j); }); thumbs.appendChild(b);
+      });
+      if (v.video) {
+        var b = el('button', 'rb__thumb rb__thumb--video'); b.type = 'button'; b.setAttribute('aria-label', 'Video: the ring turning');
+        var t = el('img'); t.src = v.video.poster ? sized(v.video.poster, 160) : sized(v.images[0], 160); t.alt = ''; t.loading = 'lazy'; b.appendChild(t);
+        b.appendChild(el('span', 'rb__play', '&#9654;'));
+        b.addEventListener('click', function () { showView(v, v.images.length); }); thumbs.appendChild(b);
+      }
+      showView(v, state.view);
+    }
     var panel = el('div', 'rb__panel');
     panel.appendChild(el('h2', null, esc(m.title)));
     var price = el('div', 'rb__price'); panel.appendChild(price);
@@ -262,7 +314,11 @@
     function sync() {
       var mt = metalOf(m, state.metal); state.metal = mt.name;
       applyBracket(m);
-      img.src = renderFor(m, mt.name, state.shape, state.ct);
+      var vk = viewsKey(m, mt.name, state.shape, state.ct);
+      if (VIEWS[vk]) drawViews(VIEWS[vk]); else { img.src = renderFor(m, mt.name, state.shape, state.ct); thumbs.innerHTML = ''; }
+      loadViews(m, mt.name, state.shape, state.ct, function (v) {
+        if (viewsKey(m, metalOf(m, state.metal).name, state.shape, state.ct) === vk && state.step === 2) drawViews(v);
+      });
       price.innerHTML = money(priceFor(m, mt, state.ct)) + '<small>setting for a ' + esc(bracketLabel(state.ct)) + ' centre · AUD incl. GST</small>';
       ctLabel.innerHTML = 'Centre carat (setting) &mdash; <b>' + esc(bracketLabel(state.ct)) + '</b>';
       ctChips.innerHTML = ''; bracketsFor(m).forEach(function (b) { ctChips.appendChild(chip(bracketLabel(b), b === state.ct, '', function () { state.ct = b; state.stone = null; applyBracket(m); sync(); })); });
@@ -470,7 +526,10 @@
     if (ptSetting(m, mt, s.ct) != null) { total = niceRound(total); setPrice = total - Math.round(+s.retail || 0); }
     var r = el('div', 'rb__review');
     var left = el('div', 'rb__card rb__card--review');
-    var hero = el('div', 'rb__hero'); var im = el('img'); im.src = renderFor(m, mt.name, state.shape, s.ct); im.alt = m.title; hero.appendChild(im);
+    var hero = el('div', 'rb__hero'); var im = el('img'); im.alt = m.title; hero.appendChild(im);
+    var hv = VIEWS[viewsKey(m, mt.name, state.shape, s.ct)];
+    im.src = hv ? sized(hv.images[0], 400) : renderFor(m, mt.name, state.shape, s.ct);
+    if (!hv) loadViews(m, mt.name, state.shape, s.ct, function (v) { if (v) im.src = sized(v.images[0], 400); });
     hero.appendChild(el('div', null, '<h3>' + esc(m.title) + '</h3><div class="rb__note">' + esc(state.shape + ' · ' + mt.name + (state.size ? ' · size ' + state.size : ' · size to be confirmed')) + '</div>'));
     left.appendChild(hero);
     left.appendChild(el('div', 'rb__row', '<span>Setting<small>' + esc(mt.sku || m.ref || m.id) + ' · ' + esc(mt.name) + (m.price_by_carat ? ' · made for a ' + esc(bracketAlt(bracketOf(s.ct))) + ' centre' : '') + '</small></span><span>' + money(setPrice) + '</span>'));
@@ -514,7 +573,7 @@
     btn.disabled = true; btn.textContent = 'Checking the stone…';
     var build = 'RB-' + Date.now().toString(36).toUpperCase();
     var payload = { build: build, type: state.type, size: state.size || '',
-      mount: { id: m.id, ref: mt.sku || m.ref || m.id, title: m.title, metal: mt.name, price: priceFor(m, mt, s.ct), variant_id: mt.variant_id || null, shape: state.shape, image: absUrl(renderFor(m, mt.name, state.shape, s.ct)) },
+      mount: { id: m.id, ref: mt.sku || m.ref || m.id, title: m.title, metal: mt.name, price: priceFor(m, mt, s.ct), variant_id: mt.variant_id || null, shape: state.shape, image: (VIEWS[viewsKey(m, mt.name, state.shape, s.ct)] || {}).images ? VIEWS[viewsKey(m, mt.name, state.shape, s.ct)].images[0] : absUrl(renderFor(m, mt.name, state.shape, s.ct)) },
       stone: { id: s.id, item_id: s.item_id, cert: s.cert, lab: s.lab, retail: s.retail } };
     var status = 0;
     fetch(cfg.apiBase.replace(/\/$/, '') + '/cart', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
@@ -566,6 +625,9 @@
   // Prices first (at most 6 s), then the designs.
   var started = false; var go1 = function () { if (!started) { started = true; start(); } };
   setTimeout(go1, 6000);
+  // Grid photos: the three-quarter view of every design / colour / shape (1 ct). Redraw the grid when they arrive.
+  fetch(cfg.apiBase.replace(/\/$/, '') + '/views?first=1&ct=1').then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) { if (j && Object.keys(j).length) { FIRST = j; if (started && state.step === 1) screenGrid(); } }).catch(function () {});
   fetch(cfg.apiBase.replace(/\/$/, '') + '/prices').then(function (r) { if (!r.ok) throw new Error('prices'); return r.json(); })
     .then(function (j) { if (j && j.mounts) PT = j; }).catch(function () {}).then(go1);
 })();
