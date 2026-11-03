@@ -1,0 +1,31 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "settings": {
+        "show_title": false,
+        "show_breadcrumbs": true,
+        "hidden_h1": true
+      }
+    },
+    "builder": {
+      "type": "eng-ring-builder-internal",
+      "settings": {
+        "mounts_source": "collection",
+        "api_base": "https://dashboard.burrowsjewellers.com.au/eng-ring-builder-internal/api",
+        "default_type": "lab",
+        "show_natural": true,
+        "certified_only": true,
+        "cart_enabled": false,
+        "contact_url": "shopify://pages/contact",
+        "mounts_collection": "eng-ring-builder-internal-mounts",
+        "sample_note": "Preview build with sample designs. Our own catalogue is on its way.",
+        "eyebrow": "Preview: design your engagement ring"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "builder"
+  ]
+}

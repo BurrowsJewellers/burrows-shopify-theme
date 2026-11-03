@@ -1,0 +1,39 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "settings": {
+        "show_title": false,
+        "show_breadcrumbs": true,
+        "hidden_h1": true
+      }
+    },
+    "builder": {
+      "type": "eng-ring-builder-internal",
+      "settings": {
+        "mounts_source": "collection",
+        "api_base": "https://dashboard.burrowsjewellers.com.au/eng-ring-builder-internal/api",
+        "default_type": "lab",
+        "show_natural": true,
+        "certified_only": true,
+        "cart_enabled": true,
+        "contact_url": "shopify://pages/contact",
+        "mounts_collection": "eng-ring-builder-internal-mounts",
+        "sample_note": ""
+      }
+    }
+  },
+  "order": [
+    "main",
+    "builder"
+  ]
+}
