@@ -1,4 +1,10 @@
-# Ring Builder — Project Handover & History
+# EngRingBuilder_Internal (engagement ring builder) — Project Handover & History
+
+> **Renamed Nov 2026.** Everything below written as "ring builder" / `ring-builder` is now **EngRingBuilder_Internal**:
+> theme files `eng-ring-builder-internal*`, API `/eng-ring-builder-internal/api` (pm2 `eng-ring-builder-internal-api`,
+> `/opt/eng-ring-builder-internal-api`), tag `eng-ring-builder-internal`, product types "EngRingBuilder_Internal mount" /
+> "EngRingBuilder_Internal build", collection `eng-ring-builder-internal-mounts`. The customer address stays /pages/ring-builder.
+> Not to be confused with the wedding ring builder or the VDB Engagement Ring Builder app (Ring Creator).
 
 > Context for any future Claude session (or developer) picking this up. Written Sept 2026,
 > reconstructed from the Cowork build session that stood up the live diamond API. Read this

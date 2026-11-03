@@ -1,7 +1,8 @@
 {% comment %}
   Burrows Jewellers — persona-aware ring builder capture (P1 / P2 / P3).
   Ported verbatim from the Turbo theme layout. Runs site-wide; only acts on the
-  persona landing pages and the /apps/ring-creator/ pages (VDB ring builder).
+  persona landing pages and EngRingBuilder_Internal at /pages/ring-builder (formerly ring-builder-capture.liquid;
+  until Nov 2026 it ran on the VDB Engagement Ring Builder app's /apps/ring-creator/ pages).
   Klaviyo public key WrhRZn — lists SFFPMs (saved designs), TpGYE4 (guide).
 {% endcomment %}
 <!-- ============================================================
@@ -54,7 +55,7 @@
   }
 
   // ---- 2) Only the ring builder shows the popup ----
-  if(!/\/apps\/ring-creator\//.test(path)) return;
+  if(!/^\/pages\/ring-builder(-test)?\/?$/.test(path) && !/\/apps\/ring-creator\//.test(path)) return;
   if(window.__bjsdInit) return; window.__bjsdInit=true;
 
   var PUBLIC_KEY='WrhRZn';
@@ -75,6 +76,7 @@
   function $(s,r){return (r||document).querySelector(s);}
 
   function isReview(){
+    if(document.querySelector('[data-rb-steps] li[data-step="4"].on')) return true; // EngRingBuilder_Internal Review step
     if(/rb-ring-review/i.test(location.pathname)) return true;
     var act=document.querySelector('[class*="rb-active-step"],[class*="rb-current"]');
     if(act && /review/i.test(act.textContent||'')) return true;
@@ -83,6 +85,11 @@
 
   function summary(){
     try{
+      var rb=document.querySelector('.rb__review');
+      if(rb){ // EngRingBuilder_Internal: design, shape · metal · size, ring total
+        var tx=function(sel){ var e=rb.querySelector(sel); return e?(e.textContent||'').replace(/\s+/g,' ').trim():''; };
+        return [tx('.rb__hero h3'),tx('.rb__hero .rb__note'),tx('.rb__total b')].filter(Boolean).join(' - ').slice(0,200);
+      }
       var p=new URLSearchParams(location.search);
       var metal=(p.get('metal_type')||'').replace('|',' ').trim();
       var total='';

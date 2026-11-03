@@ -1,0 +1,32 @@
+{%- comment -%}
+  VDB Engagement Ring Builder app (Ring Creator, /apps/ring-creator/…) → EngRingBuilder_Internal at /pages/ring-builder.
+  The app is still installed, so its pages still render inside this layout; this sends every
+  /apps/ring-creator/… page on before it draws. Ad and email tracking (utm_*, gclid, fbclid,
+  msclkid, _kx) is carried across. An old setting link (ring_stock_num=HL-ENG-5CT-WD-OV) opens
+  the same design, shape and metal in our builder when that design is in the ring-mounts
+  collection; otherwise the builder starts at step 1.
+  To undo: remove the render line in snippets/integrations-head.liquid.
+{%- endcomment -%}
+{%- if request.path contains '/apps/ring-creator' -%}
+<script>
+(function () {
+  var target = '/pages/ring-builder';
+  try {
+    var q = new URLSearchParams(location.search), o = new URLSearchParams();
+    q.forEach(function (v, k) { if (/^(utm_[a-z]+|gclid|fbclid|msclkid|_kx)$/i.test(k)) o.set(k, v); });
+    var m = (q.get('ring_stock_num') || '').toUpperCase().match(/^(HL|SS|SP|SL|PP|P)-ENG-(\d+(?:\.\d+)?)CT-(WD|YD|RD)-(RD|OV|EM|PEAR|CUSH|PR)$/);
+    if (m) {
+      var SHAPE = { RD: 'Round', OV: 'Oval', EM: 'Emerald', PEAR: 'Pear', CUSH: 'Cushion', PR: 'Princess' };
+      var METAL = { WD: 'White gold', YD: 'Yellow gold', RD: 'Rose gold' };
+      o.set('mount', 'mount-sample-' + m[1].toLowerCase());
+      o.set('shape', SHAPE[m[4]]);
+      o.set('metal', '14ct ' + METAL[m[3]]);
+      o.set('ct', String(+m[2]));
+    }
+    var qs = o.toString();
+    if (qs) target += '?' + qs;
+  } catch (e) {}
+  location.replace(target);
+})();
+</script>
+{%- endif -%}

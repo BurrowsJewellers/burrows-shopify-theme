@@ -49,8 +49,6 @@
     {%- comment -%} The builder's stylesheet used to arrive after the section had painted unstyled — a full-page layout shift on phones. {%- endcomment -%}
     {%- if template.suffix contains 'eng-ring-builder-internal' -%}
       {{ 'eng-ring-builder-internal.css' | asset_url | stylesheet_tag }}
-    {%- elsif template.suffix contains 'ring-builder' -%}
-      {{ 'ring-builder.css' | asset_url | stylesheet_tag }}
     {%- endif -%}
 
     {{ content_for_header }}

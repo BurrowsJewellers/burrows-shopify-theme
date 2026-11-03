@@ -277,12 +277,12 @@
       },
       {
         "type": "header",
-        "content": "Ring builder"
+        "content": "EngRingBuilder_Internal (engagement ring builder)"
       },
       {
         "type": "checkbox",
-        "id": "ring_builder_capture",
-        "label": "Enable the persona / saved-design capture popup on the ring builder (Klaviyo)",
+        "id": "eng_ring_builder_internal_capture",
+        "label": "Enable the persona / saved-design capture popup on the engagement ring builder (Klaviyo)",
         "default": true
       }
     ]

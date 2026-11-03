@@ -9,6 +9,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
 {%- endif -%}
 <script>window.Store = window.Store || {}; window.Store.id = {{ shop.id }};</script>
+{%- render 'vdb-ring-builder-redirect' -%}
 {%- if request.path contains 'apps/ring-creator' or product.vendor contains 'VDB' -%}
 <meta name="robots" content="noindex, nofollow">
 {%- endif -%}
