@@ -3,7 +3,8 @@
   - JewelryStore (LocalBusiness) on every page: name, address, phone, socials, logo.
   - WebSite + SearchAction on the home page.
   - BreadcrumbList on product, collection, page and article.
-  - Product: Shopify's own structured_data (offers, brand, images, variants).
+  - Product: Shopify's own structured_data (offers, brand, images, variants), with each variant's
+    design number added as "mpn".
   - CollectionPage + ItemList (the first page of products) on collections.
   - Article on blog posts.
   Opening hours are deliberately not asserted here — set them in Google Business Profile.
@@ -115,8 +116,31 @@
 {%- endif -%}
 
 {%- if request.page_type == 'product' -%}
+{%- liquid
+  comment
+    Each variant's design number (variant metafield custom.design_number_variant) goes in as "mpn",
+    straight after that variant's "sku" in Shopify's own JSON. A variant with no SKU or no design
+    number, or a SKU that has already been handled, is left exactly as Shopify wrote it.
+  endcomment
+  assign product_ld = product | structured_data
+  assign mpn_seen = '|'
+  for v in product.variants
+    assign mpn = v.metafields.custom.design_number_variant.value | append: '' | strip
+    if mpn != blank and v.sku != blank
+      assign sku_key = '|' | append: v.sku | append: '|'
+      unless mpn_seen contains sku_key
+        assign mpn_seen = mpn_seen | append: v.sku | append: '|'
+        assign sku_json = v.sku | json
+        assign mpn_json = mpn | json
+        assign sku_find = '"sku":' | append: sku_json
+        assign sku_with_mpn = sku_find | append: ',"mpn":' | append: mpn_json
+        assign product_ld = product_ld | replace_first: sku_find, sku_with_mpn
+      endunless
+    endif
+  endfor
+-%}
 <script type="application/ld+json">
-  {{ product | structured_data }}
+  {{ product_ld }}
 </script>
 {%- elsif request.page_type == 'collection' and collection.products.size > 0 -%}
 <script type="application/ld+json">
