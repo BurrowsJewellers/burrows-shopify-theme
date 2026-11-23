@@ -235,7 +235,23 @@
             {%- if product.description != blank -%}
               <details class="acc" {{ block.shopify_attributes }}{% if block.settings.open %} open{% endif %}>
                 <summary>{{ block.settings.heading }}<span class="pm"></span></summary>
-                <div class="acc__body rte">{% render 'content-headings', html: product.description %}</div>
+                <div class="acc__body rte">{% render 'content-headings', html: product.description %}
+                  {%- liquid
+                    comment
+                      Design numbers as the last line of the description, unless the text already carries every one
+                      of them (Pandora descriptions end with theirs).
+                    endcomment
+                    assign dn_desc = product.description | strip_html | downcase
+                    assign dn_missing = false
+                    for dn in design_numbers
+                      assign dn_lower = dn | downcase
+                      unless dn_desc contains dn_lower
+                        assign dn_missing = true
+                      endunless
+                    endfor
+                  -%}
+                  {%- if dn_missing -%}<p data-design-desc>Design number{% if design_numbers.size > 1 %}s{% endif %}: {{ design_numbers | join: ', ' | escape }}</p>{%- endif -%}
+                </div>
               </details>
             {%- endif -%}
 
