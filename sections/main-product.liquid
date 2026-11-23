@@ -7,6 +7,20 @@
   endif
   assign form_id = 'ProductForm-' | append: section.id
   assign design_number = cv.metafields.custom.design_number_variant
+
+  comment
+    Every distinct design number on the product. The page shows the selected variant's number; when a
+    product has more than one, the details list also carries them all, so each one is in the page text.
+  endcomment
+  assign dn_sep = '|~|'
+  assign dn_joined = ''
+  for dn_variant in product.variants
+    assign dn = dn_variant.metafields.custom.design_number_variant.value | append: '' | strip
+    if dn != blank
+      assign dn_joined = dn_joined | append: dn | append: dn_sep
+    endif
+  endfor
+  assign design_numbers = dn_joined | split: dn_sep | uniq
 -%}
 
 <section class="full-width pd{% if s.image_size == 'small' %} pd--small-img{% endif %}" data-product-section data-section-id="{{ section.id }}"{% if s.image_size == 'small' %} style="--pd-img-max: {{ s.image_max | default: 420 }}px"{% endif %}>
@@ -238,6 +252,7 @@
                   {%- if product.metafields.custom.s_sub_cat__product != blank -%}<li><span>Style</span>{{ product.metafields.custom.s_sub_cat__product | metafield_text }}</li>{%- endif -%}
                   <li data-sku-row{% if cv.sku == blank %} hidden{% endif %}><span>SKU</span><em data-sku>{{ cv.sku }}</em></li>
                   <li data-design-row{% if design_number == blank %} hidden{% endif %}><span>Design no.</span><em data-design-number>{{ design_number }}</em></li>
+                  {%- if design_numbers.size > 1 -%}<li data-design-all><span>All design nos.</span><em>{{ design_numbers | join: ', ' | escape }}</em></li>{%- endif -%}
                 </ul>
                 {%- liquid
                   comment
