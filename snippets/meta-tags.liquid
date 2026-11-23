@@ -17,6 +17,24 @@
   endif
 
   comment
+    Design number of the selected variant (variant metafield custom.design_number_variant). On product
+    pages it is added to the title and the meta description, unless they already carry it, so that a
+    search for the number finds the product.
+  endcomment
+  assign dn_first = ''
+  assign dn_down = ''
+  assign dn_in_title = true
+  if request.page_type == 'product'
+    assign dn_first = product.selected_or_first_available_variant.metafields.custom.design_number_variant.value | append: '' | strip
+    if dn_first != blank
+      assign dn_down = dn_first | downcase
+      unless title_down contains dn_down
+        assign dn_in_title = false
+      endunless
+    endif
+  endif
+
+  comment
     Meta description: the SEO description when set, otherwise one built from the page itself
     (collections and pages with no description used to ship without one).
   endcomment
@@ -53,7 +71,25 @@
   comment
     Shopify's page_description defaults to the first 320 characters of the content; Google shows about 160.
   endcomment
-  if desc.size > 160
+  if dn_first != blank
+    comment
+      Leave room for " Design no. X." inside the 160 characters, then add it unless it is already there.
+    endcomment
+    assign dn_suffix = 'Design no. ' | append: dn_first | append: '.'
+    assign desc_room = 158 | minus: dn_suffix.size
+    if desc.size > desc_room
+      assign desc = desc | truncate: desc_room
+    endif
+    assign desc_down = desc | downcase
+    unless desc_down contains dn_down
+      assign desc_last = desc | slice: -1
+      if desc_last == '.' or desc_last == '!' or desc_last == '?'
+        assign desc = desc | append: ' ' | append: dn_suffix
+      else
+        assign desc = desc | append: '. ' | append: dn_suffix
+      endif
+    endunless
+  elsif desc.size > 160
     assign desc = desc | truncate: 160
   endif
 
@@ -76,6 +112,7 @@
 
 <title>
   {{ page_title }}
+  {%- unless dn_in_title %} {{ dn_first | escape }}{% endunless -%}
   {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
   {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
   {%- unless has_name %} &ndash; {{ shop_name }}{% endunless -%}
