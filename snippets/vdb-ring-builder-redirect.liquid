@@ -1,19 +1,52 @@
 {%- comment -%}
-  VDB Engagement Ring Builder app (Ring Creator, /apps/ring-creator/…) → EngRingBuilder_Internal at /pages/ring-builder.
-  The app is still installed, so its pages still render inside this layout; this sends every
-  /apps/ring-creator/… page on before it draws. Ad and email tracking (utm_*, gclid, fbclid,
-  msclkid, _kx) is carried across. An old setting link (ring_stock_num=HL-ENG-5CT-WD-OV) opens
-  the same design, shape and metal in our builder when that design is in the ring-mounts
-  collection; otherwise the builder starts at step 1.
-  To undo: remove the render line in snippets/integrations-head.liquid.
+  VDB Engagement Ring Builder app (Ring Creator, /apps/ring-creator/…) beside EngRingBuilder_Internal
+  (/pages/ring-builder).
+
+  The VDB builder is open to visitors who come in through its front door, /pages/ring-builder-vdb.
+  That page gives the browser a pass (localStorage "bjVdbPass": a time two hours ahead, renewed on
+  every VDB page) and goes straight to the app. Ad and email tracking (utm_*, gclid, fbclid, msclkid,
+  _kx) is carried across.
+
+  Without a pass, every /apps/ring-creator/… page is sent on to /pages/ring-builder before it draws,
+  so old ad, email and search links keep opening our own builder. Tracking is carried across there
+  too. An old setting link (ring_stock_num=HL-ENG-5CT-WD-OV) opens the same design, shape and metal
+  in our builder when that design is in the ring-mounts collection; otherwise the builder starts at
+  step 1.
+
+  To close the VDB builder again: unpublish the page /pages/ring-builder-vdb (the front door only
+  works while that page is published).
+  To undo everything: remove the render line in snippets/integrations-head.liquid.
 {%- endcomment -%}
-{%- if request.path contains '/apps/ring-creator' -%}
+{%- if request.path contains '/apps/ring-creator' or page.handle == 'ring-builder-vdb' -%}
 <script>
 (function () {
+  var PASS = 'bjVdbPass', PASS_MS = 2 * 60 * 60 * 1000;
+  var FRONT_DOOR = {% if page.handle == 'ring-builder-vdb' %}true{% else %}false{% endif %};
+  function tracking(q, o) {
+    q.forEach(function (v, k) { if (/^(utm_[a-z]+|gclid|fbclid|msclkid|_kx)$/i.test(k)) o.set(k, v); });
+    return o;
+  }
+  function renew() { try { localStorage.setItem(PASS, String(Date.now() + PASS_MS)); } catch (e) {} }
+
+  if (FRONT_DOOR) {
+    var door = '/apps/ring-creator/rb-get-started';
+    renew();
+    try {
+      var dq = tracking(new URLSearchParams(location.search), new URLSearchParams()).toString();
+      if (dq) door += '?' + dq;
+    } catch (e) {}
+    location.replace(door);
+    return;
+  }
+  if (location.pathname.indexOf('/apps/ring-creator') !== 0) return;
+
+  var until = 0;
+  try { until = +localStorage.getItem(PASS) || 0; } catch (e) {}
+  if (until > Date.now()) { renew(); return; }
+
   var target = '/pages/ring-builder';
   try {
-    var q = new URLSearchParams(location.search), o = new URLSearchParams();
-    q.forEach(function (v, k) { if (/^(utm_[a-z]+|gclid|fbclid|msclkid|_kx)$/i.test(k)) o.set(k, v); });
+    var q = new URLSearchParams(location.search), o = tracking(q, new URLSearchParams());
     var m = (q.get('ring_stock_num') || '').toUpperCase().match(/^(HL|SS|SP|SL|PP|P)-ENG-(\d+(?:\.\d+)?)CT-(WD|YD|RD)-(RD|OV|EM|PEAR|CUSH|PR)$/);
     if (m) {
       var SHAPE = { RD: 'Round', OV: 'Oval', EM: 'Emerald', PEAR: 'Pear', CUSH: 'Cushion', PR: 'Princess' };
