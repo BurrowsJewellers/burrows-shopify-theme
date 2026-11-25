@@ -41,8 +41,8 @@
 </script>
 {%- if quote_only and s.view != 'catalogue' -%}
 <div data-wr-quote-fallback style="max-width:56rem;margin:1rem auto;padding:1rem;text-align:center;">
-  <p>We’ll confirm the price for your design before taking any payment.</p>
-  <a href="mailto:workshop@burrowsjewellers.com.au?subject=Wedding%20ring%20quote%20request">Request a quote</a>
+  <p>Ask us to confirm the price of your design. No payment is required.</p>
+  <a href="mailto:workshop@burrowsjewellers.com.au?subject=Confirm%20Wedding%20Ring%20Pricing">Confirm Pricing</a>
 </div>
 <script>
 (() => {
@@ -65,12 +65,17 @@
     }
   }
   designUrl.hash = '';
-  fallbackMail.searchParams.set('body', 'Hello Burrows Jewellers,\n\nPlease quote this wedding ring for me:\n' + designUrl.href + '\n\nName:\nPhone:\n');
+  fallbackMail.searchParams.set('body', 'Hello Burrows Jewellers,\n\nPlease confirm the price of this wedding ring:\n' + designUrl.href + '\n\nName:\nPhone:\n');
   fallbackLink.href = fallbackMail.href;
 
   function attachQuoteMode() {
     const root = host.shadowRoot;
     if (!root) return false;
+    // Supplier model metadata audit (25 Nov 2026): these codes have exactly
+    // zones 1 and 2 in a single material group, with no stone groups.
+    // Other codes and all mixed-metal designs stay confirmation-only.
+    const estimatedSkus = new Set(["AC","AD","AG","AH","AS","EA","FB","IN1243","AC-Flat","AD-Flat","AG-Flat","AH-Flat","AS-Flat","EA-Flat","AK","AK-Flat"]);
+    const classics = { ab2: 'AB', ac6: 'AC', ad7: 'AD', ag2: 'AG', ah2: 'AH', ak1: 'AK', as2: 'AS', ea: 'EA', fb6: 'FB' };
     const sync = () => {
       const links = [...root.querySelectorAll('a[href^="mailto:workshop@burrowsjewellers.com.au?"]')];
       const enquiry = links.find(link => link.closest('div')?.querySelector(':scope > dl'));
@@ -79,7 +84,22 @@
       if (!enquiry) return;
       const summary = enquiry.parentElement;
       const hide = element => { if (!element.hidden) element.hidden = true; };
-      summary.querySelectorAll(':scope > [aria-live="polite"]').forEach(hide);
+      const fields = new Map([...summary.querySelectorAll('dt')].map(dt => [dt.textContent.trim(), dt.nextElementSibling?.textContent.trim()]));
+      const styleSelect = root.querySelector('select:has(option[value="ac6"])');
+      const id = styleSelect?.value || '';
+      const fit = fields.get('Fit');
+      const profile = fields.get('Profile');
+      const classic = classics[id];
+      const classicFitKnown = fit === 'Standard' || fit === 'Comfit' || profile === 'Flat' || profile === 'Court' || (id === 'fb6' && !fit && !profile);
+      const sku = classic && classicFitKnown
+        ? classic + (fit === 'Standard' || profile === 'Flat' ? '-Flat' : '')
+        : (/^in\d{4}$/.test(id) ? id.toUpperCase() : '');
+      const showEstimate = estimatedSkus.has(sku) && Boolean(fields.get('Metal grade')) && !fields.has('Side grade');
+      for (const price of summary.querySelectorAll(':scope > [aria-live="polite"]')) {
+        if (price.hidden === showEstimate) price.hidden = !showEstimate;
+        const label = price.querySelector('span');
+        if (label?.textContent === 'Supplier RRP') label.textContent = 'Estimated retail price';
+      }
       for (const button of summary.querySelectorAll(':scope > button')) {
         if (/^Pay .* deposit$|^Preparing checkout/.test(button.textContent.trim())) {
           button.disabled = true;
@@ -89,25 +109,25 @@
       for (const p of summary.querySelectorAll(':scope > p')) {
         if (/^Made to order\.|^Select your ring size to purchase$/.test(p.textContent.trim())) hide(p);
       }
-      if (enquiry.textContent.trim() !== 'Request a quote') enquiry.textContent = 'Request a quote';
+      if (enquiry.textContent.trim() !== 'Confirm Pricing') enquiry.textContent = 'Confirm Pricing';
       const mail = new URL(enquiry.href);
       const subject = mail.searchParams.get('subject') || '';
       if (subject.startsWith('Ring enquiry')) {
-        mail.searchParams.set('subject', subject.replace(/^Ring enquiry/, 'Wedding ring quote request'));
+        mail.searchParams.set('subject', subject.replace(/^Ring enquiry/, 'Confirm Wedding Ring Pricing'));
         enquiry.href = mail.href;
       }
       if (!summary.querySelector(':scope > [data-wr-quote-message]')) {
         const message = document.createElement('p');
         message.setAttribute('data-wr-quote-message', '');
         message.className = 'mt-4 text-sm text-muted-foreground';
-        message.textContent = 'We’ll confirm the price for your design before taking any payment.';
+        message.textContent = 'Ask us to confirm the price of your design. No payment is required.';
         enquiry.before(message);
       }
     };
     const style = document.createElement('style');
     style.textContent = '[hidden] { display: none !important; }';
     root.append(style);
-    new MutationObserver(sync).observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['href'] });
+    new MutationObserver(sync).observe(root, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['href'] });
     sync();
     return true;
   }
@@ -136,7 +156,7 @@
   "settings": [
     { "type": "select", "id": "view", "label": "View", "default": "designer", "options": [ { "value": "designer", "label": "Designer" }, { "value": "catalogue", "label": "Catalogue (The Collection)" } ] },
     { "type": "header", "content": "Ordering" },
-    { "type": "checkbox", "id": "quote_only", "label": "Request quotes only", "default": true, "info": "Hide the indicative price and deposit option on the customer builder. Keep the deposit product in Draft to also block purchases through older carts or pages." },
+    { "type": "checkbox", "id": "quote_only", "label": "Request quotes only", "default": true, "info": "Disable deposits and display estimates only for checked configurations. Keep the deposit product in Draft to also block purchases through older carts or pages." },
     { "type": "product", "id": "deposit_product", "label": "Deposit product", "info": "The fixed-price deposit product (Made-to-Order Ring Deposit). Its first variant is added to the cart with the design as line item properties." },
     { "type": "text", "id": "api_base", "label": "Wedding ring API base URL", "default": "https://dashboard.burrowsjewellers.com.au/wedding-ring/api" },
     { "type": "header", "content": "Pages" },
