@@ -28,7 +28,7 @@
     "bf_banner": {
       "type": "custom-liquid",
       "settings": {
-        "liquid": "<a href=\"/collections/all-products\" style=\"display:block\"><picture><source media=\"(max-width: 749px)\" srcset=\"{{ 'bf-banner-mobile.jpg' | asset_url }}\" width=\"1080\" height=\"1350\"><img src=\"{{ 'bf-banner-desktop.jpg' | asset_url }}\" alt=\"Black Friday at Burrows Jewellers: 20% off all stock, Thursday 26 to Monday 30 November. Shop the sale.\" width=\"2400\" height=\"800\" loading=\"eager\" style=\"display:block;width:100%;height:auto\"></picture></a>",
+        "liquid": "<div style=\"background:var(--navy);padding-top:var(--header-total,var(--header-height,110px))\"><a href=\"/collections/all-products\" style=\"display:block\"><picture><source media=\"(max-width: 749px)\" srcset=\"{{ 'bf-banner-mobile.jpg' | asset_url }}\" width=\"1080\" height=\"1350\"><img src=\"{{ 'bf-banner-desktop.jpg' | asset_url }}\" alt=\"Black Friday at Burrows Jewellers: 20% off all stock, Thursday 26 to Monday 30 November. Shop the sale.\" width=\"2400\" height=\"800\" loading=\"eager\" style=\"display:block;width:100%;height:auto\"></picture></a></div>",
         "width": "full",
         "background": "cream",
         "padding": false
@@ -448,8 +448,8 @@
     }
   },
   "order": [
-    "hero",
     "bf_banner",
+    "hero",
     "trust",
     "name_necklace",
     "workshop",
