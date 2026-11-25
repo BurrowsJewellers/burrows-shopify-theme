@@ -17,6 +17,10 @@
 {%- assign api_base = s.api_base | strip | default: 'https://dashboard.burrowsjewellers.com.au/wedding-ring/api' -%}
 {%- assign deposit_variant = s.deposit_product.selected_or_first_available_variant -%}
 {%- assign builder_path = s.builder_path | strip | default: '/pages/wedding-ring-builder' -%}
+{%- assign quote_only = s.quote_only -%}
+{%- if deposit_variant == blank or deposit_variant.available == false -%}
+  {%- assign quote_only = true -%}
+{%- endif -%}
 {%- assign catalogue_path = s.catalogue_path | strip | default: '/pages/wedding-ring-catalogue' -%}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,12 +33,91 @@
   {
     "view": {{ s.view | default: 'designer' | json }},
     "apiBase": {{ api_base | json }},
-    "depositVariantId": {{ deposit_variant.id | default: 0 }},
+    "depositVariantId": {% if quote_only %}0{% else %}{{ deposit_variant.id | default: 0 }}{% endif %},
     "depositAud": {{ deposit_variant.price | default: 20000 | divided_by: 100 }},
     "pageUrl": {{ shop.url | append: builder_path | json }},
     "catalogueUrl": {{ shop.url | append: catalogue_path | json }}
   }
 </script>
+{%- if quote_only and s.view != 'catalogue' -%}
+<div data-wr-quote-fallback style="max-width:56rem;margin:1rem auto;padding:1rem;text-align:center;">
+  <p>We’ll confirm the price for your design before taking any payment.</p>
+  <a href="mailto:workshop@burrowsjewellers.com.au?subject=Wedding%20ring%20quote%20request">Request a quote</a>
+</div>
+<script>
+(() => {
+  const fallback = document.querySelector('[data-wr-quote-fallback]');
+  const host = document.querySelector('[data-wr-app]');
+  if (!fallback || !host) return;
+  const query = new URLSearchParams(window.location.search);
+  if (query.get('staff') === '1') {
+    fallback.hidden = true;
+    return;
+  }
+
+  // Keep an email option even if the customer's browser cannot load the 3D view.
+  const fallbackLink = fallback.querySelector('a');
+  const fallbackMail = new URL(fallbackLink.href);
+  const designUrl = new URL(window.location.href);
+  for (const key of [...designUrl.searchParams.keys()]) {
+    if (!['ring','metal','side','tone','w','t','profile','finish','size','grade','sgrade','stone','ssize'].includes(key)) {
+      designUrl.searchParams.delete(key);
+    }
+  }
+  designUrl.hash = '';
+  fallbackMail.searchParams.set('body', 'Hello Burrows Jewellers,\n\nPlease quote this wedding ring for me:\n' + designUrl.href + '\n\nName:\nPhone:\n');
+  fallbackLink.href = fallbackMail.href;
+
+  function attachQuoteMode() {
+    const root = host.shadowRoot;
+    if (!root) return false;
+    const sync = () => {
+      const links = [...root.querySelectorAll('a[href^="mailto:workshop@burrowsjewellers.com.au?"]')];
+      const enquiry = links.find(link => link.closest('div')?.querySelector(':scope > dl'));
+      // If rendering failed, keep the fallback quote link visible.
+      fallback.hidden = Boolean(enquiry);
+      if (!enquiry) return;
+      const summary = enquiry.parentElement;
+      const hide = element => { if (!element.hidden) element.hidden = true; };
+      summary.querySelectorAll(':scope > [aria-live="polite"]').forEach(hide);
+      for (const button of summary.querySelectorAll(':scope > button')) {
+        if (/^Pay .* deposit$|^Preparing checkout/.test(button.textContent.trim())) {
+          button.disabled = true;
+          hide(button);
+        }
+      }
+      for (const p of summary.querySelectorAll(':scope > p')) {
+        if (/^Made to order\.|^Select your ring size to purchase$/.test(p.textContent.trim())) hide(p);
+      }
+      if (enquiry.textContent.trim() !== 'Request a quote') enquiry.textContent = 'Request a quote';
+      const mail = new URL(enquiry.href);
+      const subject = mail.searchParams.get('subject') || '';
+      if (subject.startsWith('Ring enquiry')) {
+        mail.searchParams.set('subject', subject.replace(/^Ring enquiry/, 'Wedding ring quote request'));
+        enquiry.href = mail.href;
+      }
+      if (!summary.querySelector(':scope > [data-wr-quote-message]')) {
+        const message = document.createElement('p');
+        message.setAttribute('data-wr-quote-message', '');
+        message.className = 'mt-4 text-sm text-muted-foreground';
+        message.textContent = 'We’ll confirm the price for your design before taking any payment.';
+        enquiry.before(message);
+      }
+    };
+    const style = document.createElement('style');
+    style.textContent = '[hidden] { display: none !important; }';
+    root.append(style);
+    new MutationObserver(sync).observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['href'] });
+    sync();
+    return true;
+  }
+  if (!attachQuoteMode()) {
+    const wait = new MutationObserver(() => { if (attachQuoteMode()) wait.disconnect(); });
+    wait.observe(host, { attributes: true, attributeFilter: ['aria-busy'] });
+  }
+})();
+</script>
+{%- endif -%}
 {%- comment -%} The built bundle is 1.5 MB. While a new build waits for a real git push (the GitHub API can't carry it),
     it is served from Shopify Files through the Script URL setting; clear the setting once assets/wedding-ring-builder.js
     is the new build. {%- endcomment -%}
@@ -53,6 +136,7 @@
   "settings": [
     { "type": "select", "id": "view", "label": "View", "default": "designer", "options": [ { "value": "designer", "label": "Designer" }, { "value": "catalogue", "label": "Catalogue (The Collection)" } ] },
     { "type": "header", "content": "Ordering" },
+    { "type": "checkbox", "id": "quote_only", "label": "Request quotes only", "default": true, "info": "Hide the indicative price and deposit option on the customer builder. Keep the deposit product in Draft to also block purchases through older carts or pages." },
     { "type": "product", "id": "deposit_product", "label": "Deposit product", "info": "The fixed-price deposit product (Made-to-Order Ring Deposit). Its first variant is added to the cart with the design as line item properties." },
     { "type": "text", "id": "api_base", "label": "Wedding ring API base URL", "default": "https://dashboard.burrowsjewellers.com.au/wedding-ring/api" },
     { "type": "header", "content": "Pages" },
