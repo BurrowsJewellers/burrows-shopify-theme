@@ -25,6 +25,15 @@
         "btn2_url": ""
       }
     },
+    "bf_banner": {
+      "type": "custom-liquid",
+      "settings": {
+        "liquid": "<a href=\"/collections/all-products\" style=\"display:block\"><picture><source media=\"(max-width: 749px)\" srcset=\"{{ 'bf-banner-mobile.jpg' | asset_url }}\" width=\"1080\" height=\"1350\"><img src=\"{{ 'bf-banner-desktop.jpg' | asset_url }}\" alt=\"Black Friday at Burrows Jewellers: 20% off all stock, Thursday 26 to Monday 30 November. Shop the sale.\" width=\"2400\" height=\"800\" loading=\"eager\" style=\"display:block;width:100%;height:auto\"></picture></a>",
+        "width": "full",
+        "background": "cream",
+        "padding": false
+      }
+    },
     "trust": {
       "type": "trust-bar",
       "blocks": {
@@ -440,6 +449,7 @@
   },
   "order": [
     "hero",
+    "bf_banner",
     "trust",
     "name_necklace",
     "workshop",
